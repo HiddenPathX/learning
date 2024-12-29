@@ -1,0 +1,78 @@
+{
+	"description" : "pixiv id = 7210261\n凑热闹做了一个壁纸~\n下雪天中的miku酱，添加了符合背景的雪花飘落效果Ծ‸ Ծ \n\ncanvas部分的代码是偷懒扒下来的 (\n侵删OAO\n\nv0.2:删除了鼠标的跟踪，因为来回切换会很诡异orz\nv1.0:增加了自定义选项\n——雪花数量\n——雪花降落速度\nv1.01:忘记去掉调试用的点击效果，移除了\nv1.1:增加了自定义选项\n——自定义壁纸（2k4k屏幕的姥爷可以自己设定壁纸了QAQ）\n——还原默认壁纸(如果默认就是选中状态双击一下就会还原了\nv1.2:增加了自定义选项\n——可选粉色粒子，假装是樱花(\nv1.21:降低了默认降落速度\nv1.22:修复了勾上使用默认壁纸失效问题\n——勾上后切换其他壁纸切换回来会使用默认壁纸\n——如果要用其他壁纸请取消掉此选项，否则切换后会失效\nv1.3: 添加了壁纸显示方式\n——可以设置平铺,填充,拉伸了~\nv1.31: 优化代码\n\nps:有时间的话会弄个真_樱花版本，懒癌发作中\nps2:图片名字不要太长或者代奇怪的特殊符号，可能会自定义失效QAQ\nps3:自定义壁纸的姥爷一定记得把还原默认壁纸的勾去掉，默认是勾上的！",
+	"file" : "index.html",
+	"general" : 
+	{
+		"properties" : 
+		{
+			"aNumber" : 
+			{
+				"max" : 1000,
+				"min" : 0,
+				"text" : "雪花数量(越大越多,占用也会变高OAO)",
+				"type" : "slider",
+				"value" : 200
+			},
+			"aSpeed" : 
+			{
+				"max" : 3500,
+				"min" : 500,
+				"text" : "雪花降落速度(越大越慢)",
+				"type" : "slider",
+				"value" : 1500
+			},
+			"custombool" : 
+			{
+				"text" : "使用默认壁纸",
+				"type" : "bool",
+				"value" : true
+			},
+			"customcombo" : 
+			{
+				"options" : 
+				[
+					{
+						"label" : "填充",
+						"value" : "cover"
+					},
+					{
+						"label" : "拉伸",
+						"value" : "contain"
+					},
+					{
+						"label" : "平铺",
+						"value" : "auto"
+					}
+				],
+				"text" : "壁纸显示方式",
+				"type" : "combo",
+				"value" : "cover"
+			},
+			"customimage" : 
+			{
+				"text" : "设置壁纸",
+				"type" : "file"
+			},
+			"custompink" : 
+			{
+				"text" : "使用粉色粒子",
+				"type" : "bool",
+				"value" : false
+			},
+			"schemecolor" : 
+			{
+				"order" : 0,
+				"text" : "ui_browse_properties_scheme_color",
+				"type" : "color",
+				"value" : "0 0 0"
+			}
+		}
+	},
+	"monetization" : false,
+	"preview" : "preview.jpg",
+	"tags" : [ "Anime", "Fantasy" ],
+	"title" : "Miku-可自定义-雪花散落的冬季 v1.31",
+	"type" : "web",
+	"visibility" : "public",
+	"workshopid" : 827982449
+}

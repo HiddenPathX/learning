@@ -1,59 +1,135 @@
-
-<html>
-   <h1>
-   奇思妙想生成器！！！
+<!DOCTYPE HTML>
+<html lang="en">
+  <h1>
+   网站测试
+   网站测试
+   网站测试
+   网站测试
+   网站测试
    </h1>
-<body>
-    <h1>奇思妙想生成器</h1>
-    <p>遇到创作瓶颈？不知道该做什么？这里有一些奇思妙想供你参考！</p>
+<head>
+	<title>雪花</title>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width; initial-scale=1.0; maximum-scale=1.0; user-scalable=0;" />
+	<style type="text/css">
+		body {
+			background-color: #ccc;
+			background: url(images/bg.jpg) repeat;
+			margin: 0px;
+			overflow: hidden;
+			background-size: cover;
+		}
+		
+		div {
+			opacity: 0.8;
+		}
+	</style>
+</head>
 
-    <h2>故事灵感</h2>
-    <ul>
-        <li>一个孤独的宇航员在遥远的星球上发现了一个会说话的植物。</li>
-        <li>一场突如其来的暴雨让城市中心的雕像活了过来。</li>
-        <li>两个素不相识的人意外交换了身体，必须学会适应对方的生活。</li>
-        <li>一个古老的笔记本记录着未来发生的事件。</li>
-        <li>一群动物决定联合起来反抗人类的统治。</li>
-    </ul>
+<body onLoad="init()">
+	<script type="text/javascript" src="js/ThreeCanvas.js"></script>
+	<script type="text/javascript" src="js/Snow.js"></script>
+	<script>
+		var SCREEN_WIDTH = window.innerWidth;
+		var SCREEN_HEIGHT = window.innerHeight;
+		var container, particle, poi, camera, scene, renderer, material, isTime, speed, number, numbers, bgSize, imageElement =
+			document.getElementsByTagName('body')[0];
+		var mouseX = 0;
+		var mouseY = 0;
+		var windowHalfX = window.innerWidth / 2;
+		var windowHalfY = window.innerHeight / 2;
+		var particles = [];
+		var particleImage = new Image();
+		particleImage.src = 'images/ParticleSmoke.png';
 
-    <h2>艺术创作</h2>
-    <ul>
-        <li>用你家里的厨房用具创作一个雕塑。</li>
-        <li>画一幅你梦境的抽象画。</li>
-        <li>用回收材料制作一件可穿戴的艺术品。</li>
-        <li>拍摄一组以“失落”为主题的照片。</li>
-        <li>创作一个结合了自然元素和科技感的数字艺术作品。</li>
-    </ul>
+		window.wallpaperPropertyListener = {
+			applyUserProperties: function (properties) {
+				numbers = number;
+				if (properties.customcombo) {
+					bgSize = properties.customcombo.value;
+					imageElement.style.backgroundSize = bgSize;
+				}
+				if (properties.aSpeed) {
+					speed = properties.aSpeed.value;
+				}
+				if (properties.aNumber) {
+					number = properties.aNumber.value;
+				}
+				if (properties.custombool) {
+					if (properties.custombool.value) {
+						imageElement.style.backgroundImage = 'url(' + 'images/bg.jpg' + ')';
+						properties.customimage.value = "";
+					}
+				}
+				if (properties.customimage) {
+					if (properties.customimage.value) {
+						imageElement.style.backgroundImage = 'url(' + 'file:///' + properties.customimage.value + ')';
+					}
+				}
+				if (properties.custompink) {
+					properties.custompink.value ? particleImage.src = 'images/ParticleSmoke2.png' : particleImage.src =
+						'images/ParticleSmoke.png';
+				}
+				cl();
+			}
+		};
 
-    <h2>项目想法</h2>
-    <ul>
-        <li>开发一个能识别鸟类叫声的手机应用。</li>
-        <li>设计一个自动浇花的智能花盆。</li>
-        <li>制作一个教孩子们编程的互动故事书。</li>
-        <li>创建一个分享本地二手好物的社区平台。</li>
-        <li>搭建一个帮助人们记录感恩瞬间的在线日记。</li>
-    </ul>
 
-    <h2>游戏概念</h2>
-    <ul>
-        <li>一个以时间倒流为核心机制的解谜游戏。</li>
-        <li>一个玩家扮演可爱幽灵的平台跳跃游戏。</li>
-        <li>一个需要玩家通过谈判来解决冲突的策略游戏。</li>
-        <li>一个融合了卡牌收集和城市建设元素的游戏。</li>
-        <li>一个让玩家扮演动物园管理员，但动物会说话的模拟游戏。</li>
-    </ul>
+		function init() {
+			container = document.createElement('div');
+			document.body.appendChild(container);
 
-    <h2>奇奇怪怪</h2>
-    <ul>
-        <li>尝试用脚趾画一幅肖像。</li>
-        <li>发明一种不需要水的洗澡方式。</li>
-        <li>设计一套专门为猫咪设计的迷你家具。</li>
-        <li>写一首关于你最喜欢的交通信号灯的诗。</li>
-        <li>做一个只用表情符号交流的实验。</li>
-    </ul>
+			camera = new THREE.PerspectiveCamera(75, SCREEN_WIDTH / SCREEN_HEIGHT, 1, 10000);
+			camera.position.z = 1000;
 
-    <hr>
-    <p>这只是一个使用 HTML 构建的静态页面，没有动态生成想法的功能。要添加更丰富的功能，需要使用 CSS 进行样式设置，并使用 JavaScript 实现交互。</p>
+			scene = new THREE.Scene();
+			scene.add(camera);
 
+			renderer = new THREE.CanvasRenderer();
+			renderer.setSize(SCREEN_WIDTH, SCREEN_HEIGHT);
+			material = new THREE.ParticleBasicMaterial({
+				map: new THREE.Texture(particleImage)
+			});
+			container.appendChild(renderer.domElement);
+		}
+
+		function loop() {
+			for (var i = 0; i < particles.length; i++) {
+
+				var particle = particles[i];
+				particle.updatePhysics();
+
+				with(particle.position) {
+					if (y < -1000) y += 2000;
+					if (x > 1000) x -= 2000;
+					else if (x < -1000) x += 2000;
+					if (z > 1000) z -= 2000;
+					else if (z < -1000) z += 2000;
+				}
+			}
+			camera.lookAt(scene.position);
+			renderer.clear();
+			renderer.render(scene, camera);
+		}
+
+		function cl() {
+			for (var i = 0; i < numbers; i++) {
+				scene.remove(particles[i])
+			}
+			particles = [];
+			clearInterval(isTime);
+			for (var i = 0; i < number; i++) {
+				particle = new Particle3D(material);
+				particle.position.x = Math.random() * 2000 - 1000;
+				particle.position.y = Math.random() * 2000 - 1000;
+				particle.position.z = Math.random() * 2000 - 1000;
+				particle.scale.x = particle.scale.y = 1;
+				scene.add(particle);
+				particles.push(particle);
+			}
+			isTime = setInterval(loop, speed / 60);
+		}
+	</script>
 </body>
+
 </html>
