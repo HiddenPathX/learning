@@ -13,6 +13,12 @@ const particlesContainer = document.getElementById('particles-container');
 const bgm = document.getElementById('bgm');
 const alarm = document.getElementById('alarm');
 const muteBgmBtn = document.getElementById('muteBgmBtn');
+const nextSongBtn = document.getElementById('nextSongBtn');
+const songs = [
+    'songs/m1.mp3',
+    'songs/m2.mp3'
+];
+let currentSongIndex = 0;
 
 let workTime = 60; // 默认工作时间 60 分钟
 let breakTime = 20; // 默认休息时间 20 分钟
@@ -64,7 +70,7 @@ function startTimer() {
                 bgm.currentTime = 0;
                 alarm.play();
                 coins++;
-                coinsDisplay.textContent = `金币: ${coins}`;
+                coinsDisplay.textContent = `番茄: ${coins}`;
                 updateRewardButton();
 
                 if (isWorking) {
@@ -138,14 +144,14 @@ function updateRewardButton() {
 function claimReward() {
     if (coins >= 2) {
         coins -= 2;
-        coinsDisplay.textContent = `金币: ${coins}`;
+        coinsDisplay.textContent = `番茄: ${coins}`;
         updateRewardButton();
         alert("恭喜你，已被允许玩 1 小时游戏啦！");
         gameTimeActive = true;
         stopTimer(); // 停止番茄钟
         // 这里可以添加一些视觉提示，表明用户进入了奖励时间
     } else {
-        alert("金币不足，无法领取奖励。");
+        alert("你拥有的番茄不足，无法领取奖励。");
     }
 }
 
@@ -195,6 +201,27 @@ function toggleMuteBgm() {
     }
 }
 
+function playNextSong() {
+    console.log("当前歌曲索引:", currentSongIndex);
+    currentSongIndex = (currentSongIndex + 1) % songs.length;
+    console.log("切换到索引:", currentSongIndex);
+    console.log("切换到歌曲:", songs[currentSongIndex]);
+    
+    const wasPlaying = !bgm.paused;
+    bgm.src = songs[currentSongIndex];
+    
+    if (wasPlaying) {
+        bgm.play().catch(error => {
+            console.log("播放失败:", error);
+        });
+    }
+}
+
+// 添加音频加载错误处理
+bgm.addEventListener('error', function(e) {
+    console.log("音频加载错误:", e);
+});
+
 // 事件监听器
 muteBgmBtn.addEventListener('click', toggleMuteBgm);
 startBtn.addEventListener('click', startTimer);
@@ -202,6 +229,7 @@ pauseBtn.addEventListener('click', pauseTimer);
 stopBtn.addEventListener('click', stopTimer);
 applyCustomBtn.addEventListener('click', applyCustomTime);
 rewardBtn.addEventListener('click', claimReward);
+nextSongBtn.addEventListener('click', playNextSong);
 
 // 初始化
 updateDisplay();

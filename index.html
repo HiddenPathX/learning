@@ -54,10 +54,15 @@
         </div>
 
         <div class="controls">
-            <button id="startBtn">启动</button>
-            <button id="pauseBtn" disabled>暂停</button>
-            <button id="stopBtn" disabled>停止</button>
-			<button id="muteBgmBtn">静音</button>
+            <div class="main-controls">
+                <button id="startBtn">启动</button>
+                <button id="pauseBtn" disabled>暂停</button>
+                <button id="stopBtn" disabled>停止</button>
+            </div>
+            <div class="audio-controls">
+                <button id="muteBgmBtn">静音</button>
+                <button id="nextSongBtn">下一首</button>
+            </div>
         </div>
 
         <div class="customization">
@@ -70,7 +75,7 @@
 
         <div class="rewards">
             <span id="coins">番茄: 0</span>
-            <button id="rewardBtn" disabled>奖励 (需要 2 番茄)</button>
+            <button id="rewardBtn" disabled>奖励 (需消耗 2 番茄)</button>
         </div>
 
         <div id="quote" class="hidden"></div>

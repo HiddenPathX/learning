@@ -66,10 +66,22 @@ h1 {
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
 }
 
+.controls {
+    display: flex;
+    flex-direction: column;
+    gap: 15px; /* 控制两行按钮之间的间距 */
+    align-items: center;
+}
+
+.main-controls, .audio-controls {
+    display: flex;
+    gap: 10px; /* 控制同一行按钮之间的间距 */
+}
+
+/* 保持原有的按钮样式不变 */
 .controls button {
     padding: 12px 25px;
     font-size: 1em;
-    margin: 0 10px;
     border: none;
     border-radius: 8px;
     background-color: #3498db;
@@ -92,6 +104,14 @@ h1 {
 
 .controls button#muteBgmBtn:hover {
     background-color: #e67e22;
+}
+
+.controls button#nextSongBtn {
+    background-color: #9b59b6; /* 紫色调 */
+}
+
+.controls button#nextSongBtn:hover {
+    background-color: #8e44ad;
 }
 
 .customization {
