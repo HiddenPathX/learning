@@ -14,6 +14,7 @@ const bgm = document.getElementById('bgm');
 const alarm = document.getElementById('alarm');
 const muteBgmBtn = document.getElementById('muteBgmBtn');
 const nextSongBtn = document.getElementById('nextSongBtn');
+const currentTimeDisplay = document.getElementById('current-time');
 const songs = [
     'songs/m1.mp3',
     'songs/m2.mp3'
@@ -234,3 +235,15 @@ nextSongBtn.addEventListener('click', playNextSong);
 // 初始化
 updateDisplay();
 updateRewardButton();
+
+function updateCurrentTime() {
+    const now = new Date();
+    const hours = String(now.getHours()).padStart(2, '0');
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+    const seconds = String(now.getSeconds()).padStart(2, '0');
+    currentTimeDisplay.textContent = `${hours}:${minutes}:${seconds}`;
+}
+
+// 初始化时间显示并每秒更新
+updateCurrentTime();
+setInterval(updateCurrentTime, 1000);
