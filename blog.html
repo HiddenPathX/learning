@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>使用说明</title>
+    <link rel="stylesheet" href="styles.css">
+   
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            background-color: #f8f9fa;
+            color: #343a40;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        header {
+            background-color: #dc3545; /* 鲜艳的番茄红 */
+            color: white;
+            text-align: center;
+            padding: 2rem 0;
+            width: 100%;
+            margin-bottom: 2rem;
+        }
+
+        header h1 {
+            font-size: 3rem;
+            margin-bottom: 0.5rem;
+        }
+
+        header p {
+            font-size: 1.2rem;
+            font-style: italic;
+            opacity: 0.8;
+        }
+
+        main {
+            width: 80%;
+            max-width: 960px;
+            padding: 2rem;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+            margin-bottom: 2rem;
+        }
+
+        section {
+            margin-bottom: 2rem;
+        }
+
+        section h2 {
+            color: #dc3545;
+            border-bottom: 2px solid #dc3545;
+            padding-bottom: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        section p {
+            line-height: 1.7;
+            color: #495057;
+        }
+
+        section ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        section ul li {
+            margin-bottom: 0.5rem;
+            padding-left: 1.5em;
+            position: relative;
+        }
+
+        section ul li::before {
+            content: '🍅'; /* 小番茄图标 */
+            position: absolute;
+            left: 0;
+        }
+
+        .steps-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+        }
+       
+        .step {
+            background-color: #f8f9fa;
+            border: 1px solid #eee;
+            padding: 1.5rem;
+            border-radius: 6px;
+            text-align: center;
+        }
+
+        .step h3 {
+            color: #fd7e14; /* 醒目的橙色 */
+            margin-bottom: 0.5rem;
+        }
+
+        .step p {
+            font-size: 0.9rem;
+        }
+
+        footer {
+            text-align: center;
+            padding: 1rem 0;
+            color: #6c757d;
+            width: 100%;
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 2.5rem;
+            }
+
+            main {
+                width: 95%;
+                padding: 1.5rem;
+            }
+
+            .steps-container {
+                grid-template-columns: 1fr;
+            }
+        }
+       
+    
+       /* 导航界面 */
+        .navigation {
+            background-color: #333;
+            color: white;
+            padding: 10px 0;
+            text-align: center;
+        }
+        .navigation a {
+            color: white;
+            text-decoration: none;
+            margin: 0 20px;
+        }
+        .navigation a:hover {
+            text-decoration: underline;
+        }
+    </style>
+
+
+</head>
+<body class="blogpage">
+    <nav class="navigation">
+        <a href="index.html">番茄钟</a>
+        <a href="blog.html">使用说明</a>
+    </nav>
+    <!-- <div class="container"> -->
+        <header>
+            <h1>🍅 番茄工作法</h1>
+            <p>一种简单而强大的时间管理方法，助你提升专注力和效率。</p>
+        </header>
+    
+        <main>
+            <section>
+                <h2>什么是番茄工作法？</h2>
+                <p>番茄工作法是一种时间管理方法，由弗朗西斯科·西里洛在 1980 年代后期开发。使用一个定时器将工作分解为间隔为 60 分钟的工作时间，称为“番茄”，中间休息 20 分钟。每四个“番茄”后，进行一次较长的休息（ 通常60 分钟 ）。</p>
+                <p>这个方法的名称来源于西里洛大学时期使用的一个厨房番茄形状的计时器。</p>
+            </section>
+    
+            <section>
+                <h2>为什么选择番茄工作法？</h2>
+                <ul>
+                    <li>更容易开始和保持专注，避免拖延。</li>
+                    <li>将任务分解为小块，减少心理负担。</li>
+                    <li>规律的休息有助于缓解疲劳，保持精力充沛。</li>
+                    <li>帮助更好地规划和预估完成任务所需的时间。</li>
+                    <li>提供数据支持，让你了解自己的工作模式并改进。</li>
+                </ul>
+            </section>
+    
+            <section>
+                <h2>如何使用番茄工作法？</h2>
+                <div class="steps-container">
+                    <div class="step">
+                        <h3>1. 确定任务</h3>
+                        <p>选择你想要完成的任务。</p>
+                    </div>
+                    <div class="step">
+                        <h3>2. 设置番茄钟</h3>
+                        <p>设定一个 60 分钟的定时器。</p>
+                    </div>
+                    <div class="step">
+                        <h3>3. 专注工作</h3>
+                        <p>在定时器结束前专注于任务，避免分心。</p>
+                    </div>
+                    <div class="step">
+                        <h3>4. 短暂休息</h3>
+                        <p>当定时器响起时，休息 20 分钟。</p>
+                    </div>
+                    <div class="step">
+                        <h3>5. 完成一个番茄</h3>
+                        <p>每完成一个番茄，记录下来。</p>
+                    </div>
+                    <div class="step">
+                        <h3>6. 较长休息</h3>
+                        <p>每完成四个番茄，进行 60 分钟的较长休息。</p>
+                    </div>
+                </div>
+            </section>
+    
+            <section>
+                <h2>开始你的高效之旅</h2>
+                <p>番茄工作法简单易行，但贵在坚持。尝试将它融入你的工作和学习中，你会发现它带来的惊喜！</p>
+            </section>
+        </main>
+    
+        <footer>
+            <p>© 2025 番茄工作法 | 专注高效，掌控时间</p>
+        </footer>
+    <!-- </div> -->
+</body>
+</html>
