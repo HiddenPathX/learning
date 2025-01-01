@@ -28,7 +28,9 @@ const STORAGE_KEY = {
     IS_ACTIVE: 'isActive',
     COINS: 'coins',
     IS_PAUSED: 'isPaused',
-    TODO_ITEMS: 'todoItems'  // 新增待办事项存储
+    TODO_ITEMS: 'todoItems',
+    WORK_TIME: 'workTime',     // 新增工作时长存储
+    BREAK_TIME: 'breakTime'    // 新增休息时长存储
 };
 
 let currentSongIndex = 0;
@@ -274,6 +276,20 @@ function stopTimer() {
 
 // 添加初始化函数，在页面加载时检查并恢复状态
 function initializeTimer() {
+    // 恢复保存的工作和休息时长
+    const savedWorkTime = localStorage.getItem(STORAGE_KEY.WORK_TIME);
+    const savedBreakTime = localStorage.getItem(STORAGE_KEY.BREAK_TIME);
+    
+    if (savedWorkTime) {
+        workTime = parseInt(savedWorkTime);
+        workTimeInput.value = workTime;
+    }
+    
+    if (savedBreakTime) {
+        breakTime = parseInt(savedBreakTime);
+        breakTimeInput.value = breakTime;
+    }
+
     // 恢复硬币数
     const savedCoins = localStorage.getItem(STORAGE_KEY.COINS);
     if (savedCoins) {
@@ -338,6 +354,10 @@ function applyCustomTime() {
     timeLeft = workTime * 60;
     updateDisplay();
     stopTimer(); // 应用新设置后停止计时器
+
+    // 保存新的时间设置到 localStorage
+    localStorage.setItem(STORAGE_KEY.WORK_TIME, workTime);
+    localStorage.setItem(STORAGE_KEY.BREAK_TIME, breakTime);
 }
 
 function updateRewardButton() {
