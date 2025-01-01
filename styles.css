@@ -8,16 +8,20 @@
     background-size: cover; /* 关键属性：缩放图片以覆盖整个背景区域 */
     background-position: center; /* 将图片居中 */
     background-repeat: no-repeat; /* 防止图片重复 */
-    height: 100vh; /* 设置 body 高度为视口高度 */
+    background-attachment: fixed; /* 添加这行，使背景图固定 */
+    min-height: 100vh;
 
     /* 下面代码关于框架大小 */
     font-family: sans-serif;
     background-color: #f0f0f0;
     display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
-    overflow: hidden; /* 防止粒子溢出 */
+    flex-direction: row; /* 默认为横向排列 */
+    justify-content: center; /* 水平居中 */
+    align-items: center; /* 垂直居中 */
+    overflow-y: auto;
+    padding-top: 60px;
+    flex-wrap: wrap; /* 允许容器换行 */
+    gap: 20px; /* 添加容器之间的间距 */
 }
    
 
@@ -34,11 +38,11 @@
     top: 0;
     left: 0;
     right: 0;
-    background-color: #aa1313; /* 确保背景颜色覆盖下方内容 */
+    background-color: #aa1313; /* 恢复为原来的红色 */
     color: rgb(255, 255, 255);
     padding: 10px 0;
     text-align: center;
-    z-index: 1000; /* 确保导航栏在其他内容之上 */
+    z-index: 1000;
 }
 .indexhtml_navigation a {
     color: rgb(255, 255, 255);
@@ -87,9 +91,10 @@ h1 {
     text-align: center;
     position: relative;
     overflow: hidden;
-    margin: 15px 30px;
+    margin: 15px;
     width: 100%;
-    max-width: 300px; /* 设置最大宽度为600px，在电脑上不会太宽 */
+    max-width: 400px; /* 调整最大宽度 */
+    flex-shrink: 0; /* 防止容器被压缩 */
 }
 
 /* 粒子容器 */
@@ -358,14 +363,15 @@ h1 {
 /* 添加移动端响应式样式 */
 @media screen and (max-width: 768px) {
     .indexhtml_body {
-        padding-top: 60px; /* 为顶部导航栏留出空间 */
-        flex-direction: column; /* 改为纵向排列 */
-        height: auto; /* 允许页面滚动 */
+        flex-direction: column; /* 在移动端改为纵向排列 */
+        padding-top: 60px;
+        height: auto;
         min-height: 100vh;
+        gap: 10px; /* 减小移动端容器间距 */
     }
 
     .container {
-        max-width: 90%; /* 在移动端使用百分比宽度 */
+        max-width: 90%;
         width: 85%;
         padding: 20px;
         margin: 10px;
