@@ -17,8 +17,8 @@ const nextSongBtn = document.getElementById('nextSongBtn');
 const currentTimeDisplay = document.getElementById('current-time');
 const songs = [
     'songs/m1.mp3',
-    'songs/m2.Mp3',
-    'songs/m3.Mp3'
+    'songs/m2.MP3',
+    'songs/m3.MP3'
 ];
 // localstorage存储
 const STORAGE_KEY = {
