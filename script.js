@@ -17,9 +17,8 @@ const nextSongBtn = document.getElementById('nextSongBtn');
 const currentTimeDisplay = document.getElementById('current-time');
 const songs = [
     'songs/m1.mp3',
-    'songs/m2.mp3',
-    'songs/m3.mp3',
-    
+    'songs/m2.Mp3',
+    'songs/m3.Mp3'
 ];
 // localstorage存储
 const STORAGE_KEY = {
@@ -412,25 +411,14 @@ function toggleMuteBgm() {
 }
 
 function playNextSong() {
-    console.log("当前歌曲索引:", currentSongIndex);
     currentSongIndex = (currentSongIndex + 1) % songs.length;
-    console.log("切换到索引:", currentSongIndex);
-    console.log("切换到歌曲:", songs[currentSongIndex]);
-    
     const wasPlaying = !bgm.paused;
     bgm.src = songs[currentSongIndex];
     
     if (wasPlaying) {
-        bgm.play().catch(error => {
-            console.log("播放失败:", error);
-        });
+        bgm.play();
     }
 }
-
-// 添加音频加载错误处理
-bgm.addEventListener('error', function(e) {
-    console.log("音频加载错误:", e);
-});
 
 // 事件监听器
 muteBgmBtn.addEventListener('click', toggleMuteBgm);
