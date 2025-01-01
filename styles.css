@@ -80,15 +80,16 @@ h1 {
 
 /* 容器框架 */
 .container {
-  
     background-color: #dddddd;
     padding: 40px;
     border-radius: 55px;
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
     text-align: center;
     position: relative;
-    overflow: hidden; /* 防止粒子溢出 */
+    overflow: hidden;
     margin: 15px 30px;
+    width: 100%;
+    max-width: 300px; /* 设置最大宽度为600px，在电脑上不会太宽 */
 }
 
 /* 粒子容器 */
@@ -352,4 +353,103 @@ h1 {
 .todo-item.completed {
     opacity: 0;
     transform: translateX(100%);
+}
+
+/* 添加移动端响应式样式 */
+@media screen and (max-width: 768px) {
+    .indexhtml_body {
+        padding-top: 60px; /* 为顶部导航栏留出空间 */
+        flex-direction: column; /* 改为纵向排列 */
+        height: auto; /* 允许页面滚动 */
+        min-height: 100vh;
+    }
+
+    .container {
+        max-width: 90%; /* 在移动端使用百分比宽度 */
+        width: 85%;
+        padding: 20px;
+        margin: 10px;
+        border-radius: 25px;
+    }
+
+    /* 调整计时器字体大小 */
+    .timer {
+        font-size: 3em;
+    }
+
+    /* 调整输入框和按钮的布局 */
+    .customization input[type="number"] {
+        width: 60px;
+        margin: 5px;
+    }
+
+    /* 调整控制按钮的大小和间距 */
+    .controls button {
+        padding: 8px 15px;
+        font-size: 0.9em;
+    }
+
+    /* 调整待办事项输入框 */
+    .todo-input {
+        flex-direction: column;
+        gap: 5px;
+    }
+
+    .todo-input input {
+        width: 90%;
+        margin: 0 auto;
+    }
+
+    .todo-input button {
+        width: 90%;
+        margin: 0 auto;
+    }
+
+    /* 调整标题大小 */
+    h1 {
+        font-size: 1.8em;
+        margin: 15px 0;
+    }
+
+    /* 调整当前时间显示 */
+    .current-time {
+        font-size: 2em;
+    }
+
+    /* 调整导航栏 */
+    .indexhtml_navigation {
+        padding: 15px 0;
+    }
+
+    /* 调整奖励按钮和显示 */
+    .rewards {
+        margin-top: 20px;
+        font-size: 1em;
+    }
+
+    #rewardBtn {
+        padding: 8px 15px;
+        font-size: 0.9em;
+    }
+}
+
+/* 针对更小屏幕的设备（如 iPhone SE 等） */
+@media screen and (max-width: 375px) {
+    .container {
+        padding: 15px;
+        margin: 8px;
+        width: 90%;
+    }
+
+    .timer {
+        font-size: 2.5em;
+    }
+
+    h1 {
+        font-size: 1.5em;
+    }
+
+    .current-time {
+        font-size: 1.8em;
+    }
 }
