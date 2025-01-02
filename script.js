@@ -391,7 +391,7 @@ function applyCustomTime() {
     const newWorkTime = parseInt(workTimeInput.value);
     const newBreakTime = parseInt(breakTimeInput.value);
 
-    if (isNaN(newWorkTime) || newWorkTime < 0) {
+    if (isNaN(newWorkTime) || newWorkTime < 25) {
         alert("请勿偷懒!工作时长不能少于25分钟！");
         return;
     }
