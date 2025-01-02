@@ -27,16 +27,14 @@
     <!-- 第一个框架 -->
     <div class="container">
         <h1>Time to learn!</h1>
-        
-
-        
-
+       
         <div class="timer">
             <span id="minutes">60</span>:<span id="seconds">00</span>
         </div>
 
         <div class="controls">
             <div class="main-controls">
+                <!-- 通过 id，JavaScript 可以轻松找到并操作特定的 HTML 元素 -->
                 <button id="startBtn">启动</button>
                 <button id="pauseBtn" disabled>暂停</button>
                 <button id="stopBtn" disabled>重置</button>
@@ -67,6 +65,13 @@
     <div class="container">
         <h1>你的档案</h1>
         <div id="current-time" class="current-time"></div>
+        <div class="study-time"></div>
+            <h2>今日学习时长</h2>
+           
+            <div id="study-duration" class="study-duration">0分钟</div>
+            
+        
+
         <h1>待办事项</h1>
         
         <div class="todo-container">

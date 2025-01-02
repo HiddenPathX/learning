@@ -20,6 +20,7 @@ const songs = [
     'songs/m2.mp3',
     'songs/m3.mp3'
 ];
+const studyDurationDisplay = document.getElementById('study-duration');
 // localstorage存储
 const STORAGE_KEY = {
     TIME_LEFT: 'timeLeft',
@@ -30,7 +31,9 @@ const STORAGE_KEY = {
     IS_PAUSED: 'isPaused',
     TODO_ITEMS: 'todoItems',
     WORK_TIME: 'workTime',     // 新增工作时长存储
-    BREAK_TIME: 'breakTime'    // 新增休息时长存储
+    BREAK_TIME: 'breakTime',    // 新增休息时长存储
+    DAILY_STUDY_TIME: 'dailyStudyTime',
+    LAST_STUDY_DATE: 'lastStudyDate'
 };
 
 let currentSongIndex = 0;
@@ -38,7 +41,7 @@ let currentSongIndex = 0;
 let workTime = 60; // 默认工作时间 60 分钟
 let breakTime = 20; // 默认休息时间 20 分钟
 let timeLeft = workTime * 60;
-let timerInterval;
+let timerInterval = null; // 明确表示计时器未运行
 let isWorking = true;
 let isPaused = false;
 let coins = 0;
@@ -147,11 +150,12 @@ function loadTodos() {
 // 在页面加载时初始化待办事项
 document.addEventListener('DOMContentLoaded', loadTodos);
 
+// 定义更新时间显示的函数
 function updateDisplay() {
-    const minutes = Math.floor(timeLeft / 60);
+    const minutes = Math.floor(timeLeft / 60);//timeLeft是剩余的秒数
     const seconds = timeLeft % 60;
-    minutesDisplay.textContent = String(minutes).padStart(2, '0');
-    secondsDisplay.textContent = String(seconds).padStart(2, '0');
+    minutesDisplay.textContent = String(minutes).padStart(2, '0');//将分钟数转换为字符串，并确保长度为2，不足时用0填充
+    secondsDisplay.textContent = String(seconds).padStart(2, '0');//将秒数转换为字符串，并确保长度为2，不足时用0填充
 }
 
 // 替换原来的 beforeunload 事件监听器，添加多个事件来处理页面关闭/隐藏
@@ -179,6 +183,7 @@ window.addEventListener('beforeunload', saveTimerState);
 window.addEventListener('pagehide', saveTimerState);
 
 function startTimer() {
+    // 判断timerInterval是否为null，即未启动，如果是，则往下执行
     if (!timerInterval) {
         isPaused = false;
         startBtn.disabled = true;
@@ -191,45 +196,67 @@ function startTimer() {
         // 清除暂停状态
         localStorage.removeItem(STORAGE_KEY.IS_PAUSED);
         // 保存新的开始时间和状态
+       
+        // 保存计时器的开始时间戳，用于恢复时计算经过的时间
         localStorage.setItem(STORAGE_KEY.START_TIME, Date.now());
+        // 保存当前剩余的时间（秒数），用于恢复计时器状态
         localStorage.setItem(STORAGE_KEY.TIME_LEFT, timeLeft);
+        // 保存当前是工作时间还是休息时间的状态（true为工作时间，false为休息时间）
         localStorage.setItem(STORAGE_KEY.IS_WORKING, isWorking);
+        // 保存计时器是否处于活动状态的标志
         localStorage.setItem(STORAGE_KEY.IS_ACTIVE, 'true');
+        // 保存用户当前累积的番茄币数量
         localStorage.setItem(STORAGE_KEY.COINS, coins);
 
+
+
+        
         timerInterval = setInterval(() => {
             timeLeft--;
             updateDisplay();
-           
-
 
             if (timeLeft <= 0) {
                 clearInterval(timerInterval);
                 timerInterval = null;
                 bgm.pause();
-                bgm.currentTime = 0;
-                alarm.play();
+                bgm.currentTime = 0;//将音频播放位置重置到开始处（0秒位置）
+                alarm.play();//播放闹钟声音
 
-                // 只在工作时间结束时增加番茄
+                // 在工作时间结束时记录学习时长
                 if (isWorking) {
+                    // 更新总学习时长
+                    const currentDailyStudyTime = parseInt(localStorage.getItem(STORAGE_KEY.DAILY_STUDY_TIME) || '0');
+                    const newDailyStudyTime = currentDailyStudyTime + workTime; // 添加整个工作时长
+                    
+                    // 保存新的学习时长
+                    localStorage.setItem(STORAGE_KEY.DAILY_STUDY_TIME, newDailyStudyTime.toString());
+                    
+                    // 更新显示
+                    updateStudyDurationDisplay(newDailyStudyTime);
+
+                    // 增加番茄数
                     coins++;
                     coinsDisplay.textContent = `番茄: ${coins}`;
-                    updateRewardButton();
+                    
+                    updateRewardButton();//更新奖励按钮的状态
                     alert("工作时间结束！开始休息吧！");
                     timeLeft = breakTime * 60;
                     isWorking = false;
-                    startTimer();
+                    startTimer(); // 自动开始休息时间
+
                 } else {
                     alert("休息时间结束！准备开始新的工作！");
                     timeLeft = workTime * 60;
-                    isWorking = true;
-                    updateDisplay();
+                    isWorking = true;//切换为工作状态
+                    
+                    updateDisplay();//在文件中定义的函数，用于更新番茄钟的时间显示。
                     startBtn.disabled = false;
                     pauseBtn.disabled = true;
                     stopBtn.disabled = true;
                 }
             }
         }, 1000);
+        // 每隔 1000 毫秒（即1秒）执行一次箭头内的函数
     }
 }
 
@@ -292,10 +319,13 @@ function initializeTimer() {
 
     // 恢复硬币数
     const savedCoins = localStorage.getItem(STORAGE_KEY.COINS);
-    if (savedCoins) {
-        coins = parseInt(savedCoins);
-        coinsDisplay.textContent = `番茄: ${coins}`;
-    }
+    // 如果存在保存的番茄币数量
+if (savedCoins) {
+    // 将字符串转换为数字并赋值给 coins 变量
+    coins = parseInt(savedCoins);
+    // 更新页面上显示的番茄币数量
+    coinsDisplay.textContent = `番茄: ${coins}`;
+}
 
     // 检查是否有正在进行的计时
     const isActive = localStorage.getItem(STORAGE_KEY.IS_ACTIVE);
@@ -331,14 +361,37 @@ function initializeTimer() {
     }
   
 
+    // 检查并初始化今日学习时长
+    checkAndInitDailyStudyTime();
 }
 
+// 添加检查和初始化每日学习时长的函数
+function checkAndInitDailyStudyTime() {
+    const today = new Date().toDateString();
+    const lastStudyDate = localStorage.getItem(STORAGE_KEY.LAST_STUDY_DATE);
+    
+    if (lastStudyDate !== today) {
+        // 如果是新的一天，重置学习时长
+        localStorage.setItem(STORAGE_KEY.DAILY_STUDY_TIME, '0');
+        localStorage.setItem(STORAGE_KEY.LAST_STUDY_DATE, today);
+    }
+    
+    // 显示保存的学习时长
+    const dailyStudyTime = parseInt(localStorage.getItem(STORAGE_KEY.DAILY_STUDY_TIME) || '0');
+    updateStudyDurationDisplay(dailyStudyTime);
+}
+
+// 添加更新学习时长显示的函数
+function updateStudyDurationDisplay(minutes) {
+    const displayMinutes = Math.max(0, minutes); // 确保显示的是非负数
+    studyDurationDisplay.textContent = `${displayMinutes}分钟`;
+}
 
 function applyCustomTime() {
     const newWorkTime = parseInt(workTimeInput.value);
     const newBreakTime = parseInt(breakTimeInput.value);
 
-    if (isNaN(newWorkTime) || newWorkTime < 25) {
+    if (isNaN(newWorkTime) || newWorkTime < 0) {
         alert("请勿偷懒!工作时长不能少于25分钟！");
         return;
     }
@@ -384,9 +437,10 @@ function claimReward() {
     }
 }
 
+// 显示粒子效果
 function showParticles() {
     particlesContainer.innerHTML = ''; // 清空之前的粒子
-    const numParticles = 100;
+    const numParticles = 150;
 
     for (let i = 0; i < numParticles; i++) {
         const particle = document.createElement('div');
@@ -399,27 +453,29 @@ function showParticles() {
         particle.style.position = 'absolute';
         particle.style.top = `${Math.random() * 100}%`;
         particle.style.left = `${Math.random() * 100}%`;
-        particle.style.animation = `float ${Math.random() * 3 + 2}s linear infinite,
-                                   drift ${Math.random() * 5 + 3}s ease-in-out infinite alternate`;
+        particle.style.animation = `float ${Math.random() * 2 + 1}s linear infinite,
+                                   drift ${Math.random() * 3 + 2}s ease-in-out infinite alternate`;
         particlesContainer.appendChild(particle);
     }
 }
 
+// 隐藏粒子效果
 function hideParticles() {
     particlesContainer.innerHTML = '';
 }
 
+// 显示随机鼓励语句 
 function showRandomQuote() {
     const randomIndex = Math.floor(Math.random() * motivationalQuotes.length);
     quoteDisplay.textContent = motivationalQuotes[randomIndex];
     quoteDisplay.classList.add('show');
 }
-
+// 隐藏随机鼓励语句
 function hideQuote() {
     quoteDisplay.classList.remove('show');
 }
 
-
+// 切换背景音乐静音状态
 function toggleMuteBgm() {
     bgm.muted = !bgm.muted;
     // 可选：更新按钮的文本或图标来指示静音状态
@@ -430,6 +486,7 @@ function toggleMuteBgm() {
     }
 }
 
+// 播放下一首歌曲
 function playNextSong() {
     currentSongIndex = (currentSongIndex + 1) % songs.length;
     const wasPlaying = !bgm.paused;
@@ -441,7 +498,7 @@ function playNextSong() {
 }
 
 // 事件监听器
-muteBgmBtn.addEventListener('click', toggleMuteBgm);
+muteBgmBtn.addEventListener('click', toggleMuteBgm);//当用户点击静音按钮时，调用toggleMuteBgm函数
 startBtn.addEventListener('click', startTimer);
 pauseBtn.addEventListener('click', pauseTimer);
 stopBtn.addEventListener('click', stopTimer);

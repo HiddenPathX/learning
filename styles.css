@@ -267,20 +267,20 @@ h1 {
 /* 浮动动画 */
 @keyframes float {
     0% {
-        transform: translateY(0);
+        transform: translateY(0px);
     }
     100% {
-        transform: translateY(-20px);
+        transform: translateY(-30px);
     }
 }
 
 /* 漂移动画 */  
 @keyframes drift {
     0% {
-        transform: translateX(0);
+        transform: translateX(0px);
     }
     100% {
-        transform: translateX(20px);
+        transform: translateX(30px);
     }
 }
 
@@ -457,5 +457,30 @@ h1 {
 
     .current-time {
         font-size: 1.8em;
+    }
+}
+
+.study-time {
+    margin: 20px 0;
+    text-align: center;
+}
+
+.study-time h2 {
+    color: #333;
+    font-size: 1.5em;
+    margin-bottom: 10px;
+}
+
+.study-duration {
+    font-size: 2em;
+    color: #27ae60; /* 使用绿色显示学习时长 */
+    font-weight: bold;
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* 在移动端响应式部分添加 */
+@media screen and (max-width: 768px) {
+    .study-duration {
+        font-size: 1.5em;
     }
 }
