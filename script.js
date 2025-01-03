@@ -46,8 +46,8 @@ const STORAGE_KEY = {
 
 let currentSongIndex = 0;
 
-let workTime = 60; // 默认工作时间 60 分钟
-let breakTime = 20; // 默认休息时间 20 分钟
+let workTime = 25; // 默认工作时间 25 分钟
+let breakTime = 5; // 默认休息时间 5 分钟
 let timeLeft = workTime * 60;
 let timerInterval = null; // 明确表示计时器未运行
 let isWorking = true;

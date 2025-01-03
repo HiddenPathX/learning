@@ -3,204 +3,241 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>使用说明</title>
+    <title>我的博客</title>
     <link rel="stylesheet" href="styles.css">
-   
     <style>
+        /* 基础样式 */
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             margin: 0;
-            background-color: #f8f9fa;
-            color: #343a40;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+
+    
+
+        /* 主要内容区域，此部分其实是隐形的 */
+        .blog-container {
+            
+
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+            
+        }
+
+        /* 文章分类标签 */
+        .categories {
             display: flex;
-            flex-direction: column;
-            align-items: center;
-            min-height: 100vh;
-        }
+            gap: 1rem;
+            margin-bottom: 2rem;
+            margin-top: 0;
+            flex-wrap: wrap;
 
-        header {
-            background-color: #dc3545; /* 鲜艳的番茄红 */
-            color: white;
-            text-align: center;
-            padding: 2rem 0;
+            justify-content: center;
             width: 100%;
-            margin-bottom: 2rem;
+            padding: 0 2rem;
         }
 
-        header h1 {
-            font-size: 3rem;
-            margin-bottom: 0.5rem;
+        .category-tag {
+            padding: 0.5rem 1rem;
+            background-color: #fff;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 1px solid #ddd;
         }
 
-        header p {
-            font-size: 1.2rem;
-            font-style: italic;
-            opacity: 0.8;
+        .category-tag:hover, .category-tag.active {
+            background-color: #ff6b6b;
+            color: white;
+            border-color: #ff6b6b;
         }
 
-        main {
-            width: 80%;
-            max-width: 960px;
-            padding: 2rem;
-            background-color: white;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
-            margin-bottom: 2rem;
+        /* 文章网格布局 */
+        .articles-grid {
+            display: flex;
+            flex-direction: row;
+            flex-wrap: wrap;
+            gap: 2rem;
+            justify-content: flex-start;
+            padding: 0 2rem;
         }
 
-        section {
-            margin-bottom: 2rem;
+        
+        /* 文章卡片样式 */
+        .article-card {
+            background-color: rgba(221, 221, 221, 0.85);
+            padding: 0px; 
+            border-radius: 55px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);   
+            width: calc(33.33% - 4rem);
+            min-width: 300px;
+            max-width: 400px;
+            margin: 15px;
+            flex-shrink: 0;
+            backdrop-filter: blur(5px);
         }
 
-        section h2 {
-            color: #dc3545;
-            border-bottom: 2px solid #dc3545;
-            padding-bottom: 0.5rem;
-            margin-bottom: 1rem;
+        .article-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.15);
         }
 
-        section p {
-            line-height: 1.7;
-            color: #495057;
+        .article-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
         }
 
-        section ul {
-            list-style: none;
-            padding-left: 0;
-        }
-
-        section ul li {
-            margin-bottom: 0.5rem;
-            padding-left: 1.5em;
-            position: relative;
-        }
-
-        section ul li::before {
-            content: '🍅'; /* 小番茄图标 */
-            position: absolute;
-            left: 0;
-        }
-
-        .steps-container {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 1.5rem;
-        }
-       
-        .step {
-            background-color: #f8f9fa;
-            border: 1px solid #eee;
+        .article-content {
             padding: 1.5rem;
-            border-radius: 6px;
-            text-align: center;
         }
 
-        .step h3 {
-            color: #fd7e14; /* 醒目的橙色 */
-            margin-bottom: 0.5rem;
+        .article-title {
+            margin: 0 0 1rem 0;
+            font-size: 1.25rem;
+            color: #333;
         }
 
-        .step p {
+        .article-excerpt {
+            color: #666;
+            margin-bottom: 1rem;
+            line-height: 1.5;
+        }
+
+        .article-meta {
+            display: flex;
+            justify-content: space-between;
+            color: #888;
             font-size: 0.9rem;
         }
 
-        footer {
-            text-align: center;
-            padding: 1rem 0;
-            color: #6c757d;
-            width: 100%;
+        .article-tag {
+            background-color: #f0f0f0;
+            padding: 0.2rem 0.8rem;
+            border-radius: 12px;
+            font-size: 0.8rem;
         }
+        /* blog.html的body */
+
+        
 
         /* 响应式设计 */
         @media (max-width: 768px) {
-            header h1 {
-                font-size: 2.5rem;
+            .blog-container {
+                padding: 0 1rem;
             }
 
-            main {
-                width: 95%;
-                padding: 1.5rem;
-            }
-
-            .steps-container {
+            .articles-grid {
                 grid-template-columns: 1fr;
             }
         }
-       
-    
 
+        /* 添加文章隐藏的样式 */
+        .article-card.hidden {
+            display: none;
+        }
     </style>
-
-
 </head>
 <body class="bloghtml_body">
-    <nav class="bloghtml_navigation">
+    <nav class="navigation">
         <a href="index.html">番茄钟</a>
-        <a href="blog.html">使用说明</a>
+        <a href="blog.html">理论基础</a>
     </nav>
-    <!-- <div class="container"> -->
-        <header>
-            <h1>🍅 番茄工作法</h1>
-            <p>一种简单而强大的时间管理方法，助你提升专注力和效率。</p>
-        </header>
-    
-        <main>
-            <section>
-                <h2>什么是番茄工作法？</h2>
-                <p>番茄工作法是一种时间管理方法，由弗朗西斯科·西里洛在 1980 年代后期开发。使用一个定时器将工作分解为间隔为 60 分钟的工作时间，称为“番茄”，中间休息 20 分钟。每四个“番茄”后，进行一次较长的休息（ 通常60 分钟 ）。</p>
-                <p>这个方法的名称来源于西里洛大学时期使用的一个厨房番茄形状的计时器。</p>
-            </section>
-    
-            <section>
-                <h2>为什么选择番茄工作法？</h2>
-                <ul>
-                    <li>更容易开始和保持专注，避免拖延。</li>
-                    <li>将任务分解为小块，减少心理负担。</li>
-                    <li>规律的休息有助于缓解疲劳，保持精力充沛。</li>
-                    <li>帮助更好地规划和预估完成任务所需的时间。</li>
-                    <li>提供数据支持，让你了解自己的工作模式并改进。</li>
-                </ul>
-            </section>
-    
-            <section>
-                <h2>如何使用番茄工作法？</h2>
-                <div class="steps-container">
-                    <div class="step">
-                        <h3>1. 确定任务</h3>
-                        <p>选择你想要完成的任务。</p>
-                    </div>
-                    <div class="step">
-                        <h3>2. 设置番茄钟</h3>
-                        <p>设定一个 60 分钟的定时器。</p>
-                    </div>
-                    <div class="step">
-                        <h3>3. 专注工作</h3>
-                        <p>在定时器结束前专注于任务，避免分心。</p>
-                    </div>
-                    <div class="step">
-                        <h3>4. 短暂休息</h3>
-                        <p>当定时器响起时，休息 20 分钟。</p>
-                    </div>
-                    <div class="step">
-                        <h3>5. 完成一个番茄</h3>
-                        <p>每完成一个番茄，记录下来。</p>
-                    </div>
-                    <div class="step">
-                        <h3>6. 较长休息</h3>
-                        <p>每完成四个番茄，进行 60 分钟的较长休息。</p>
+
+    <div class="blog-container">
+        <!-- 文章分类标签 -->
+        <div class="categories">
+            <span class="category-tag active">全部</span>
+            <span class="category-tag">时间管理</span>
+            <span class="category-tag">学习方法</span>
+            <span class="category-tag">效率提升</span>
+            <span class="category-tag">生活感悟</span>
+        </div>
+
+        <!-- 文章网格 -->
+        <div class="articles-grid">
+            <!-- 文章卡片1 -->
+            <a href="articles/tomato-technique.html" class="article-card">
+                <img src="images/ap1.png" alt="文章配图" class="article-image">
+                <div class="article-content">
+                    <h2 class="article-title">番茄工作法：25分钟改变你的工作方式</h2>
+                    <p class="article-excerpt">探索如何通过番茄工作法提高工作效率，让时间管理更加科学有效...</p>
+                    <div class="article-meta">
+                        <span class="article-tag">时间管理</span>
+                        <span class="article-date">2024-03-20</span>
                     </div>
                 </div>
-            </section>
-    
-            <section>
-                <h2>开始你的高效之旅</h2>
-                <p>番茄工作法简单易行，但贵在坚持。尝试将它融入你的工作和学习中，你会发现它带来的惊喜！</p>
-            </section>
-        </main>
-    
-        <footer>
-            <p>© 2025 番茄工作法 | 专注高效，掌控时间</p>
-        </footer>
-    <!-- </div> -->
+            </a>
+
+            <!-- 文章卡片2 -->
+            <a href="articles/learning-habits.html" class="article-card">
+                <img src="https://picsum.photos/600/402" alt="文章配图" class="article-image">
+                <div class="article-content">
+                    <h2 class="article-title">高效学习的5个关键习惯</h2>
+                    <p class="article-excerpt">养成这些学习习惯，让你的学习效率翻倍，成为学习高手...</p>
+                    <div class="article-meta">
+                        <span class="article-tag">学习方法</span>
+                        <span class="article-date">2024-03-18</span>
+                    </div>
+                </div>
+            </a>
+
+            <!-- 文章卡片3 -->
+            <a href="articles/overcoming-procrastination.html" class="article-card">
+                <img src="https://picsum.photos/600/402" alt="文章配图" class="article-image">
+                <div class="article-content">
+                    <h2 class="article-title">如何克服拖延症？</h2>
+                    <p class="article-excerpt">深入分析拖延的原因，并提供实用的解决方案，帮助你告别拖延...</p>
+                    <div class="article-meta">
+                        <span class="article-tag">效率提升</span>
+                        <span class="article-date">2024-03-15</span>
+                    </div>
+                </div>
+            </a>
+
+            <!-- 文章卡片4 -->
+            <a href="articles/morning-ritual.html" class="article-card">
+                <img src="https://picsum.photos/600/403" alt="文章配图" class="article-image">
+                <div class="article-content">
+                    <h2 class="article-title">每天15分钟，建立晨间仪式</h2>
+                    <p class="article-excerpt">如何通过简单的晨间仪式，让每一天都充满能量和期待...</p>
+                    <div class="article-meta">
+                        <span class="article-tag">生活感悟</span>
+                        <span class="article-date">2024-03-12</span>
+                    </div>
+                </div>
+            </a>
+        </div>
+    </div>
+
+    <script>
+        // 获取所有分类标签和文章卡片
+        const categoryTags = document.querySelectorAll('.category-tag');
+        const articleCards = document.querySelectorAll('.article-card');
+
+        // 为每个分类标签添加点击事件
+        categoryTags.forEach(tag => {
+            tag.addEventListener('click', () => {
+                // 移除所有标签的 active 类
+                categoryTags.forEach(t => t.classList.remove('active'));
+                // 为当前点击的标签添加 active 类
+                tag.classList.add('active');
+
+                const category = tag.textContent.trim();
+
+                // 筛选文章
+                articleCards.forEach(card => {
+                    const cardCategory = card.querySelector('.article-tag').textContent.trim();
+                    if (category === '全部' || category === cardCategory) {
+                        card.classList.remove('hidden');
+                    } else {
+                        card.classList.add('hidden');
+                    }
+                });
+            });
+        });
+    </script>
 </body>
 </html>

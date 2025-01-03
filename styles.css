@@ -1,6 +1,25 @@
-/* indexhtml的body */
+/* CSS一般只写入统一规定的格式 */
 
-.indexhtml_body {
+.bloghtml_body {
+    background-color: #f5f5f5;
+    padding-top: 60px;
+    /* 添加背景图片相关属性 */
+    background-image: url('https://t.mwm.moe/pc');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    
+    display: flex;
+    flex-direction: column;  /* 文章页面使用纵向排列 */
+    align-items: center;     /* 水平居中 */
+    min-height: 100vh;       /* 确保最小高度占满视口 */
+    margin: 0;              /* 重置默认边距 */
+}
+
+/* 修改 indexhtml_body 的样式 */
+.html_body {
+    /* 保持原有属性 */
     margin: 0;
     padding: 0;
     min-height: 100vh;
@@ -8,97 +27,81 @@
     display: flex;
     flex-direction: row;
     justify-content: center;
-    align-items: center;
+    align-items: center; 
     overflow-y: auto;
     padding-top: 60px;
     flex-wrap: wrap;
     gap: 20px;
     position: relative;
+    /* 添加背景图片相关属性 */
+    background-image: url('https://t.mwm.moe/pc');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
 }
 
-/* 添加视频背景样式 */
-.video-background {
-    position: fixed;
-    right: 0;
-    bottom: 0;
-    min-width: 100%;
-    min-height: 100%;
-    width: auto;
-    height: auto;
-    z-index: -1;
-    object-fit: cover;
-}
-
-/* blog.html的body */
-
-.bloghtml_body {
-    background-color: #d0d0d0; /* 例如，博客页背景色不同 */
-}
-
-
-/* 导航框架 */
-.indexhtml_navigation {
+/* 统一导航框架 */
+.navigation {
     position: fixed;
     top: 0;
     left: 0;
     right: 0;
-    background-color: #aa1313; /* 恢复为原来的红色 */
+    background-color: rgba(170, 19, 19, 0.9);  /* 添加透明度 */
     color: rgb(255, 255, 255);
     padding: 10px 0;
     text-align: center;
     z-index: 1000;
+    backdrop-filter: blur(5px);  /* 添加毛玻璃效果 */
 }
-.indexhtml_navigation a {
+.navigation a {
     color: rgb(255, 255, 255);
     text-decoration: none;
     margin: 0 20px;
 }
-.indexhtml_navigation a:hover {
+.navigation a:hover {
     text-decoration: underline;
 }
 
-/* 导航框架 - blog.html */
-.bloghtml_navigation {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    background-color: #2b2020; /* 确保背景颜色覆盖下方内容 */
-    color: rgb(255, 255, 255);
-    padding: 10px 0;
-    text-align: center;
-    z-index: 1000; /* 确保导航栏在其他内容之上 */
-}
-.bloghtml_navigation a {
-    color: rgb(255, 255, 255);
-    text-decoration: none;
-    margin: 0 20px;
-}
-.bloghtml_navigation a:hover {
-    text-decoration: underline;
-}
 
-/* 标题 */
-h1 {
-    color: #333;
-    margin: 20px 0;
-    font-size: 2.5em;
-    line-height: 1;
-}
+
+
 
 /* 容器框架 */
 .container {
-    background-color: #dddddd;
+    background-color: rgba(221, 221, 221, 0.85);  /* 添加透明度 */
     padding: 40px;
     border-radius: 55px;
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
     text-align: center;
     position: relative;
     overflow: hidden;
     margin: 15px;
     width: 100%;
-    max-width: 400px; /* 调整最大宽度 */
-    flex-shrink: 0; /* 防止容器被压缩 */
+    max-width: 400px;
+    flex-shrink: 0;
+    backdrop-filter: blur(5px);  /* 添加毛玻璃效果 */
+
+  
+}
+
+
+
+/* 计时器 */
+.timer {
+    font-size: 4em;
+    margin-bottom: 20px;
+    color: #4aa3db;  /* 调亮计时器颜色 */
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* 当前时间 */  
+.current-time {
+    font-size: 2.5em;
+    color: #e74c3c;
+    margin: 20px 0;
+    font-weight: bold;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 /* 粒子容器 */
@@ -111,158 +114,7 @@ h1 {
     pointer-events: none; /* 允许点击穿透粒子层 */
 }
 
-/* 计时器 */
-.timer {
-    font-size: 4em;
-    margin-bottom: 20px;
-    color: #3498db;
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-/* 控制按钮 */
-.controls {
-    display: flex;
-    flex-direction: column;
-    gap: 15px; /* 控制两行按钮之间的间距 */
-    align-items: center;
-}
-
-/* 主控制按钮和音频控制按钮 */
-.main-controls, .audio-controls {
-    display: flex;
-    gap: 10px; /* 控制同一行按钮之间的间距 */
-}
-
-/* 按钮样式 */
-.controls button {
-    padding: 12px 25px;
-    font-size: 1em;
-    border: none;
-    border-radius: 8px;
-    background-color: #3498db;
-    color: white;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-}
-
-/* 按钮悬停效果 */
-.controls button:hover {
-    background-color: #2980b9;
-}
-
-/* 按钮禁用效果 */
-.controls button:disabled {
-    background-color: #ccc;
-    cursor: not-allowed;
-}
-
-/* 静音按钮样式 */
-.controls button#muteBgmBtn {
-    background-color: #f39c12; /* 可以选择一个不同的颜色 */
-}
-
-/* 静音按钮悬停效果 */
-.controls button#muteBgmBtn:hover {
-    background-color: #e67e22;
-}
-
-/* 下一首按钮样式 */
-.controls button#nextSongBtn {
-    background-color: #9b59b6; /* 紫色调 */
-}
-
-/* 下一首按钮悬停效果 */
-.controls button#nextSongBtn:hover {
-    background-color: #8e44ad;
-}
-
-/* 自定义设置 */
-.customization {
-    margin-top: 20px;
-}
-
-/* 自定义设置标签 */    
-.customization label {
-    display: block;
-    margin-bottom: 5px;
-    color: #555;
-}
-
-/* 自定义设置输入框 */
-.customization input[type="number"] {
-    padding: 10px;
-    border-radius: 5px;
-    border: 1px solid #ddd;
-    width: 80px;
-    margin-right: 10px;
-}
-
-/* 自定义设置按钮 */
-.customization button {
-    padding: 10px 20px;
-    border: none;
-    border-radius: 5px;
-    background-color: #2ecc71;
-    color: white;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-}
-
-/* 自定义设置按钮悬停效果 */    
-.customization button:hover {
-    background-color: #27ae60;
-}
-
-/* 奖励 */  
-.rewards {
-    margin-top: 30px;
-    font-size: 1.2em;
-    color: #f39c12;
-}
-
-/* 奖励图标 */
-#coins {
-    margin-right: 15px;
-}
-
-/* 奖励按钮 */
-#rewardBtn {
-    padding: 10px 20px;
-    border: none;
-    border-radius: 5px;
-    background-color: #e67e22;
-    color: white;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-}
-
-/* 奖励按钮悬停效果 */
-#rewardBtn:hover {
-    background-color: #d35400;
-}
-
-/* 奖励按钮禁用效果 */
-#rewardBtn:disabled {
-    background-color: #ccc;
-    cursor: not-allowed;
-}
-
-/* 引用 */
-#quote {
-    margin-top: 30px;
-    font-style: italic;
-    color: #777;
-    opacity: 0;
-    transition: opacity 0.5s ease;
-    font-size: 1.5em;
-}
-
-/* 引用显示 */
-#quote.show {
-    opacity: 1;
-}
-
-/* 粒子 */
+/* 粒子，写在js显示在html */
 .particle {
     border-radius: 50%;
     pointer-events: none;
@@ -288,14 +140,8 @@ h1 {
     }
 }
 
-/* 当前时间 */  
-.current-time {
-    font-size: 2.5em;
-    color: #e74c3c; /* 醒目的红色 */
-    margin: 20px 0;
-    font-weight: bold;
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
-}
+
+
 
 .todo-container {
     margin: 10px 0;
@@ -441,6 +287,9 @@ h1 {
         padding: 8px 15px;
         font-size: 0.9em;
     }
+    .study-duration {
+        font-size: 1.5em;
+    }
 }
 
 /* 针对更小屏幕的设备（如 iPhone SE 等） */
@@ -482,24 +331,60 @@ h1 {
     text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.1);
 }
 
-/* 在移动端响应式部分添加 */
-@media screen and (max-width: 768px) {
-    .study-duration {
-        font-size: 1.5em;
-    }
-}
-/* 音乐名称显示样式 */
-.current-song {
-    margin: 10px 0 5px 0;
-    font-size: 1.1em;
-    color: #3498db;
-    font-style: italic;
-    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
-    opacity: 0;
-    transition: opacity 0.3s ease;
+
+
+
+/* 文章页面样式 */
+.article-container {
+    background-color: rgba(221, 221, 221, 0.85);
+    padding: 40px;
+    text-align: center;
+    border-radius: 55px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);   
+    margin: 15px auto;
+    width: 80%;
+    max-width: 800px;
+    flex-shrink: 0;
+    backdrop-filter: blur(5px);
+    
 }
 
-.current-song.show {
-    opacity: 1;
+.article-header {
+    margin-bottom: 2rem;
 }
+
+.article-title {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+}
+
+.article-meta {
+    
+    color: #666;
+    margin-bottom: 2rem;
+}
+
+.article-content {
+    
+    font-size: 1.1rem;
+}
+
+.article-content h2 {
+    margin-top: 2rem;
+    color: #333;
+}
+
+.article-content p {
+    margin-bottom: 1.5rem;
+    line-height: 1.6;
+}
+
+.article-image {
+    width: 100%;
+    max-height: 400px;
+    object-fit: cover;
+    border-radius: 55px 55px 0 0;  /* 只设置上方两个角的圆角 */
+    margin: 0rem 0;
+}
+
 
