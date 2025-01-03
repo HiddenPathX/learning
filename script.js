@@ -15,7 +15,6 @@ const alarm = document.getElementById('alarm');
 const muteBgmBtn = document.getElementById('muteBgmBtn');
 const nextSongBtn = document.getElementById('nextSongBtn');
 const currentTimeDisplay = document.getElementById('current-time');
-const taskModal = document.getElementById('taskModal');
 const songs = [
     'songs/m1.mp3',
     'songs/m2.mp3',
@@ -27,8 +26,9 @@ const songNames = [
     '🎹 雷雨中的避难所',
     
 ];
-const studyDurationDisplay = document.getElementById('study-duration');
+
 const currentSongDisplay = document.getElementById('current-song');
+const studyDurationDisplay = document.getElementById('study-duration');
 // localstorage存储
 const STORAGE_KEY = {
     TIME_LEFT: 'timeLeft',
@@ -200,6 +200,7 @@ function startTimer() {
         bgm.play();
         showParticles();
         showRandomQuote();
+
         // 显示音乐名称
         currentSongDisplay.textContent = `VIBE: ${songNames[currentSongIndex]}`;
         currentSongDisplay.classList.add('show');
@@ -280,6 +281,7 @@ function pauseTimer() {
         pauseBtn.disabled = true;
         bgm.pause();
         hideParticles();
+
         // 隐藏音乐名称
         currentSongDisplay.classList.remove('show');
 
@@ -305,9 +307,10 @@ function stopTimer() {
     bgm.currentTime = 0;
     hideParticles();
     hideQuote();
+
     // 隐藏音乐名称
     currentSongDisplay.classList.remove('show');
-
+    
     // 清除存储的状态
     localStorage.removeItem(STORAGE_KEY.START_TIME);
     localStorage.removeItem(STORAGE_KEY.TIME_LEFT);
@@ -507,12 +510,12 @@ function playNextSong() {
     const wasPlaying = !bgm.paused;
     bgm.src = songs[currentSongIndex];
     
-    // 只在计时器运行时更新并显示音乐名称
+
+    // 显示音乐名称// 只在计时器运行时更新并显示音乐名称
     if (timerInterval) {
         currentSongDisplay.textContent = `VIBE: ${songNames[currentSongIndex]}`;
         currentSongDisplay.classList.add('show');
     }
-    
     if (wasPlaying) {
         bgm.play();
     }
@@ -526,7 +529,6 @@ stopBtn.addEventListener('click', stopTimer);
 applyCustomBtn.addEventListener('click', applyCustomTime);
 rewardBtn.addEventListener('click', claimReward);
 nextSongBtn.addEventListener('click', playNextSong);
-taskModal.addEventListener('click', toggleTaskModal);
 
 // 初始化
 updateDisplay();
@@ -552,10 +554,3 @@ todoInput.addEventListener('keypress', (e) => {
         addTodo();
     }
 });
-
-// 在初始化时设置初始音乐名称
-document.addEventListener('DOMContentLoaded', () => {
-    // 移除默认显示音乐名称的代码
-    // 保留其他可能需要的初始化代码
-});
-
