@@ -615,10 +615,10 @@ async function sendToAI(message) {
                 'Authorization': `Bearer ${API_KEY}`
             },
             body: JSON.stringify({
-                model: "deepseek-chat",  // 使用 DeepSeek 最新模型
+                model: "deepseek-chat",
                 messages: messages,
                 temperature: 0.7,
-                max_tokens: 2000
+                max_tokens: 4000
             })
         });
 
@@ -712,13 +712,75 @@ function addMessage(content, isUser) {
     chatMessages.scrollTop = chatMessages.scrollHeight;
 }
 
-// 处理发送消息
+// 添加一个变量来存储上传的文件内容
+let uploadedFileContent = null;
+
+// 修改文件处理相关代码
+const fileInput = document.getElementById('file-input');
+const uploadButton = document.getElementById('upload-button');
+
+// 点击上传按钮时触发文件选择
+uploadButton.addEventListener('click', () => {
+    fileInput.click();
+});
+
+// 修改文件处理代码
+fileInput.addEventListener('change', async function(e) {
+    const files = Array.from(e.target.files);
+    if (files.length === 0) return;
+
+    try {
+        const file = files[0]; // 暂时只处理单个文件
+        
+        // 创建文件预览
+        const preview = document.createElement('div');
+        preview.className = 'file-preview';
+        
+        if (file.type.startsWith('image/')) {
+            // 处理图片文件
+            const img = document.createElement('img');
+            img.src = URL.createObjectURL(file);
+            preview.appendChild(img);
+            uploadedFileContent = '[图片文件]';
+        } else {
+            // 处理文本文件
+            const text = await file.text();
+            preview.textContent = text;
+            uploadedFileContent = text;
+        }
+
+        // 清除之前的预览
+        const oldPreview = document.querySelector('.file-preview');
+        if (oldPreview) {
+            oldPreview.remove();
+        }
+
+        // 将预览添加到输入框上方
+        const chatInput = document.querySelector('.chat-input');
+        chatInput.insertBefore(preview, chatInput.querySelector('.input-container'));
+
+    } catch (error) {
+        console.error('Error processing file:', error);
+        alert('处理文件时出现错误');
+    }
+
+    // 清除文件输入，允许重复上传相同文件
+    fileInput.value = '';
+});
+
+// 修改发送消息的处理函数
 async function handleSend() {
     const message = userInput.value.trim();
-    if (!message) return;
+    if (!message && !uploadedFileContent) return;
+
+    // 构建完整消息
+    let fullMessage = message;
+    if (uploadedFileContent) {
+        fullMessage = `${message}\n\n文件内容：\n${uploadedFileContent}`;
+    }
 
     // 添加用户消息
-    addMessage(message, true);
+    addMessage(fullMessage, true);
     userInput.value = '';
 
     // 显示等待状态
@@ -726,12 +788,19 @@ async function handleSend() {
     sendButton.textContent = '我在思考...';
 
     // 获取 AI 响应
-    const response = await sendToAI(message);
+    const response = await sendToAI(fullMessage);
     addMessage(response, false);
 
     // 恢复按钮状态
     sendButton.disabled = false;
     sendButton.textContent = '发送';
+
+    // 清除文件预览和内容
+    const preview = document.querySelector('.file-preview');
+    if (preview) {
+        preview.remove();
+    }
+    uploadedFileContent = null;
 }
 
 // 添加事件监听器

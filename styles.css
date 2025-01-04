@@ -501,7 +501,15 @@
 
 .chat-input {
     display: flex;
+    flex-direction: column;  /* 改为纵向排列 */
     gap: 0.5rem;
+}
+
+/* 输入框和按钮的容器 */
+.input-container {
+    display: flex;
+    gap: 0.5rem;
+    align-items: flex-start;
 }
 
 .chat-input textarea {
@@ -511,9 +519,11 @@
     border-radius: 8px;
     resize: none;
     background: rgba(255, 255, 255, 0.9);
+    width: 100%;  /* 让输入框占满容器宽度 */
 }
 
-.chat-input button {
+/* 发送按钮样式 */
+.chat-input #send-button {
     padding: 0.8rem 1.5rem;
     background: #e74c3c;
     color: white;
@@ -523,7 +533,7 @@
     transition: background 0.3s;
 }
 
-.chat-input button:hover {
+.chat-input #send-button:hover {
     background: #c0392b;
 }
 
@@ -581,6 +591,63 @@
 .ai-message .math-block {
     overflow-x: auto;
     padding: 0.5em 0;
+}
+
+/* 文件预览区域样式 */
+.file-preview {
+    width: 100%;
+    margin-bottom: 10px;
+    padding: 10px;
+    background: rgba(255, 255, 255, 0.8);
+    border-radius: 6px;
+    font-family: monospace;
+    white-space: pre-wrap;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.file-preview img {
+    max-width: 100%;
+    max-height: 200px;
+    border-radius: 4px;
+}
+
+/* 上传按钮样式 */
+.upload-button {
+    padding: 0.8rem;
+    padding-left: 1.2rem;
+    padding-right: 1.2rem;
+    background: #2ecc71;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.upload-button:hover {
+    background: #27ae60;
+}
+
+/* 添加按钮组样式 */
+.button-group {
+    display: flex;
+    gap: 0.5rem;
+}
+
+/* 发送按钮样式 */
+#send-button {
+    padding: 0.8rem 1.5rem;
+    background: #e74c3c;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+#send-button:hover {
+    background: #c0392b;
 }
 
 

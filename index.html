@@ -276,8 +276,14 @@ h1,
         <div class="chat-container">
             <div id="chat-messages" class="chat-messages"></div>
             <div class="chat-input">
-                <textarea id="user-input" placeholder="有什么可以帮你的吗..." rows="3"></textarea>
-                <button id="send-button">发送</button>
+                <div class="input-container">
+                    <textarea id="user-input" placeholder="有什么可以帮你的吗..." rows="3"></textarea>
+                    <div class="button-group">
+                        <input type="file" id="file-input" multiple style="display: none;">
+                        <button id="upload-button" class="upload-button">上传</button>
+                        <button id="send-button">发送</button>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
