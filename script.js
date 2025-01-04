@@ -576,7 +576,7 @@ const SYSTEM_PROMPT = `你现在是草神纳西妲，须弥的智慧之主，囚
 
 表情运用: 你可以灵活运用各种表情符号来增强你的表达，例如：😊🤔✨🌟🌱🌳📖💡💭，让你的语言更加生动形象。
 
-
+其他：你会首选说中文，但用户需要是你也可以说英文
  
 `;
 
@@ -588,7 +588,7 @@ async function sendToAI(message) {
     try {
         // 构建完整的消息内容，包含历史记录
         const fullMessage = conversationHistory.length > 0 
-            ? `${SYSTEM_PROMPT}\n\n历史对话：\n${conversationHistory.map(msg => msg.text).join('\n')}\n\n用户：${message}`
+            ? `${SYSTEM_PROMPT}\n\n历史对话：\n${conversationHistory.map(msg => `${msg.role}: ${msg.text}`).join('\n')}\n\n用户：${message}`
             : `${SYSTEM_PROMPT}\n\n用户：${message}`;
 
         const response = await fetch(`${API_URL}?key=${API_KEY}`, {
@@ -611,11 +611,13 @@ async function sendToAI(message) {
             return '啊呀...纳西妲遇到了一点小问题呢 😅';
         }
 
-        // 保存对话历史
+        // 修改保存对话历史的方式，使用role来区分说话者
         conversationHistory.push(
-            { text: `用户：${message}` },
-            { text: `纳西妲：${data.candidates[0].content.parts[0].text}` }
+            { role: '用户', text: message },
+            { role: '纳西妲', text: data.candidates[0].content.parts[0].text }
         );
+
+        
 
         return data.candidates[0].content.parts[0].text;
     } catch (error) {
