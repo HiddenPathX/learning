@@ -212,7 +212,7 @@ h1,
 <!-- indexhtml专用body -->
 <body class="html_body">
     <!-- 可拖动的图片 -->
-    <img src="./images/ys.png" alt="纳西妲" class="draggable-image" style="position: fixed; right: 20px; top: 50px; height: 40vh; cursor: move;">
+    <img src="./images/ys.png" alt="雅兰" class="draggable-image" style="position: fixed; right: 20px; top: 50px; height: 90vh; cursor: move;">
     
     <!-- 导航 -->   
     <nav class="navigation">
@@ -240,6 +240,10 @@ h1,
             </div>
             <div class="audio-controls">
                 <button id="muteBgmBtn">静音</button>
+                <div class="volume-control">
+                    <input type="range" id="volumeSlider" min="0" max="100" value="50">
+                    <span id="volumeValue">50%</span>
+                </div>
                 <button id="nextSongBtn">下一首</button>
             </div>
         </div>
@@ -272,7 +276,7 @@ h1,
 
     <!-- 第二个框架 -->
     <div class="container2">
-        <h2>纳西妲</h2>
+        <h2>雅兰</h2>
         <div class="chat-container">
             <div id="chat-messages" class="chat-messages"></div>
             <div class="chat-input">

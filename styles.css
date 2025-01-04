@@ -34,7 +34,7 @@
     gap: 20px;
     position: relative;
     /* 添加背景图片相关属性 */
-    background-image: url('https://t.mwm.moe/pc');
+    background-image: url('images/p1.png');
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
@@ -522,7 +522,7 @@
     width: 100%;  /* 让输入框占满容器宽度 */
 }
 
-/* 发送按钮样式 */
+/* 聊天输入区域的发送按钮样式 */
 .chat-input #send-button {
     padding: 0.8rem 1.5rem;
     background: #e74c3c;
@@ -530,7 +530,7 @@
     border: none;
     border-radius: 8px;
     cursor: pointer;
-    transition: background 0.3s;
+    transition: background 0.3s; 
 }
 
 .chat-input #send-button:hover {
@@ -622,7 +622,7 @@
     border: none;
     border-radius: 8px;
     cursor: pointer;
-    transition: background 0.3s;
+    transition: background 0.3s; 
 }
 
 .upload-button:hover {
@@ -635,19 +635,75 @@
     gap: 0.5rem;
 }
 
-/* 发送按钮样式 */
-#send-button {
-    padding: 0.8rem 1.5rem;
-    background: #e74c3c;
-    color: white;
-    border: none;
-    border-radius: 8px;
+/* 修改音量控制样式 */
+.volume-control {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    height: 100%;  /* 确保与按钮等高 */
+}
+
+/* 自定义滑块样式 */
+#volumeSlider {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    width: 100px;
+    height: 5px;
+    border-radius: 5px;
+    background: #d3d3d3;
+    outline: none;
+    margin: 0;  /* 移除默认边距 */
+    vertical-align: middle;  /* 垂直居中对齐 */
+}
+
+#volumeSlider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+    background: #f39c12;
     cursor: pointer;
-    transition: background 0.3s;
+    transition: background 0.3s; 
 }
 
-#send-button:hover {
-    background: #c0392b;
+#volumeSlider::-webkit-slider-thumb:hover {
+    background: #e67e22;
 }
 
+#volumeValue {
+    min-width: 45px;
+    color: #333;
+    font-size: 0.9em;
+    display: inline-block;  /* 确保宽度一致 */
+    text-align: center;     /* 文字居中 */
+}
+
+/* 添加音频控制按钮组样式 */
+.audio-controls {
+    display: flex;
+    align-items: center;  /* 垂直居中对齐 */
+    gap: 10px;
+    height: 42px;  /* 设置固定高度 */
+}
+
+/* 确保所有按钮高度一致 */
+.audio-controls button {
+    height: 100%;
+    white-space: nowrap;  /* 防止文字换行 */
+}
+
+
+/* 悬停在可拖动图片添加放大效果 */
+.draggable-image {
+    user-select: none;
+    -webkit-user-drag: none;
+    height: 40vh;
+    transition: transform 0.3s ease; /* 添加过渡效果 */
+}
+
+.draggable-image:hover {
+    transform: scale(1.2); /* 悬停时放大1.2倍 */
+}
 

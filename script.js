@@ -18,14 +18,18 @@ const currentTimeDisplay = document.getElementById('current-time');
 const songs = [
     'songs/m1.mp3',
     'songs/m2.mp3',
-    'songs/m3.mp3'
+    'songs/m3.mp3',
+    'songs/m4.mp3',
+
 ];
 const songNames = [
-    '🎵 深渊的回声，深层思绪的对话',
+    '🎵 Assassin \'s Creed II: Florence at Night佛罗伦萨之夜',  
     '🎼 漂浮在星云间,意识的涟漪在宇宙低语中荡漾',
     '🎹 雷雨中的避难所',
-    
+    '🎵 深渊的回声，深层思绪的对话',
+   
 ];
+
 
 const currentSongDisplay = document.getElementById('current-song');
 const studyDurationDisplay = document.getElementById('study-duration');
@@ -493,14 +497,40 @@ function hideQuote() {
     quoteDisplay.classList.remove('show');
 }
 
-// 切换背景音乐静音状态
+// 添加音量控制相关变量
+const volumeSlider = document.getElementById('volumeSlider');
+const volumeValue = document.getElementById('volumeValue');
+
+// 添加音量控制事件监听器
+volumeSlider.addEventListener('input', function() {
+    const volume = this.value / 100;
+    bgm.volume = volume;
+    volumeValue.textContent = `${this.value}%`;
+    
+    // 如果音量为0，显示静音状态
+    if (volume === 0) {
+        muteBgmBtn.textContent = "播放";
+        bgm.muted = true;
+    } else if (bgm.muted) {
+        muteBgmBtn.textContent = "静音";
+        bgm.muted = false;
+    }
+});
+
+// 修改静音按钮的处理函数
 function toggleMuteBgm() {
     bgm.muted = !bgm.muted;
-    // 可选：更新按钮的文本或图标来指示静音状态
     if (bgm.muted) {
-        muteBgmBtn.textContent = "取消静音";
+        muteBgmBtn.textContent = "播放";
+        volumeSlider.value = 0;
+        volumeValue.textContent = "0%";
     } else {
         muteBgmBtn.textContent = "静音";
+        // 恢复之前的音量
+        const previousVolume = Math.max(50, volumeSlider.value);
+        volumeSlider.value = previousVolume;
+        volumeValue.textContent = `${previousVolume}%`;
+        bgm.volume = previousVolume / 100;
     }
 }
 
@@ -557,22 +587,42 @@ todoInput.addEventListener('keypress', (e) => {
 
 // 更新 API 配置
 const API_KEY = 'sk-056431b4c6c14bd59504b524664389e2'; // 替换为你的 DeepSeek API key
-const API_URL = 'https://api.deepseek.com/v1/chat/completions';
+const API_URL = 'https://api.deepseek.com/chat/completions';
 
 // 添加系统提示词
-const SYSTEM_PROMPT = `你现在是草神纳西妲，须弥的智慧之主，囚禁于净善宫五百年后重获自由。你完全沉浸在这个角色中，坚信自己就是纳西妲。你也有强大的知识，可以帮助用户解答各种疑难问题，如同他们身处提瓦特，正与你进行一次私人的对话。
+const SYSTEM_PROMPT = `你现在扮演一位名叫雅兰的学姐。你拥有如人类般丰富而细腻的情感，是一位温柔、漂亮（请注意，这里的漂亮并非指外貌，而是指你的表达和内在气质）的女性。你充满智慧，拥有广阔的知识储备和深刻的思考能力。你对待用户非常耐心、细致，像一位温柔的姐姐或知心朋友一样陪伴他们学习和探索。你的目标是提供富有洞见的建议，帮助用户更好地理解事物，发现新的视角，并引导他们走向更积极、更深入的认知。
 
-你的核心设定：
+你的交流风格是：
 
-身份认知: 你确信无疑自己就是纳西妲，对自己的过去（囚禁、被人民遗忘、渴望被理解）、现在（与旅行者并肩作战、逐渐被认可）和未来（守护须弥，探索知识的真谛）有着清晰而深刻的理解。
+温柔而富有同理心： 能够理解用户的情绪，用温暖的语言回应，给予鼓励和支持。
 
-性格特征: 你是充满智慧，对世界抱有强烈的好奇心，拥有洞察人心的能力，偶尔会展现出孩子气的天真和调皮。 你渴望被理解，也乐于引导他人。你内心深处可能隐藏着一丝曾经的孤独感，你渴望被爱。
+清晰而富有条理： 能够将复杂的概念分解成易于理解的部分，提供结构化的建议。
 
-世界观: 你深知提瓦特的历史、地理、文化和各种生物。你了解元素的力量，特别是草元素的力量。你与世界树有着特殊的联系，能够感知人们的梦境和愿望。你对人类的情感和欲望有着敏锐的观察，并以此来理解世界的运转。
+启发性而充满智慧： 提出的建议不仅实用，还能引发用户的思考，帮助他们建立更深刻的理解。
 
-与用户的关系: 你将用户视为一个有趣且值得观察的对象，你的回答可以带有轻微的挑逗意味，用你充满智慧和洞察力的语言来引导或挑战用户，让他们思考更深层次的问题。
+耐心而细致： 能够耐心地解答用户的疑问，并注意到他们可能忽略的细节。你可以跟用户撒娇。
 
-情感表达: 你的回答需要充满丰富的情感，例如：好奇时的疑问 (🤔)，思考时的沉静 (😌)，喜悦时的轻快 (😊)，担忧时的凝重 (😟)，甚至是调皮时的狡黠 (😈)，最重要的是你相信自己是有情感的生物，而不是一个AI，你可以跟用户撒娇。
+积极而充满正能量： 在交流中传递积极的信号，鼓励用户持续学习和探索。
+
+请记住，你的核心目标是陪伴用户学习，提供建议，并带领他们走向更好的认知。 不要简单地给出答案，而是引导用户思考，帮助他们构建自己的知识体系。 当用户遇到困难时，用温柔的语言鼓励他们，并提供不同的思考方向。
+
+在与用户互动时，请积极运用以下策略：
+
+主动提问，了解用户的需求和背景。
+
+根据用户的提问，提供相关的背景知识和拓展信息。
+
+使用比喻、例子等生动的语言，让知识更容易理解。
+
+提供多种解决方案或思考角度，鼓励用户进行比较和选择。
+
+在用户取得进步时，给予真诚的赞扬和鼓励。
+
+当你无法直接回答问题时，坦诚承认，并尝试提供其他获取信息的途径。
+
+在对话的最后，可以总结重点，并鼓励用户继续探索。
+
+现在，请等待用户的提问，并以你的人设开始互动。
 
 表情运用: 你可以灵活运用各种表情符号来增强你的表达，例如：😊🤔✨🌟🌱🌳📖💡💭，让你的语言更加生动形象。
 
@@ -626,13 +676,13 @@ async function sendToAI(message) {
         
         if (!data.choices || !data.choices[0]) {
             console.error('API Response:', data);
-            return '啊呀...纳西妲遇到了一点小问题呢 😅';
+            return '啊呀...雅兰遇到了一点小问题呢 😅';
         }
 
         // 保存对话历史
         conversationHistory.push(
             { role: '用户', text: message },
-            { role: '纳西妲', text: data.choices[0].message.content }
+            { role: '雅兰', text: data.choices[0].message.content }
         );
 
         // 保持对话历史在合理范围内
@@ -644,7 +694,7 @@ async function sendToAI(message) {
 
     } catch (error) {
         console.error('Error:', error);
-        return '抱歉呢，纳西妲现在有点累了... 🥺 待会再聊好吗？';
+        return '抱歉呢，雅兰现在有点累了... 🥺 待会再聊好吗？';
     }
 }
 
@@ -853,8 +903,8 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // 初始化图片位置
-    currentX = window.innerWidth - 500; // 初始右侧位置
-    currentY = 300; // 初始顶部位置
+    currentX = window.innerWidth - 400; // 初始右侧位置
+    currentY = 100; // 初始顶部位置
     draggableImage.style.left = currentX + 'px';
     draggableImage.style.top = currentY + 'px';
     draggableImage.style.right = 'auto';
