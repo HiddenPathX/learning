@@ -183,6 +183,12 @@
     opacity: 1;
 }
 
+/* 可拖动图片的样式 */
+.draggable-image {
+    user-select: none;
+    -webkit-user-drag: none;
+}
+
     </style>
 
 
@@ -193,8 +199,8 @@
 
 <!-- indexhtml专用body -->
 <body class="html_body">
-    <!-- 在body开始处添加图片 -->
-    <img src="images/ys.png" alt="纳西妲" style="position: fixed; right: -100px; top: 50px; height: 40vh; z-index: 1000; pointer-events: none;">
+    <!-- 可拖动的图片 -->
+    <img src="./images/ys.png" alt="纳西妲" class="draggable-image" style="position: fixed; right: 20px; top: 50px; height: 40vh; cursor: move;">
     
     <!-- 导航 -->   
     <nav class="navigation">

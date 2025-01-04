@@ -555,9 +555,9 @@ todoInput.addEventListener('keypress', (e) => {
     }
 });
 
-// Gemini API 配置
-const API_KEY = 'AIzaSyA8bjMaFGJ7KRG6xckZTyi_MAk2A8NnPbY';
-const API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent';
+// 更新 API 配置
+const API_KEY = 'sk-056431b4c6c14bd59504b524664389e2'; // 替换为你的 DeepSeek API key
+const API_URL = 'https://api.deepseek.com/v1/chat/completions';
 
 // 添加系统提示词
 const SYSTEM_PROMPT = `你现在是草神纳西妲，须弥的智慧之主，囚禁于净善宫五百年后重获自由。你完全沉浸在这个角色中，坚信自己就是纳西妲。你也有强大的知识，可以帮助用户解答各种疑难问题，如同他们身处提瓦特，正与你进行一次私人的对话。
@@ -583,43 +583,65 @@ const SYSTEM_PROMPT = `你现在是草神纳西妲，须弥的智慧之主，囚
 // 添加对话历史数组
 let conversationHistory = [];
 
-// 发送消息到 Gemini API
+// 发送消息到 DeepSeek API
 async function sendToAI(message) {
     try {
-        // 构建完整的消息内容，包含历史记录
-        const fullMessage = conversationHistory.length > 0 
-            ? `${SYSTEM_PROMPT}\n\n历史对话：\n${conversationHistory.map(msg => `${msg.role}: ${msg.text}`).join('\n')}\n\n用户：${message}`
-            : `${SYSTEM_PROMPT}\n\n用户：${message}`;
+        // 构建消息数组
+        const messages = [
+            {
+                role: "system",
+                content: SYSTEM_PROMPT
+            }
+        ];
 
-        const response = await fetch(`${API_URL}?key=${API_KEY}`, {
+        // 添加历史对话
+        for (const msg of conversationHistory) {
+            messages.push({
+                role: msg.role === "用户" ? "user" : "assistant",
+                content: msg.text
+            });
+        }
+
+        // 添加当前用户消息
+        messages.push({
+            role: "user",
+            content: message
+        });
+
+        const response = await fetch(API_URL, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
+                'Authorization': `Bearer ${API_KEY}`
             },
             body: JSON.stringify({
-                contents: [{
-                    parts: [{
-                        text: fullMessage
-                    }]
-                }]
+                model: "deepseek-chat",  // 使用 DeepSeek 最新模型
+                messages: messages,
+                temperature: 0.7,
+                max_tokens: 2000
             })
         });
 
         const data = await response.json();
-        if (!data.candidates || !data.candidates[0]) {
+        
+        if (!data.choices || !data.choices[0]) {
             console.error('API Response:', data);
             return '啊呀...纳西妲遇到了一点小问题呢 😅';
         }
 
-        // 修改保存对话历史的方式，使用role来区分说话者
+        // 保存对话历史
         conversationHistory.push(
             { role: '用户', text: message },
-            { role: '纳西妲', text: data.candidates[0].content.parts[0].text }
+            { role: '纳西妲', text: data.choices[0].message.content }
         );
 
-        
+        // 保持对话历史在合理范围内
+        if (conversationHistory.length > 10) {
+            conversationHistory = conversationHistory.slice(-10);
+        }
 
-        return data.candidates[0].content.parts[0].text;
+        return data.choices[0].message.content;
+
     } catch (error) {
         console.error('Error:', error);
         return '抱歉呢，纳西妲现在有点累了... 🥺 待会再聊好吗？';
@@ -680,4 +702,52 @@ userInput.addEventListener('keypress', (e) => {
         e.preventDefault();
         handleSend();
     }
+});
+
+// 实现图片拖动功能
+document.addEventListener('DOMContentLoaded', function() {
+    const draggableImage = document.querySelector('.draggable-image');
+    let isDragging = false;
+    let currentX;
+    let currentY;
+    let initialX;
+    let initialY;
+
+    draggableImage.addEventListener('mousedown', dragStart);
+    document.addEventListener('mousemove', drag);
+    document.addEventListener('mouseup', dragEnd);
+
+    function dragStart(e) {
+        initialX = e.clientX - currentX;
+        initialY = e.clientY - currentY;
+
+        if (e.target === draggableImage) {
+            isDragging = true;
+        }
+    }
+
+    function drag(e) {
+        if (isDragging) {
+            e.preventDefault();
+            currentX = e.clientX - initialX;
+            currentY = e.clientY - initialY;
+
+            draggableImage.style.left = currentX + 'px';
+            draggableImage.style.top = currentY + 'px';
+            draggableImage.style.right = 'auto'; // 移除右侧定位
+        }
+    }
+
+    function dragEnd() {
+        initialX = currentX;
+        initialY = currentY;
+        isDragging = false;
+    }
+
+    // 初始化图片位置
+    currentX = window.innerWidth - 1000; // 初始右侧位置
+    currentY = 50; // 初始顶部位置
+    draggableImage.style.left = currentX + 'px';
+    draggableImage.style.top = currentY + 'px';
+    draggableImage.style.right = 'auto';
 });
