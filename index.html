@@ -12,6 +12,9 @@
 
     <link rel="stylesheet" href="styles.css">
 
+    <!-- 添加 MathJax 支持 -->
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 
     <style>
    
@@ -189,6 +192,15 @@
     -webkit-user-drag: none;
 }
 
+/* 调整时间显示的间距 */
+h1,
+.study-duration,
+
+.timer {
+    margin: 5px 0;  /* 将上下间距改为5px */
+    line-height: 1;  /* 减小行高 */
+}
+
     </style>
 
 
@@ -210,8 +222,11 @@
 
     <!-- 第一个框架 -->
     <div class="container">
-        <h1>Time to learn!</h1>
-       
+        <div id="current-time" class="current-time"></div>
+        <h1>今日学习时长</h1>
+           
+        <div id="study-duration" class="study-duration">0分钟</div>
+        
         <div class="timer">
             <span id="minutes">60</span>:<span id="seconds">00</span>
         </div>
@@ -241,6 +256,14 @@
             <span id="coins">番茄: 0</span>
             <button id="rewardBtn" disabled>奖励 (需消耗 2 番茄)</button>
         </div>
+        <div class="todo-container">
+            <div class="todo-input">
+                <input type="text" id="todoInput" placeholder="输入你的任务...">
+                <button id="addTodoBtn">添加</button>
+            </div>
+            <ul id="todoList" class="todo-list"></ul>
+
+        </div>
         <!-- 添加音乐名称显示 -->
         <div id="current-song" class="current-song"></div>
         
@@ -248,35 +271,12 @@
     </div>
 
     <!-- 第二个框架 -->
-    <div class="container">
-        <h1>你的档案</h1>
-        <div id="current-time" class="current-time"></div>
-        <div class="study-time"></div>
-            <h2>今日学习时长</h2>
-           
-            <div id="study-duration" class="study-duration">0分钟</div>
-            
-        
-
-        <h1>待办事项</h1>
-        
-        <div class="todo-container">
-            <div class="todo-input">
-                <input type="text" id="todoInput" placeholder="输入你的任务...">
-                <button id="addTodoBtn">添加</button>
-            </div>
-            <ul id="todoList" class="todo-list"></ul>
-        </div>
-
-        
-    </div>
-    <!-- 第三个框架 -->
-    <div class="container">
+    <div class="container2">
         <h2>纳西妲</h2>
         <div class="chat-container">
             <div id="chat-messages" class="chat-messages"></div>
             <div class="chat-input">
-                <textarea id="user-input" placeholder="输入你的问题..." rows="3"></textarea>
+                <textarea id="user-input" placeholder="有什么可以帮你的吗..." rows="3"></textarea>
                 <button id="send-button">发送</button>
             </div>
         </div>

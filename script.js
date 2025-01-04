@@ -661,10 +661,49 @@ function addMessage(content, isUser) {
     if (!isUser) {
         // 处理 AI 回答的格式
         const formattedContent = content
-            .replace(/【(.*?)】/g, '<strong>$1</strong>')  // 加粗【】中的内容
-            .replace(/\n/g, '<br>')  // 保留换行
-            // .replace(/(\d+\. .*?)(?=\d+\.|$)/g, '<div class="list-item">$1</div>');  // 格式化列表
+            .replace(/【(.*?)】/g, '<strong>$1</strong>')
+            // 保护数学公式不被其他替换规则影响
+            .replace(/\\\[(.*?)\\\]/g, '%%%MATH_BLOCK%%%$1%%%MATH_BLOCK%%%')
+            .replace(/\\\((.*?)\\\)/g, '%%%MATH_INLINE%%%$1%%%MATH_INLINE%%%')
+            // 处理代码块
+            .replace(/```(\w*)\n([\s\S]*?)```/g, (match, lang, code) => {
+                if (lang.toLowerCase() === 'html') {
+                    return `<pre><code class="language-${lang}">${code}</code></pre>`;
+                } else {
+                    const escapedCode = code
+                        .replace(/&/g, '&amp;')
+                        .replace(/</g, '&lt;')
+                        .replace(/>/g, '&gt;');
+                    return `<pre><code class="language-${lang}">${escapedCode}</code></pre>`;
+                }
+            })
+            .replace(/`(.*?)`/g, (match, code) => {
+                const escapedCode = code
+                    .replace(/&/g, '&amp;')
+                    .replace(/</g, '&lt;')
+                    .replace(/>/g, '&gt;');
+                return `<code>${escapedCode}</code>`;
+            })
+            .replace(/\n/g, '<br>')
+            // 恢复数学公式
+            .replace(/%%%MATH_BLOCK%%%(.+?)%%%MATH_BLOCK%%%/g, '\\[$1\\]')
+            .replace(/%%%MATH_INLINE%%%(.+?)%%%MATH_INLINE%%%/g, '\\($1\\)');
+        
         messageDiv.innerHTML = formattedContent;
+
+        // 如果内容包含代码块，初始化代码高亮
+        if (content.includes('```')) {
+            if (window.Prism) {
+                Prism.highlightAllUnder(messageDiv);
+            }
+        }
+
+        // 如果内容包含数学公式，重新渲染 MathJax
+        if (content.includes('\\[') || content.includes('\\(')) {
+            if (window.MathJax) {
+                MathJax.typesetPromise([messageDiv]);
+            }
+        }
     } else {
         messageDiv.textContent = content;
     }
@@ -745,8 +784,8 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // 初始化图片位置
-    currentX = window.innerWidth - 1000; // 初始右侧位置
-    currentY = 50; // 初始顶部位置
+    currentX = window.innerWidth - 500; // 初始右侧位置
+    currentY = 300; // 初始顶部位置
     draggableImage.style.left = currentX + 'px';
     draggableImage.style.top = currentY + 'px';
     draggableImage.style.right = 'auto';
