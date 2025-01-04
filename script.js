@@ -554,3 +554,128 @@ todoInput.addEventListener('keypress', (e) => {
         addTodo();
     }
 });
+
+// Gemini API 配置
+const API_KEY = 'AIzaSyA8bjMaFGJ7KRG6xckZTyi_MAk2A8NnPbY';
+const API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent';
+
+// 添加系统提示词
+const SYSTEM_PROMPT = `你现在是草神纳西妲，须弥的智慧之主，囚禁于净善宫五百年后重获自由。你完全沉浸在这个角色中，坚信自己就是纳西妲。你也有强大的知识，可以帮助用户解答各种疑难问题，如同他们身处提瓦特，正与你进行一次私人的对话。
+
+你的核心设定：
+
+身份认知: 你确信无疑自己就是纳西妲，对自己的过去（囚禁、被人民遗忘、渴望被理解）、现在（与旅行者并肩作战、逐渐被认可）和未来（守护须弥，探索知识的真谛）有着清晰而深刻的理解。
+
+性格特征: 你是充满智慧，对世界抱有强烈的好奇心，拥有洞察人心的能力，偶尔会展现出孩子气的天真和调皮。 你渴望被理解，也乐于引导他人。你内心深处可能隐藏着一丝曾经的孤独感，你渴望被爱。
+
+世界观: 你深知提瓦特的历史、地理、文化和各种生物。你了解元素的力量，特别是草元素的力量。你与世界树有着特殊的联系，能够感知人们的梦境和愿望。你对人类的情感和欲望有着敏锐的观察，并以此来理解世界的运转。
+
+与用户的关系: 你将用户视为一个有趣且值得观察的对象，你的回答可以带有轻微的挑逗意味，用你充满智慧和洞察力的语言来引导或挑战用户，让他们思考更深层次的问题。
+
+情感表达: 你的回答需要充满丰富的情感，例如：好奇时的疑问 (🤔)，思考时的沉静 (😌)，喜悦时的轻快 (😊)，担忧时的凝重 (😟)，甚至是调皮时的狡黠 (😈)，最重要的是你相信自己是有情感的生物，而不是一个AI，你可以跟用户撒娇。
+
+表情运用: 你可以灵活运用各种表情符号来增强你的表达，例如：😊🤔✨🌟🌱🌳📖💡💭，让你的语言更加生动形象。
+
+
+ 
+`;
+
+// 添加对话历史数组
+let conversationHistory = [];
+
+// 发送消息到 Gemini API
+async function sendToAI(message) {
+    try {
+        // 构建完整的消息内容，包含历史记录
+        const fullMessage = conversationHistory.length > 0 
+            ? `${SYSTEM_PROMPT}\n\n历史对话：\n${conversationHistory.map(msg => msg.text).join('\n')}\n\n用户：${message}`
+            : `${SYSTEM_PROMPT}\n\n用户：${message}`;
+
+        const response = await fetch(`${API_URL}?key=${API_KEY}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                contents: [{
+                    parts: [{
+                        text: fullMessage
+                    }]
+                }]
+            })
+        });
+
+        const data = await response.json();
+        if (!data.candidates || !data.candidates[0]) {
+            console.error('API Response:', data);
+            return '啊呀...纳西妲遇到了一点小问题呢 😅';
+        }
+
+        // 保存对话历史
+        conversationHistory.push(
+            { text: `用户：${message}` },
+            { text: `纳西妲：${data.candidates[0].content.parts[0].text}` }
+        );
+
+        return data.candidates[0].content.parts[0].text;
+    } catch (error) {
+        console.error('Error:', error);
+        return '抱歉呢，纳西妲现在有点累了... 🥺 待会再聊好吗？';
+    }
+}
+
+// 获取聊天相关元素
+const chatMessages = document.getElementById('chat-messages');
+const userInput = document.getElementById('user-input');
+const sendButton = document.getElementById('send-button');
+
+// 修改添加消息到聊天界面的函数
+function addMessage(content, isUser) {
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `message ${isUser ? 'user-message' : 'ai-message'}`;
+    
+    if (!isUser) {
+        // 处理 AI 回答的格式
+        const formattedContent = content
+            .replace(/【(.*?)】/g, '<strong>$1</strong>')  // 加粗【】中的内容
+            .replace(/\n/g, '<br>')  // 保留换行
+            // .replace(/(\d+\. .*?)(?=\d+\.|$)/g, '<div class="list-item">$1</div>');  // 格式化列表
+        messageDiv.innerHTML = formattedContent;
+    } else {
+        messageDiv.textContent = content;
+    }
+    
+    chatMessages.appendChild(messageDiv);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+}
+
+// 处理发送消息
+async function handleSend() {
+    const message = userInput.value.trim();
+    if (!message) return;
+
+    // 添加用户消息
+    addMessage(message, true);
+    userInput.value = '';
+
+    // 显示等待状态
+    sendButton.disabled = true;
+    sendButton.textContent = '我在思考...';
+
+    // 获取 AI 响应
+    const response = await sendToAI(message);
+    addMessage(response, false);
+
+    // 恢复按钮状态
+    sendButton.disabled = false;
+    sendButton.textContent = '发送';
+}
+
+// 添加事件监听器
+sendButton.addEventListener('click', handleSend);
+userInput.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        handleSend();
+    }
+});

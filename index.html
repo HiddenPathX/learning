@@ -193,8 +193,9 @@
 
 <!-- indexhtml专用body -->
 <body class="html_body">
+    <!-- 在body开始处添加图片 -->
+    <img src="images/ys.png" alt="纳西妲" style="position: fixed; right: -100px; top: 50px; height: 40vh; z-index: 1000; pointer-events: none;">
     
-
     <!-- 导航 -->   
     <nav class="navigation">
         <a href="index.html">番茄钟</a>
@@ -263,6 +264,17 @@
 
         
     </div>
+    <!-- 第三个框架 -->
+    <div class="container">
+        <h2>纳西妲</h2>
+        <div class="chat-container">
+            <div id="chat-messages" class="chat-messages"></div>
+            <div class="chat-input">
+                <textarea id="user-input" placeholder="输入你的问题..." rows="3"></textarea>
+                <button id="send-button">发送</button>
+            </div>
+        </div>
+    </div>
    
 
 
@@ -286,6 +298,7 @@
 
     <!-- 链接外部javascript脚本，一般不放在head里 -->   
     <script src="script.js"></script>
- 
+
+   
 </body>
 </html>
