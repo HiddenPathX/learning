@@ -586,7 +586,7 @@ todoInput.addEventListener('keypress', (e) => {
 });
 
 // 更新 API 配置
-const API_KEY = 'sk-056431b4c6c14bd59504b524664389e2'; // 替换为你的 DeepSeek API key
+const API_KEY = 'sk-b859ba10518f4de29c8d139fa1824308'; // 替换为你的 DeepSeek API key
 const API_URL = 'https://api.deepseek.com/chat/completions';
 
 // 添加系统提示词
