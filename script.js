@@ -712,13 +712,18 @@ function addMessage(content, isUser) {
         // 处理 AI 回答的格式
         const formattedContent = content
             .replace(/【(.*?)】/g, '<strong>$1</strong>')
-            // 保护数学公式不被其他替换规则影响
+            // 保护数学公式
             .replace(/\\\[(.*?)\\\]/g, '%%%MATH_BLOCK%%%$1%%%MATH_BLOCK%%%')
             .replace(/\\\((.*?)\\\)/g, '%%%MATH_INLINE%%%$1%%%MATH_INLINE%%%')
-            // 处理代码块
+            // 处理代码块，但保持 HTML 代码可见
             .replace(/```(\w*)\n([\s\S]*?)```/g, (match, lang, code) => {
+                // 特殊处理 HTML 代码
                 if (lang.toLowerCase() === 'html') {
-                    return `<pre><code class="language-${lang}">${code}</code></pre>`;
+                    const escapedCode = code
+                        .replace(/&/g, '&amp;')
+                        .replace(/</g, '&lt;')
+                        .replace(/>/g, '&gt;');
+                    return `<pre><code class="language-${lang}">${escapedCode}</code></pre>`;
                 } else {
                     const escapedCode = code
                         .replace(/&/g, '&amp;')
