@@ -97,7 +97,6 @@ const songs = [
     'songs/m3.mp3',
     'songs/m4.mp3',
     'songs/m5.mp3',
-
 ];
 const songNames = [
     '🎵 Assassin \'s Creed II: Florence at Night佛罗伦萨之夜',  
@@ -614,14 +613,19 @@ function toggleMuteBgm() {
     }
 }
 
-// 播放下一首歌曲
+// 只在需要时加载音乐
+function loadSong(index) {
+    if (bgm.src !== songs[index]) {
+        bgm.src = songs[index];
+    }
+}
+
+// 修改 playNextSong 函数
 function playNextSong() {
     currentSongIndex = (currentSongIndex + 1) % songs.length;
     const wasPlaying = !bgm.paused;
-    bgm.src = songs[currentSongIndex];
-    
+    loadSong(currentSongIndex);
 
-    // 显示音乐名称// 只在计时器运行时更新并显示音乐名称
     if (timerInterval) {
         currentSongDisplay.textContent = `VIBE: ${songNames[currentSongIndex]}`;
         currentSongDisplay.classList.add('show');
@@ -998,3 +1002,8 @@ document.addEventListener('DOMContentLoaded', function() {
 // 设置默认播放最后一首歌
 currentSongIndex = songs.length - 1;
 bgm.src = songs[currentSongIndex];
+
+// 添加加载状态指示
+window.addEventListener('load', () => {
+    document.body.classList.add('loaded');
+});

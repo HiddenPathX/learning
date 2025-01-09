@@ -854,3 +854,28 @@ p {
     transform: scale(1.2); /* 悬停时放大1.2倍 */
 }
 
+/* 添加加载动画 */
+.loading-spinner {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: none;
+}
+
+body:not(.loaded) .loading-spinner {
+    display: block;
+}
+
+/* 页面加载完成后显示内容 */
+body:not(.loaded) .container,
+body:not(.loaded) .container2 {
+    opacity: 0;
+}
+
+body.loaded .container,
+body.loaded .container2 {
+    opacity: 1;
+    transition: opacity 0.3s ease;
+}
+

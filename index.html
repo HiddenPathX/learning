@@ -13,8 +13,7 @@
     <link rel="stylesheet" href="styles.css">
 
     <!-- 添加 MathJax 支持 -->
-    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script id="MathJax-script" defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 
     <style>
    
@@ -212,7 +211,10 @@ h1,
 <!-- indexhtml专用body -->
 <body class="html_body">
     <!-- 可拖动的图片 -->
-    <img src="./images/ys.png" alt="雅兰" class="draggable-image" style="position: fixed; right: 20px; top: 50px; height: 90vh; cursor: move;">
+    <img src="./images/ys.png" alt="雅兰" class="draggable-image" 
+        loading="lazy"
+        decoding="async"
+        style="position: fixed; right: 20px; top: 50px; height: 90vh; cursor: move;">
     
  
 
@@ -295,11 +297,11 @@ h1,
     <!-- 当点击启动按钮时，在整个页面添加粒子效果 -->
     <div id="particles-container"></div>  
     
-    <audio id="bgm" loop>
+    <audio id="bgm" loop preload="none">
         <source src="songs/m1.mp3" type="audio/mpeg">
         你的浏览器不支持音频播放。
     </audio>
-    <audio id="alarm">
+    <audio id="alarm" preload="none">
         <source src="songs/alarm.mp3" type="audio/mpeg">
         你的浏览器不支持音频播放。
     </audio> 
