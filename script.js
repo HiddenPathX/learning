@@ -1,3 +1,79 @@
+// ----------------------导航页-----------------------------
+function createNavigation() {
+    let existingNav = document.querySelector('.navigation');
+    if (existingNav) {
+        existingNav.remove();
+    }
+
+    // 判断当前页面是否在 articles 目录下
+    const isInArticlesDir = window.location.pathname.includes('/articles/');
+    const prefix = isInArticlesDir ? '../' : '';
+
+    const nav = document.createElement('nav');
+    nav.className = 'navigation';
+    
+    const links = [
+        { href: 'index.html', text: '番茄钟', icon: '🍅' },
+        { href: 'blog.html', text: 'NOTE', icon: '📝' },
+        { href: 'https://news-ao8.pages.dev/', text: '时事新闻', icon: '📰' }
+    ];
+    
+    links.forEach(link => {
+        const a = document.createElement('a');
+        // 如果不是完整的URL（不包含http），则添加前缀
+        a.href = link.href.includes('http') ? link.href : prefix + link.href;
+        
+        // 创建内容容器
+        const content = document.createElement('span');
+        content.className = 'nav-content';
+        
+        const icon = document.createElement('span');
+        icon.className = 'nav-icon';
+        icon.textContent = link.icon;
+        
+        const text = document.createElement('span');
+        text.className = 'nav-text';
+        text.textContent = link.text;
+        
+        const indicator = document.createElement('span');
+        indicator.className = 'nav-indicator';
+        
+        content.appendChild(icon);
+        content.appendChild(text);
+        a.appendChild(content);
+        a.appendChild(indicator);
+        nav.appendChild(a);
+        
+        // 添加鼠标移动跟踪效果
+        a.addEventListener('mousemove', (e) => {
+            const rect = a.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            
+            a.style.setProperty('--mouse-x', `${x}px`);
+            a.style.setProperty('--mouse-y', `${y}px`);
+        });
+    });
+    
+    document.body.insertBefore(nav, document.body.firstChild);
+    
+    // 添加滚动效果
+    let lastScroll = 0;
+    window.addEventListener('scroll', () => {
+        const currentScroll = window.pageYOffset;
+        if (currentScroll > lastScroll && currentScroll > 50) {
+            nav.classList.add('nav-hidden');
+        } else {
+            nav.classList.remove('nav-hidden');
+        }
+        lastScroll = currentScroll;
+    });
+}
+
+// 在页面加载完成后创建导航
+document.addEventListener('DOMContentLoaded', createNavigation);
+
+// ---------------------------------------------------
 const minutesDisplay = document.getElementById('minutes');
 const secondsDisplay = document.getElementById('seconds');
 const startBtn = document.getElementById('startBtn');
@@ -20,6 +96,7 @@ const songs = [
     'songs/m2.mp3',
     'songs/m3.mp3',
     'songs/m4.mp3',
+    'songs/m5.mp3',
 
 ];
 const songNames = [
@@ -27,6 +104,8 @@ const songNames = [
     '🎼 漂浮在星云间,意识的涟漪在宇宙低语中荡漾',
     '🎹 雷雨中的避难所',
     '🎵 深渊的回声，深层思绪的对话',
+    '🎼 监狱星球，深层冥想',
+
    
 ];
 
@@ -76,6 +155,7 @@ const motivationalQuotes = [
 const todoInput = document.getElementById('todoInput');
 const addTodoBtn = document.getElementById('addTodoBtn');
 const todoList = document.getElementById('todoList');
+
 
 // 鼓励语句数组
 const encouragements = [
@@ -205,7 +285,7 @@ function startTimer() {
         showParticles();
         showRandomQuote();
 
-        // 显示音乐名称
+        // 显示当前播放的音乐名称(最后一首)
         currentSongDisplay.textContent = `VIBE: ${songNames[currentSongIndex]}`;
         currentSongDisplay.classList.add('show');
 
@@ -914,3 +994,7 @@ document.addEventListener('DOMContentLoaded', function() {
     draggableImage.style.top = currentY + 'px';
     draggableImage.style.right = 'auto';
 });
+
+// 设置默认播放最后一首歌
+currentSongIndex = songs.length - 1;
+bgm.src = songs[currentSongIndex];
