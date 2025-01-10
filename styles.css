@@ -441,7 +441,7 @@
     margin: 15px 2rem;
     flex-shrink: 0;
     border: 1px solid rgba(255, 255, 255, 0.18);
-    transition: all 0.3s ease;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* articles专用container框架 */
@@ -464,9 +464,9 @@
 /* 添加悬浮效果 */
 .article-card:hover,
 .article-container:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-    background: rgba(255, 255, 255, 0.2);
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2);
+    background: rgba(255, 255, 255, 0.25);
 }
 
 /* 调整文章内容文字颜色 */
@@ -493,6 +493,7 @@ max-height: 200px;
 object-fit: cover;
 border-radius: 55px 55px 0 0; 
 margin: 0rem 0;
+transition: transform 0.5s ease;
 }
 
 .article-content p {
@@ -522,12 +523,53 @@ p {
 
 .article-content a {
     text-decoration: none;
-    color: inherit;
+    color: rgba(255, 255, 255, 0.95);
+    transition: all 0.3s ease;
+    display: block;
+    padding: 10px 15px;
+    border-radius: 12px;
+    position: relative;
+    overflow: hidden;
 }
 
 .article-content a:hover {
-    color: #666;
+    background: rgba(255, 255, 255, 0.1);
+    transform: translateX(10px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
+
+/* 添加左侧边框指示器 */
+.article-content a::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 3px;
+    height: 0;
+    background: rgba(255, 255, 255, 0.8);
+    transition: height 0.3s ease;
+}
+
+.article-content a:hover::before {
+    height: 70%;
+}
+
+/* 文章卡片整体悬停效果增强 */
+.article-card {
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.article-card:hover {
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2);
+    background: rgba(255, 255, 255, 0.25);
+}
+
+
 
 /* ------------------------------------------------------------------------ */
 
