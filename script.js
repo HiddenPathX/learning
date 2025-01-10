@@ -526,6 +526,11 @@ function stopTimer() {
 
 // 添加初始化函数，在页面加载时检查并恢复状态
 function initializeTimer() {
+    // 初始化音量设置为30%
+    bgm.volume = 0.3;
+    volumeSlider.value = 30;
+    volumeValue.textContent = '30%';
+
     // 恢复保存的工作和休息时长
     const savedWorkTime = localStorage.getItem(STORAGE_KEY.WORK_TIME);
     const savedBreakTime = localStorage.getItem(STORAGE_KEY.BREAK_TIME);
