@@ -12,19 +12,19 @@
 
     <link rel="stylesheet" href="styles.css">
 
-    <!-- 添加 MathJax 支持 -->
+    <!-- 添加 MathJax 支持，渲染LaTeX公式 -->
     <script id="MathJax-script" defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 
-    <style>
-   
-   
-    /* 标题 */
-    h1 {
-        color: #333;
-        margin: 20px 0;
-        font-size: 2.5em;
-        line-height: 1;
-    }
+<!-- ------------一些仅在index.html中使用的css样式------------    -->
+<style>
+
+/* 标题 */
+h1 {
+    color: #333;
+    margin: 20px 0;
+    font-size: 2.5em;
+    line-height: 1;
+}
 
     /* 应用设置 */
 .customization {
@@ -200,23 +200,124 @@ h1,
     line-height: 1;  /* 减小行高 */
 }
 
-    </style>
+/* ---------------------todo按钮--------------------- */    
+.todo-container {
+    margin: 10px 0;
+    width: 100%;
+}
+
+.todo-input {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+.todo-input input {
+    padding: 8px;
+    border-radius: 5px;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+}
+
+.todo-input button {
+    padding: 12px 25px;
+    background-color: #e74c3c;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.todo-input button:hover {
+    background-color: #c0392b;
+}
+
+.todo-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.todo-item {
+    background: rgba(255, 255, 255, 0.1);
+    margin-bottom: 10px;
+    padding: 15px;
+    border-radius: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: all 0.5s ease;
+    transform: translateX(0);
+    opacity: 1;
+}
+
+.todo-info {
+    flex: 1;
+}
+
+.todo-time {
+    font-size: 0.9em;
+    color: rgba(255, 255, 255, 0.7);
+    margin-top: 5px;
+}
+
+.todo-duration {
+    color: #f39c12;
+    font-weight: bold;
+}
+
+.todo-start-btn {
+    padding: 8px 15px;
+    background: #2ecc71;
+    border: none;
+    border-radius: 5px;
+    color: white;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.todo-start-btn:hover {
+    background: #27ae60;
+}
+
+.todo-item:hover {
+    transform: translateX(5px);
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+.todo-item.completed {
+    opacity: 0;
+    transform: translateX(100%);
+}
+
+.todo-item.active {
+    background-color: rgba(46, 204, 113, 0.1);
+    border-left: 4px solid #2ecc71;
+}
 
 
+
+</style>
 
 
 </head>
 
 
-<!-- indexhtml专用body -->
+<!----------------------------------- indexhtml专用body ----------------------------------- -->
 <body class="html_body">
     <!-- 可拖动的图片 -->
-    <img src="./images/ys.png" alt="雅兰" class="draggable-image" 
+    <img src="https://media.giphy.com/media/BOPrq7m5jYS1W/giphy.gif?cid=ecf05e47thyimsex5sbgp71wsdltktt003kah1f7bv3k8zk3&ep=v1_stickers_search&rid=giphy.gif&ct=s" 
+        alt="拖动" 
+        class="draggable-image" 
         loading="lazy"
         decoding="async"
-        style="position: fixed; right: 20px; top: 50px; height: 90vh; cursor: move;">
+        style="position: fixed; right: 20px; top: 50px; height: 40vh; cursor: move;">
     
  
+        
 
     <!-- 第一个框架 -->
     <div class="container">
@@ -231,10 +332,10 @@ h1,
 
         <div class="controls">
             <div class="main-controls">
-                <!-- 通过 id，JavaScript 可以轻松找到并操作特定的 HTML 元素 -->
-                <button id="startBtn">启动</button>
+                <button id="openBtn">开始</button>
                 <button id="pauseBtn" disabled>暂停</button>
                 <button id="stopBtn" disabled>重置</button>
+                <button id="helpBtn">说明</button>
             </div>
             <div class="audio-controls">
                 <button id="muteBgmBtn">静音</button>
@@ -246,25 +347,14 @@ h1,
             </div>
         </div>
 
-        <div class="customization">
-            <label for="workTime">工作时长 (分钟):</label>
-            <input type="number" id="workTime" value="25" min="1">
-            <label for="breakTime">休息时长 (分钟):</label>
-            <input type="number" id="breakTime" value="5" min="1">
-            <button id="applyCustom">应用</button>
-        </div>
-
         <div class="rewards">
             <span id="coins">番茄: 0</span>
             <button id="rewardBtn" disabled>奖励 (需消耗 2 番茄)</button>
         </div>
-        <div class="todo-container">
-            <div class="todo-input">
-                <input type="text" id="todoInput" placeholder="输入你的任务...">
-                <button id="addTodoBtn">添加</button>
-            </div>
-            <ul id="todoList" class="todo-list"></ul>
 
+        <div class="todo-container">
+           
+            <ul id="todoList" class="todo-list"></ul>
         </div>
         <!-- 添加音乐名称显示 -->
         <div id="current-song" class="current-song"></div>
@@ -272,9 +362,12 @@ h1,
         <div id="quote" class="hidden"></div>
     </div>
 
+
+
+
     <!-- 第二个框架 -->
     <div class="container2">
-        <h2>雅兰学姐</h2>
+        <h2>解忧杂货店</h2>
         <div class="chat-container">
             <div id="chat-messages" class="chat-messages"></div>
             <div class="chat-input">
@@ -308,11 +401,140 @@ h1,
 
 
 
+
+    
+   
+    <!-- 交互弹窗结构 -->
+    <div id="openModal" class="modal">
+        <div class="modal-content">
+            <div class="controls">
+            <span class="close-button">&times;</span>
+            <h2>🌟 使用窗口</h2>
+            <div class="help-content">
+                <div class="todo-input">
+                    <input type="text" id="todoInput" placeholder="输入任务名称..." required>
+                    <input type="number" 
+                        id="todoDuration" 
+                        placeholder="工作时长(分钟)" 
+                        min="1" 
+                        max="60" 
+                        title="请输入1-60分钟之间的时长"
+                        required>
+                    <input type="time" 
+                        id="todoStartTime" 
+                        placeholder="开始时间（可选）">
+                    <input type="time" 
+                        id="todoEndTime" 
+                        placeholder="结束时间（可选）">
+                    
+                    <button id="addTodoBtn">添加任务</button>
+                </div>
+                         
+
+                
+                   
+                        <div class="customization">
+                        <label for="workTime">工作时长 (分钟):</label>
+                        <input type="number" id="workTime" value="25" min="1">
+                        <label for="breakTime">休息时长 (分钟):</label>
+                        <input type="number" id="breakTime" value="5" min="1">
+                        
+                        <button id="applyCustom">应用</button>
+						<button id="startBtn">启动</button>
+                 
+                   
+               
+                    </div>
+                </div>  
+            </div>
+        </div>
+    </div>
+
+    <div id="helpModal" class="modal">
+        <div class="modal-content">
+            <span class="close-button" id="helpCloseBtn">&times;</span>
+        
+            <h1 style="color: #2ecc71; text-align: center;">🌟 Timeboxing 时间管理工具使用指南</h1>
+
+    <h2 style="color: #3498db; border-bottom: 2px solid #3498db; padding-bottom: 8px;">
+        📚 一、什么是 Timeboxing？
+    </h2>
+    <p>Timeboxing（时间盒法）是哈佛大学研究验证的高效时间管理方法，相当于番茄钟与TO-DO-LIST的结合，它通过为每个任务设定固定的时间段（"时间盒"），帮助您：</p>
+    <ul style="list-style: none; padding-left: 20px;">
+        <li>🎯 提升专注度和工作效率</li>
+        <li>⏰ 避免任务无限期拖延</li>
+        <li>💪 更好地掌控时间</li>
+        <li>📖 <a href="https://www.mindtools.com/a9bt6jr/timeboxing" target="_blank" 
+            style="color: #e74c3c; text-decoration: none;">
+            更全面的了解TIME-BOXING时间管理技巧 →
+        </a></li>
+    </ul>
+
+    <h2 style="color: #3498db; border-bottom: 2px solid #3498db; padding-bottom: 8px;">
+        🔍 二、使用步骤
+    </h2>
+
+    <h3 style="color: #e67e22;">1️⃣ 添加任务</h3>
+    <ul style="list-style: none; padding-left: 20px;">
+        <li>▶️ 点击"开始"按钮，打开任务添加窗口</li>
+        <li>📝 填写任务信息：
+            <ul style="list-style: none; padding-left: 20px; margin-top: 10px;">
+                <li style="color: #27ae60;">
+                    <strong>任务名称：</strong>具体描述要完成的事项，如"<kbd style="background: #f1f1f1; padding: 2px 5px; border-radius: 3px;">撰写报告初稿</kbd>"
+                </li>
+                <li style="color: #27ae60;">
+                    <strong>任务时长：</strong>预估完成时间，如"<kbd style="background: #f1f1f1; padding: 2px 5px; border-radius: 3px;">30分钟</kbd>"
+                </li>
+                <li style="color: #27ae60;">
+                    <strong>时间段（可选）：</strong>设置具体执行时间，如"<kbd style="background: #f1f1f1; padding: 2px 5px; border-radius: 3px;">14:00-14:30</kbd>"
+                </li>
+            </ul>
+        </li>
+    </ul>
+
+    <h3 style="color: #e67e22;">2️⃣ 开始专注</h3>
+    <ul style="list-style: none; padding-left: 20px;">
+        <li>📋 在任务列表中选择要执行的任务</li>
+        <li>▶️ 点击对应的"开始任务"按钮</li>
+        <li>⏱️ 系统开始倒计时，请专注完成当前任务</li>
+    </ul>
+
+    <h2 style="color: #3498db; border-bottom: 2px solid #3498db; padding-bottom: 8px;">
+        💡 三、使用技巧
+    </h2>
+
+    <h3 style="color: #e67e22;">⚙️ 时间管理建议</h3>
+    <ul style="list-style: none; padding-left: 20px;">
+        <li>📊 合理评估任务时长，循序渐进提高准确度</li>
+        <li>🌟 任务间适当休息 5-10 分钟</li>
+        <li>🔄 根据实际情况灵活调整时间，但避免频繁修改</li>
+    </ul>
+
+    <h3 style="color: #e67e22;">🎯 Timeboxing 方法优势</h3>
+    <ul style="list-style: none; padding-left: 20px;">
+        <li style="color: #2980b9;">🎯 <strong>提升专注力：</strong>明确时限促进专注</li>
+        <li style="color: #2980b9;">⚡️ <strong>提高效率：</strong>避免时间浪费</li>
+        <li style="color: #2980b9;">✅ <strong>克服拖延：</strong>任务分解更易执行</li>
+        <li style="color: #2980b9;">😌 <strong>减轻压力：</strong>有序安排缓解焦虑</li>
+        <li style="color: #2980b9;">⏰ <strong>时间掌控：</strong>提升时间评估能力</li>
+    </ul>
+
+    <h3 style="color: #e67e22;">⚠️ 注意事项</h3>
+    <ul style="list-style: none; padding-left: 20px; color: #e74c3c;">
+        <li>❗ 添加的任务只有倒计时结束后才会被清除</li>
+        <li>❗ 为保持专注，任务时长只能填写 10-60 分钟</li>
+        <li>❗ 你仍可以通过使用窗口的启动按钮，仅进行番茄钟的倒计时</li>
+    </ul>
+
+    <p style="text-align: center; color: #2ecc71; font-size: 1.2em; margin-top: 30px;">
+        <strong>💪 准备好开始高效的一天了吗？让我们用 Timeboxing 时间管理法，告别拖延，实现目标！</strong>
+    </p>
+           
+        </div>
+    </div>
+
     
 <!-- 链接外部javascript脚本，一般不放在head里 -->   
 <script src="script.js"></script>
-  
-
-   
 </body>
 </html>

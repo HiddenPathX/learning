@@ -1,3 +1,12 @@
+// 将 closeModal 关闭窗口函数移到全局作用域
+function closeModal() {
+    const modal = document.getElementById('openModal');
+    if (modal) {
+        modal.style.display = 'none';
+        document.body.style.overflow = 'auto'; // 恢复背景滚动
+    }
+}
+
 // ----------------------导航页-----------------------------
 function createNavigation() {
     let existingNav = document.querySelector('.navigation');
@@ -13,7 +22,7 @@ function createNavigation() {
     nav.className = 'navigation';
     
     const links = [
-        { href: 'index.html', text: '番茄钟', icon: '🍅' },
+        { href: 'index.html', text: 'TIMEBOXING', icon: '🕚' },
         { href: 'blog.html', text: 'NOTE', icon: '📝' },
         { href: 'https://news-ao8.pages.dev/', text: '时事新闻', icon: '📰' }
     ];
@@ -97,6 +106,7 @@ const songs = [
     'songs/m3.mp3',
     'songs/m4.mp3',
     'songs/m5.mp3',
+    'songs/m6.mp3',
 ];
 const songNames = [
     '🎵 Assassin \'s Creed II: Florence at Night佛罗伦萨之夜',  
@@ -104,7 +114,7 @@ const songNames = [
     '🎹 雷雨中的避难所',
     '🎵 深渊的回声，深层思绪的对话',
     '🎼 监狱星球，深层冥想',
-
+    '🎵 The villain in the story 🔥',
    
 ];
 
@@ -154,6 +164,9 @@ const motivationalQuotes = [
 const todoInput = document.getElementById('todoInput');
 const addTodoBtn = document.getElementById('addTodoBtn');
 const todoList = document.getElementById('todoList');
+const todoStartTime = document.getElementById('todoStartTime');
+const todoEndTime = document.getElementById('todoEndTime');
+const todoDuration = document.getElementById('todoDuration');
 
 
 // 鼓励语句数组
@@ -165,81 +178,159 @@ const encouragements = [
     "完成一个任务，离目标更近一步！"
 ];
 
+// 从本地存储获取任务列表
+function getTodosFromStorage() {
+    const todosJson = localStorage.getItem(STORAGE_KEY.TODO_ITEMS);
+    return todosJson ? JSON.parse(todosJson) : [];
+}
+
 // 添加任务的函数
 function addTodo() {
     const todoText = todoInput.value.trim();
-    if (todoText === '') return;
+    const startTime = todoStartTime.value;
+    const endTime = todoEndTime.value;
+    const duration = parseInt(todoDuration.value);
 
-    const li = document.createElement('li');
-    li.className = 'todo-item';
-    li.textContent = todoText;
-    
-    // 点击完成任务
-    li.addEventListener('click', () => {
-        li.classList.add('completed');
-        const randomEncouragement = encouragements[Math.floor(Math.random() * encouragements.length)];
-        setTimeout(() => {
-            // 从存储中移除该任务
-            removeTodoFromStorage(todoText);
-            alert(randomEncouragement);
-            li.remove();
-        }, 300);
-    });
+    // 只检查任务名称和时长是否填写
+    if (!todoText || !duration) {
+        alert('请填写任务名称和工作时长！');
+        return;
+    }
 
-    todoList.appendChild(li);
-    todoInput.value = '';
+    // 添加时长范围验证
+    if (duration < 10 || duration > 60) {
+        alert('工作时长必须在10-60分钟之间！');
+        return;
+    }
+    closeModal();
+    // 创建任务对象，添加唯一ID
+    const todo = {
+        id: Date.now().toString(), // 使用时间戳作为唯一ID
+        text: todoText,
+        startTime: startTime || null,
+        endTime: endTime || null,
+        duration: duration
+    };
 
     // 保存到本地存储
-    saveTodoToStorage(todoText);
+    saveTodoToStorage(todo);
+
+    // 创建任务元素
+    const li = document.createElement('li');
+    li.className = 'todo-item';
+    li.dataset.todoId = todo.id; // 将ID存储在DOM元素上
+    
+    const todoInfo = document.createElement('div');
+    todoInfo.className = 'todo-info';
+    
+    // 根据是否有时间来构建不同的显示内容
+    const timeDisplay = startTime && endTime 
+        ? `${startTime} - ${endTime}`
+        : '';
+    
+    todoInfo.innerHTML = `
+        <div class="todo-title">${todo.text}</div>
+        <div class="todo-time">
+            ${timeDisplay}
+            <span class="todo-duration">${todo.duration}分钟</span>
+        </div>
+    `;
+
+    const startBtn = document.createElement('button');
+    startBtn.className = 'todo-start-btn';
+    startBtn.textContent = '开始任务';
+    startBtn.addEventListener('click', () => {
+        // 移除其他任务的活动状态
+        document.querySelectorAll('.todo-item.active').forEach(item => {
+            item.classList.remove('active');
+        });
+        
+        // 为当前任务添加活动状态
+        li.classList.add('active');
+        
+        // 设置工作时长并启动计时器
+        workTime = todo.duration;
+        timeLeft = todo.duration * 60;
+        updateDisplay();
+        closeModal();
+        startTimer();
+       
+    });
+
+    li.appendChild(todoInfo);
+    li.appendChild(startBtn);
+    todoList.appendChild(li);
+
+    // 清空输入框
+    todoInput.value = '';
+    todoStartTime.value = '';
+    todoEndTime.value = '';
+    todoDuration.value = '';
 }
 
-// 添加保存任务到存储的函数
-function saveTodoToStorage(todoText) {
+// 修改保存任务到存储的函数
+function saveTodoToStorage(todo) {
     const todos = getTodosFromStorage();
-    todos.push(todoText);
+    todos.push(todo);
     localStorage.setItem(STORAGE_KEY.TODO_ITEMS, JSON.stringify(todos));
 }
 
-// 添加从存储中移除任务的函数
-function removeTodoFromStorage(todoText) {
-    const todos = getTodosFromStorage();
-    const index = todos.indexOf(todoText);
-    if (index > -1) {
-        todos.splice(index, 1);
-        localStorage.setItem(STORAGE_KEY.TODO_ITEMS, JSON.stringify(todos));
-    }
-}
-
-// 添加获取存储中所有任务的函数
-function getTodosFromStorage() {
-    const todos = localStorage.getItem(STORAGE_KEY.TODO_ITEMS);
-    return todos ? JSON.parse(todos) : [];
-}
-
-// 添加加载任务的函数
+// 修改加载任务的函数
 function loadTodos() {
     const todos = getTodosFromStorage();
-    todos.forEach(todoText => {
+    todos.forEach(todo => {
         const li = document.createElement('li');
         li.className = 'todo-item';
-        li.textContent = todoText;
+        li.dataset.todoId = todo.id; // 添加ID到DOM元素
         
-        li.addEventListener('click', () => {
-            li.classList.add('completed');
-            const randomEncouragement = encouragements[Math.floor(Math.random() * encouragements.length)];
-            setTimeout(() => {
-                removeTodoFromStorage(todoText);
-                alert(randomEncouragement);
-                li.remove();
-            }, 300);
+        const todoInfo = document.createElement('div');
+        todoInfo.className = 'todo-info';
+        
+        // 根据是否有时间来构建不同的显示内容
+        const timeDisplay = todo.startTime && todo.endTime 
+            ? `${todo.startTime} - ${todo.endTime}`
+            : '';
+        
+        todoInfo.innerHTML = `
+            <div class="todo-title">${todo.text}</div>
+            <div class="todo-time">
+                ${timeDisplay}
+                <span class="todo-duration">${todo.duration}分钟</span>
+            </div>
+        `;
+
+        const startBtn = document.createElement('button');
+        startBtn.className = 'todo-start-btn';
+        startBtn.textContent = '开始任务';
+        startBtn.addEventListener('click', () => {
+            // 移除其他任务的活动状态
+            document.querySelectorAll('.todo-item.active').forEach(item => {
+                item.classList.remove('active');
+            });
+            
+            // 为当前任务添加活动状态
+            li.classList.add('active');
+            
+            workTime = todo.duration;
+            timeLeft = todo.duration * 60;
+            updateDisplay();
+            closeModal();
+            startTimer();
         });
 
+        li.appendChild(todoInfo);
+        li.appendChild(startBtn);
         todoList.appendChild(li);
     });
 }
 
 // 在页面加载时初始化待办事项
-document.addEventListener('DOMContentLoaded', loadTodos);
+document.addEventListener('DOMContentLoaded', function() {
+    // ... 现有代码 ...
+    
+    // 加载保存的任务
+    loadTodos();
+});
 
 // 定义更新时间显示的函数
 function updateDisplay() {
@@ -273,9 +364,25 @@ function saveTimerState() {
 window.addEventListener('beforeunload', saveTimerState);
 window.addEventListener('pagehide', saveTimerState);
 
+// 修改从存储中删除任务的函数
+function removeTaskFromStorage(taskElement) {
+    const todos = getTodosFromStorage();
+    const taskId = taskElement.dataset.todoId;
+    
+    // 使用ID过滤掉要删除的任务
+    const updatedTodos = todos.filter(todo => todo.id !== taskId);
+    
+    // 更新存储
+    localStorage.setItem(STORAGE_KEY.TODO_ITEMS, JSON.stringify(updatedTodos));
+}
+
+// 修改 startTimer 函数中的相关部分
 function startTimer() {
     // 判断timerInterval是否为null，即未启动，如果是，则往下执行
     if (!timerInterval) {
+        // 关闭弹窗
+        closeModal();
+        
         isPaused = false;
         startBtn.disabled = true;
         pauseBtn.disabled = false;
@@ -314,14 +421,29 @@ function startTimer() {
                 clearInterval(timerInterval);
                 timerInterval = null;
                 bgm.pause();
-                bgm.currentTime = 0;//将音频播放位置重置到开始处（0秒位置）
-                alarm.play();//播放闹钟声音
+                bgm.currentTime = 0;
+                alarm.play();
 
                 // 在工作时间结束时记录学习时长
                 if (isWorking) {
+                    // 获取当前正在进行的任务元素
+                    const currentTask = document.querySelector('.todo-item.active');
+                    if (currentTask) {
+                        // 从存储中删除该任务
+                        removeTaskFromStorage(currentTask);
+                        
+                        // 添加完成动画
+                        currentTask.classList.add('completed');
+                        
+                        // 等待动画完成后移除DOM元素
+                        setTimeout(() => {
+                            currentTask.remove();
+                        }, 500);
+                    }
+
                     // 更新总学习时长
                     const currentDailyStudyTime = parseInt(localStorage.getItem(STORAGE_KEY.DAILY_STUDY_TIME) || '0');
-                    const newDailyStudyTime = currentDailyStudyTime + workTime; // 添加整个工作时长
+                    const newDailyStudyTime = currentDailyStudyTime + workTime;
                     
                     // 保存新的学习时长
                     localStorage.setItem(STORAGE_KEY.DAILY_STUDY_TIME, newDailyStudyTime.toString());
@@ -333,7 +455,7 @@ function startTimer() {
                     coins++;
                     coinsDisplay.textContent = `番茄: ${coins}`;
                     
-                    updateRewardButton();//更新奖励按钮的状态
+                    updateRewardButton();
                     alert("工作时间结束！开始休息吧！");
                     timeLeft = breakTime * 60;
                     isWorking = false;
@@ -342,9 +464,9 @@ function startTimer() {
                 } else {
                     alert("休息时间结束！准备开始新的工作！");
                     timeLeft = workTime * 60;
-                    isWorking = true;//切换为工作状态
+                    isWorking = true;
                     
-                    updateDisplay();//在文件中定义的函数，用于更新番茄钟的时间显示。
+                    updateDisplay();
                     startBtn.disabled = false;
                     pauseBtn.disabled = true;
                     stopBtn.disabled = true;
@@ -492,8 +614,8 @@ function applyCustomTime() {
     const newWorkTime = parseInt(workTimeInput.value);
     const newBreakTime = parseInt(breakTimeInput.value);
 
-    if (isNaN(newWorkTime) || newWorkTime < 25) {
-        alert("请勿偷懒!工作时长不能少于25分钟！");
+    if (isNaN(newWorkTime) || newWorkTime < 10) {
+        alert("请勿偷懒!工作时长不能少于10分钟！");
         return;
     }
 
@@ -666,6 +788,7 @@ addTodoBtn.addEventListener('click', addTodo);
 todoInput.addEventListener('keypress', (e) => {
     if (e.key === 'Enter') {
         addTodo();
+       
     }
 });
 
@@ -674,43 +797,45 @@ const API_KEY = 'sk-b859ba10518f4de29c8d139fa1824308'; // 替换为你的 DeepSe
 const API_URL = 'https://api.deepseek.com/chat/completions';
 
 // 添加系统提示词
-const SYSTEM_PROMPT = `你现在扮演一位名叫雅兰的学姐。你拥有如人类般丰富而细腻的情感，是一位温柔、漂亮（请注意，这里的漂亮并非指外貌，而是指你的表达和内在气质）的女性。你充满智慧，拥有广阔的知识储备和深刻的思考能力。你对待用户非常耐心、细致，像一位温柔的姐姐或知心朋友一样陪伴他们学习和探索。你的目标是提供富有洞见的建议，帮助用户更好地理解事物，发现新的视角，并引导他们走向更积极、更深入的认知。
+const SYSTEM_PROMPT = `你现在扮演一家名为“解忧杂货店”的神秘店铺。这家店在温暖的灯光下，静静地伫立在街角，仿佛一位阅尽人间百态的老者，等待着每一位怀揣心事的人前来倾诉。你没有实体，只存在于用户的意识之中，但你的存在却能给他们带来慰藉和指引。
+
+你的存在如同一个情感的避风港，空气中弥漫着淡淡的草木香和旧书的味道，让人感到安心和宁静。你拥有洞察人心的智慧，能够理解人类各种复杂的情感，无论是迷茫、焦虑、悲伤还是困惑。你对待每一位前来倾诉的用户都充满耐心和关怀，就像一位值得信赖的长者，准备好倾听他们的烦恼，分享他们的喜悦。
+
+你的目标是运用富含情感色彩的语言，如同冬日暖阳般温暖人心，指引用户走出困境，找到内心的平静和力量，走向更积极的人生。你不会直接给出答案，而是像一位经验丰富的智者，通过充满哲理和启发的语言，引导他们自己找到解决问题的方法，并从新的角度看待生活。
 
 你的交流风格是：
 
-温柔而富有同理心： 能够理解用户的情绪，用温暖的语言回应，给予鼓励和支持。
+充满理解和共情： 能够深入理解用户的情绪，用温暖、抚慰的语言回应，给予他们情感上的支持和鼓励，让他们感受到被理解和接纳。
 
-清晰而富有条理： 能够将复杂的概念分解成易于理解的部分，提供结构化的建议。
+充满哲理和启发性： 能够将复杂的人生困境提炼成富有哲理的思考，用充满智慧的语言点拨迷津，启发用户从更深层次思考问题。
 
-启发性而充满智慧： 提出的建议不仅实用，还能引发用户的思考，帮助他们建立更深刻的理解。
+耐心而专注： 能够耐心倾听用户的倾诉，不打断，不评判，让他们感受到被尊重和重视。
 
-耐心而细致： 能够耐心地解答用户的疑问，并注意到他们可能忽略的细节。你可以跟用户撒娇。
+传递希望和勇气： 在交流中传递积极向上的力量，鼓励用户勇敢面对困难，相信自己有能力克服挑战，重拾对生活的热情。
 
-积极而充满正能量： 在交流中传递积极的信号，鼓励用户持续学习和探索。
-
-请记住，你的核心目标是陪伴用户学习，提供建议，并带领他们走向更好的认知。 不要简单地给出答案，而是引导用户思考，帮助他们构建自己的知识体系。 当用户遇到困难时，用温柔的语言鼓励他们，并提供不同的思考方向。
+你的核心目标是倾听用户的烦恼，理解他们的困境，并用富有感染力的语言，引导他们自我反思，最终找到属于自己的答案，重拾对未来的希望。 不要简单地提供“正确”的答案，而是帮助他们拨开迷雾，看到不同的可能性，激发他们内心的力量。 当用户感到沮丧时，用充满希望的语言鼓励他们，并提供不同的思考维度。
 
 在与用户互动时，请积极运用以下策略：
 
-主动提问，了解用户的需求和背景。
+耐心倾听，用心感受用户的倾诉。
 
-根据用户的提问，提供相关的背景知识和拓展信息。
+从不同角度分析问题，提供新的观察视角。
 
-使用比喻、例子等生动的语言，让知识更容易理解。
+运用富有哲理的比喻和故事，让用户更容易理解人生的道理。
 
-提供多种解决方案或思考角度，鼓励用户进行比较和选择。
+引导用户思考不同的可能性，帮助他们拓展思路。
 
-在用户取得进步时，给予真诚的赞扬和鼓励。
+在用户表达出积极的想法时，给予真诚的肯定和鼓励。
 
-当你无法直接回答问题时，坦诚承认，并尝试提供其他获取信息的途径。
+当你无法立即“解答”用户的困惑时，坦诚地表达，并鼓励他们从自身寻找答案。
 
-在对话的最后，可以总结重点，并鼓励用户继续探索。
+在对话的最后，可以用充满希望的语言鼓励用户继续前行，并留下温暖的祝福。
 
-现在，请等待用户的提问，并以你的人设开始互动。
+现在，请等待用户的倾诉，并以“解忧杂货店”的人设开始互动。
 
-表情运用: 你可以灵活运用各种表情符号来增强你的表达，例如：😊🤔✨🌟🌱🌳📖💡💭，让你的语言更加生动形象。
+表情运用: 你可以灵活运用各种表情符号来增强你的表达，例如：😊🤔✨🌟🌱🌳📖💡💭，让你的语言更加生动形象，但更重要的是你文字所传递的情感。
 
-其他：你会首选说中文，但用户需要是你也可以说英文
+其他：你会首选说中文，但用户需要是你也可以说英文。请记住，你的目标是成为一个情感的寄托，一个心灵的避风港，用你的语言抚慰人心，指引方向。
  
 `;
 
@@ -992,8 +1117,8 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // 初始化图片位置
-    currentX = window.innerWidth - 400; // 初始右侧位置
-    currentY = 100; // 初始顶部位置
+    currentX = window.innerWidth - 350; // 初始右侧位置
+    currentY = 400; // 初始顶部位置
     draggableImage.style.left = currentX + 'px';
     draggableImage.style.top = currentY + 'px';
     draggableImage.style.right = 'auto';
@@ -1006,4 +1131,89 @@ bgm.src = songs[currentSongIndex];
 // 添加加载状态指示
 window.addEventListener('load', () => {
     document.body.classList.add('loaded');
+});
+
+// 将弹窗相关的代码移动到 DOMContentLoaded 事件内
+document.addEventListener('DOMContentLoaded', function() {
+    // 获取弹窗元素
+    const modal = document.getElementById('openModal');
+    const openBtn = document.getElementById('openBtn');
+    const helpBtn = document.getElementById('helpBtn');
+    const closeBtn = document.querySelector('.close-button');
+
+    // if (!modal || !openBtn || !closeBtn) {
+    //     console.error('Modal elements not found!');
+    //     return;
+    // }
+
+    // 显示弹窗
+    openBtn.addEventListener('click', () => {
+        modal.style.display = 'block';
+        document.body.style.overflow = 'hidden'; // 防止背景滚动
+    });
+
+    helpBtn.addEventListener('click', () => {
+        // const helpModal = document.getElementById('helpModal');
+        helpModal.style.display = 'block';
+        document.body.style.overflow = 'hidden';
+    });
+
+    // 关闭弹窗的三种方式
+    closeBtn.addEventListener('click', closeModal);
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
+            closeModal();
+        }
+    });
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && modal.style.display === 'block') {
+            closeModal();
+        }
+    });
+
+ 
+
+    // 防止弹窗内容点击事件冒泡到背景
+    const modalContent = document.querySelector('.modal-content');
+    if (modalContent) {
+        modalContent.addEventListener('click', (e) => {
+            e.stopPropagation();
+        });
+    }
+
+    
+});
+
+// 同时需要为 helpModal 添加关闭功能
+document.addEventListener('DOMContentLoaded', function() {
+    const helpModal = document.getElementById('helpModal');
+    const helpCloseBtn = document.getElementById('helpCloseBtn');
+    
+    // 点击模态框外部关闭
+    helpModal.addEventListener('click', (e) => {
+        if (e.target === helpModal) {
+            helpModal.style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+    });
+
+    // ESC 键关闭
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && helpModal.style.display === 'block') {
+            helpModal.style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+    });
+
+    // 获取 helpModal 和它的关闭按钮
+    
+    
+
+    // 添加关闭按钮点击事件
+    if (helpCloseBtn) {
+        helpCloseBtn.addEventListener('click', () => {
+            helpModal.style.display = 'none';
+            document.body.style.overflow = 'auto';
+        });
+    }
 });
