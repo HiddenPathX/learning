@@ -114,7 +114,7 @@ const songNames = [
     '🎹 雷雨中的避难所',
     '🎵 深渊的回声，深层思绪的对话',
     '🎼 监狱星球，深层冥想',
-    '🎵 The villain in the story 🔥',
+    'The Last of Us Part 2 🎵 Chill Ambient Music 🎵 + Rain & Storm Sounds',
    
 ];
 
