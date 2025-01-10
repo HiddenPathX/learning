@@ -105,15 +105,12 @@ const songs = [
     'songs/m2.mp3',
     'songs/m3.mp3',
     'songs/m4.mp3',
-    'songs/m5.mp3',
-    'songs/m6.mp3',
+
 ];
 const songNames = [
     '🎵 Assassin \'s Creed II: Florence at Night佛罗伦萨之夜',  
     '🎼 漂浮在星云间,意识的涟漪在宇宙低语中荡漾',
-    '🎹 雷雨中的避难所',
     '🎵 深渊的回声，深层思绪的对话',
-    '🎼 监狱星球，深层冥想',
     'The Last of Us Part 2 🎵 Chill Ambient Music 🎵 + Rain & Storm Sounds',
    
 ];
@@ -527,9 +524,9 @@ function stopTimer() {
 // 添加初始化函数，在页面加载时检查并恢复状态
 function initializeTimer() {
     // 初始化音量设置为30%
-    bgm.volume = 0.3;
-    volumeSlider.value = 30;
-    volumeValue.textContent = '30%';
+    bgm.volume = 0.5;
+    volumeSlider.value = 50;
+    volumeValue.textContent = '50%';
 
     // 恢复保存的工作和休息时长
     const savedWorkTime = localStorage.getItem(STORAGE_KEY.WORK_TIME);
@@ -735,7 +732,7 @@ function toggleMuteBgm() {
     } else {
         muteBgmBtn.textContent = "静音";
         // 恢复之前的音量
-        const previousVolume = Math.max(30, volumeSlider.value);
+        const previousVolume = Math.max(50, volumeSlider.value);
         volumeSlider.value = previousVolume;
         volumeValue.textContent = `${previousVolume}%`;
         bgm.volume = previousVolume / 100;
