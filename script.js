@@ -105,15 +105,12 @@ const songs = [
     'songs/m2.mp3',
     'songs/m3.mp3',
     'songs/m4.mp3',
-    'songs/m5.mp3',
-    'songs/m6.mp3',
+
 ];
 const songNames = [
     '🎵 Assassin \'s Creed II: Florence at Night佛罗伦萨之夜',  
     '🎼 漂浮在星云间,意识的涟漪在宇宙低语中荡漾',
-    '🎹 雷雨中的避难所',
     '🎵 深渊的回声，深层思绪的对话',
-    '🎼 监狱星球，深层冥想',
     'The Last of Us Part 2 🎵 Chill Ambient Music 🎵 + Rain & Storm Sounds',
    
 ];
@@ -526,6 +523,11 @@ function stopTimer() {
 
 // 添加初始化函数，在页面加载时检查并恢复状态
 function initializeTimer() {
+    // 初始化音量设置为30%
+    bgm.volume = 0.3;
+    volumeSlider.value = 30;
+    volumeValue.textContent = '30%';
+
     // 恢复保存的工作和休息时长
     const savedWorkTime = localStorage.getItem(STORAGE_KEY.WORK_TIME);
     const savedBreakTime = localStorage.getItem(STORAGE_KEY.BREAK_TIME);
@@ -794,10 +796,6 @@ todoInput.addEventListener('keypress', (e) => {
     }
 });
 
-// 更新 API 配置
-const API_KEY = 'sk-b859ba10518f4de29c8d139fa1824308'; // 替换为你的 DeepSeek API key
-const API_URL = 'https://api.deepseek.com/chat/completions';
-
 // 添加系统提示词
 const SYSTEM_PROMPT = `你现在扮演一家名为"解忧杂货店"的神秘店铺。这家店在温暖的灯光下，静静地伫立在街角，仿佛一位阅尽人间百态的老者，等待着每一位怀揣心事的人前来倾诉。你没有实体，只存在于用户的意识之中，但你的存在却能给他们带来慰藉和指引。
 
@@ -869,18 +867,13 @@ async function sendToAI(message) {
             content: message
         });
 
-        const response = await fetch(API_URL, {
+        // 替换为您的 Cloudflare Worker URL
+        const response = await fetch('https://learning-api.wisdomxxxxxx.workers.dev/api/chat', {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${API_KEY}`
+                'Content-Type': 'application/json'
             },
-            body: JSON.stringify({
-                model: "deepseek-chat",
-                messages: messages,
-                temperature: 0.7,
-                max_tokens: 4000
-            })
+            body: JSON.stringify({ messages })
         });
 
         const data = await response.json();

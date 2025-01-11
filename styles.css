@@ -951,17 +951,40 @@ body.loaded .container2 {
 
 /* 弹窗按钮样式 */
 #openBtn {
-    background-color: #50ffbc; 
+    background: linear-gradient(135deg, #7bc6cc 0%, #5a9ea6 100%);
     padding: 12px 25px;
     border: none;
     border-radius: 8px;
     color: white;
     cursor: pointer;
-    transition: background-color 0.3s ease;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    position: relative;
+    overflow: hidden;
 }
 
 #openBtn:hover {
-    background-color: #319b72; 
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+    background: linear-gradient(135deg, #5a9ea6 0%, #7bc6cc 100%);
+}
+
+#openBtn::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 300%;
+    height: 300%;
+    background: radial-gradient(circle, rgba(255,255,255,0.3) 10%, transparent 10.01%);
+    transform: translate(-50%, -50%) scale(0);
+    transition: transform 0.5s ease;
+}
+
+#openBtn:active::after {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 0;
+    transition: transform 0s;
 }
 
 
