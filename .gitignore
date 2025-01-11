@@ -1,7 +1,4 @@
-# 系统文件
+.env
+node_modules/
 .DS_Store
-Thumbs.db
-
-# 本地配置
-.wrangler/
-.env* 
+*.log 

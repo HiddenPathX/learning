@@ -796,6 +796,9 @@ todoInput.addEventListener('keypress', (e) => {
     }
 });
 
+// 更新 API 配置
+const API_URL = 'https://learning-backend-5pkx.onrender.com/api/chat';
+
 // 添加系统提示词
 const SYSTEM_PROMPT = `你现在扮演一家名为"解忧杂货店"的神秘店铺。这家店在温暖的灯光下，静静地伫立在街角，仿佛一位阅尽人间百态的老者，等待着每一位怀揣心事的人前来倾诉。你没有实体，只存在于用户的意识之中，但你的存在却能给他们带来慰藉和指引。
 
@@ -867,8 +870,7 @@ async function sendToAI(message) {
             content: message
         });
 
-        // 替换为您的 Cloudflare Worker URL
-        const response = await fetch('https://learning-api.wisdomxxxxxx.workers.dev/api/chat', {
+        const response = await fetch(API_URL, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
