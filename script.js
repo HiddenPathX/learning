@@ -511,18 +511,38 @@ function stopTimer() {
                 console.error('更新学习记录失败:', error);
             });
         }
-        
-        // 重置计时器状态
-        timeLeft = 0;
-        updateDisplay();
-        updateButtons();
-        
-        // 停止音乐
-        if (!bgm.paused) {
-            bgm.pause();
-            bgm.currentTime = 0;
-        }
     }
+    
+    // 重置所有状态
+    timeLeft = 0;
+    initialTime = 0;
+    isPaused = false;
+    isWorking = true;
+    
+    // 更新显示
+    updateDisplay();
+    
+    // 更新按钮状态
+    startBtn.disabled = false;
+    pauseBtn.disabled = true;
+    stopBtn.disabled = true;
+    
+    // 停止音乐
+    if (!bgm.paused) {
+        bgm.pause();
+        bgm.currentTime = 0;
+    }
+    
+    // 隐藏音乐名称和粒子效果
+    currentSongDisplay.classList.remove('show');
+    hideParticles();
+    
+    // 清除所有存储的状态
+    localStorage.removeItem(STORAGE_KEY.START_TIME);
+    localStorage.removeItem(STORAGE_KEY.TIME_LEFT);
+    localStorage.removeItem(STORAGE_KEY.IS_WORKING);
+    localStorage.removeItem(STORAGE_KEY.IS_ACTIVE);
+    localStorage.removeItem(STORAGE_KEY.IS_PAUSED);
 }
 
 
@@ -1398,8 +1418,23 @@ async function uploadStudyRecord(duration) {
 
         if (response.ok) {
             console.log('学习记录上传成功');
-            // 立即更新统计数据显示
-            await loadWeeklyStats();
+            
+            // 更新今日学习时长
+            const currentDailyTime = parseInt(localStorage.getItem(STORAGE_KEY.DAILY_STUDY_TIME) || '0');
+            const newDailyTime = currentDailyTime + duration;
+            localStorage.setItem(STORAGE_KEY.DAILY_STUDY_TIME, newDailyTime.toString());
+            updateStudyDurationDisplay(newDailyTime);
+            
+            // 更新统计数据
+            if (data.stats) {
+                console.log('收到新的统计数据:', data.stats);
+                updateWeeklyChart(data.stats.weeklyData);
+                updateStatsSummary(data.stats);
+            } else {
+                console.log('正在重新获取统计数据...');
+                await loadWeeklyStats();
+            }
+            
             return data;
         } else {
             console.error('上传学习记录失败:', data.message);
@@ -1411,8 +1446,27 @@ async function uploadStudyRecord(duration) {
     }
 }
 
+// 更新统计摘要
+function updateStatsSummary(data) {
+    try {
+        console.log('正在更新统计摘要，数据:', data);
+        const weeklyTotal = document.getElementById('weeklyTotal');
+        const dailyAverage = document.getElementById('dailyAverage');
+        const longestSession = document.getElementById('longestSession');
+        
+        if (weeklyTotal) weeklyTotal.textContent = `${data.weeklyTotal || 0}分钟`;
+        if (dailyAverage) dailyAverage.textContent = `${Math.round(data.dailyAverage) || 0}分钟`;
+        if (longestSession) longestSession.textContent = `${data.longestSession || 0}分钟`;
+        
+        console.log('统计摘要更新成功');
+    } catch (error) {
+        console.error('更新统计摘要失败:', error);
+    }
+}
+
 // 更新周学习图表
 function updateWeeklyChart(weeklyData) {
+    console.log('正在更新周学习图表，数据:', weeklyData);
     const chartContainer = document.querySelector('.chart-container');
     if (!chartContainer) {
         console.error('找不到图表容器');
@@ -1420,7 +1474,11 @@ function updateWeeklyChart(weeklyData) {
     }
     
     chartContainer.innerHTML = '';
-    console.log('周数据:', weeklyData);
+    
+    if (!weeklyData || !Array.isArray(weeklyData)) {
+        console.error('无效的周数据:', weeklyData);
+        return;
+    }
 
     const maxStudyTime = Math.max(...weeklyData, 1); // 确保至少有高度
     
@@ -1442,18 +1500,8 @@ function updateWeeklyChart(weeklyData) {
         
         chartContainer.appendChild(bar);
     });
-}
-
-// 更新统计摘要
-function updateStatsSummary(data) {
-    try {
-        document.getElementById('weeklyTotal').textContent = `${data.weeklyTotal}分钟`;
-        document.getElementById('dailyAverage').textContent = `${Math.round(data.dailyAverage)}分钟`;
-        document.getElementById('longestSession').textContent = `${data.longestSession}分钟`;
-        console.log('统计摘要更新成功');
-    } catch (error) {
-        console.error('更新统计摘要失败:', error);
-    }
+    
+    console.log('图表更新完成');
 }
 
 // 检查登录状态并初始化
