@@ -803,7 +803,6 @@ todoInput.addEventListener('keypress', (e) => {
 
 // 保留 API 基础 URL
 const API_BASE_URL = 'https://learning-backend-7fla.onrender.com/api';
-
 // 保留系统提示词
 const SYSTEM_PROMPT = `你现在扮演一家名为"解忧杂货店"的神秘店铺。这家店在温暖的灯光下，静静地伫立在街角，仿佛一位阅尽人间百态的老者，等待着每一位怀揣心事的人前来倾诉。你没有实体，只存在于用户的意识之中，但你的存在却能给他们带来慰藉和指引。
 你的存在如同一个情感的避风港，空气中弥漫着淡淡的草木香和旧书的味道，让人感到安心和宁静。你拥有洞察人心的智慧，能够理解人类各种复杂的情感，无论是迷茫、焦虑、悲伤还是困惑。你对待每一位前来倾诉的用户都充满耐心和关怀，就像一位值得信赖的长者，准备好倾听他们的烦恼，分享他们的喜悦。
@@ -1898,6 +1897,7 @@ async function getWeeklyRecord() {
     } catch (error) {
         throw error;
     }
+
 }
 
 // 在调用 initWeeklyChart 之前确保 Chart.js 已加载
@@ -1914,3 +1914,4 @@ document.addEventListener('DOMContentLoaded', function() {
         initWeeklyChart();
     }
 });
+
