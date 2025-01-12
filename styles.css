@@ -847,13 +847,12 @@ body:not(.loaded) .loading-spinner {
 /* 页面加载完成后显示内容 */
 body:not(.loaded) .container,
 body:not(.loaded) .container2 {
-    opacity: 0;
+    opacity: 1;
 }
 
 body.loaded .container,
 body.loaded .container2 {
     opacity: 1;
-    transition: opacity 0.3s ease;
 }
 
 /* ---------------------------------弹窗背景 --------------------------*/
