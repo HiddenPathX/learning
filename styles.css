@@ -990,7 +990,7 @@ body.loaded .container2 {
 
 /* --------------------------------------------------------------- */
 
-/* 容器框架3 */
+/* 添加登录注册框架样式 */
 .container3 {
     background: rgba(255, 255, 255, 0.15);
     backdrop-filter: blur(12px);
@@ -1009,167 +1009,179 @@ body.loaded .container2 {
     transition: all 0.3s ease;
 }
 
-/* 登录注册表单样式 */
-.auth-form {
+.container3:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    background: rgba(255, 255, 255, 0.2);
+}
+
+/* 登录表单样式 */
+.login-form, .register-form {
+    display: none;
+    flex-direction: column;
+    gap: 20px;
     padding: 20px;
 }
 
-.auth-form h2 {
-    color: rgba(255, 255, 255, 0.95);
-    margin-bottom: 30px;
-    font-size: 1.8em;
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+.form-active {
+    display: flex;
 }
 
 .form-group {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-    margin-bottom: 20px;
+    position: relative;
+    margin-bottom: 15px;
 }
 
 .form-group input {
-    padding: 12px;
+    width: 100%;
+    padding: 12px 15px;
     border: none;
     border-radius: 8px;
     background: rgba(255, 255, 255, 0.1);
     color: white;
-    font-size: 1em;
+    font-size: 16px;
     transition: all 0.3s ease;
-}
-
-.form-group input::placeholder {
-    color: rgba(255, 255, 255, 0.6);
 }
 
 .form-group input:focus {
     outline: none;
     background: rgba(255, 255, 255, 0.2);
-    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.3);
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+}
+
+.form-group input::placeholder {
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.auth-buttons {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    margin-bottom: 20px;
 }
 
 .auth-btn {
     padding: 12px 25px;
     border: none;
     border-radius: 8px;
-    background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+    background: linear-gradient(135deg, #6e8efb, #4a6cf7);
     color: white;
-    font-size: 1em;
+    font-size: 16px;
     cursor: pointer;
     transition: all 0.3s ease;
 }
 
 .auth-btn:hover {
     transform: translateY(-2px);
-    box-shadow: 0 4px 15px rgba(52, 152, 219, 0.4);
+    box-shadow: 0 5px 15px rgba(74, 108, 247, 0.4);
 }
 
-.switch-form {
-    margin-top: 20px;
-    color: rgba(255, 255, 255, 0.8);
+.auth-btn.active {
+    background: linear-gradient(135deg, #4a6cf7, #6e8efb);
 }
 
-.switch-form span {
-    color: #3498db;
+.submit-btn {
+    width: 100%;
+    padding: 12px;
+    border: none;
+    border-radius: 8px;
+    background: linear-gradient(135deg, #00b09b, #96c93d);
+    color: white;
+    font-size: 16px;
     cursor: pointer;
-    text-decoration: underline;
-    margin-left: 5px;
+    transition: all 0.3s ease;
 }
 
-/* 个人档案样式 */
-.profile-section {
-    padding: 20px;
+.submit-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 176, 155, 0.4);
 }
 
-.profile-info {
+/* 用户资料样式 */
+.user-profile {
+    display: none;
+    text-align: center;
+    color: white;
+}
+
+.profile-header {
     margin-bottom: 30px;
-    color: rgba(255, 255, 255, 0.95);
 }
 
-.profile-info p {
-    font-size: 1.2em;
-    margin-bottom: 20px;
+.profile-avatar {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    margin: 0 auto 15px;
+    background: linear-gradient(135deg, #00b09b, #96c93d);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 40px;
+    color: white;
 }
 
 .study-stats {
-    text-align: left;
+    margin-top: 20px;
 }
 
-.study-stats h3 {
-    color: rgba(255, 255, 255, 0.95);
-    margin-bottom: 20px;
-    font-size: 1.4em;
-}
-
-.weekly-chart {
-    background: rgba(255, 255, 255, 0.1);
-    padding: 20px;
-    border-radius: 12px;
-    margin-bottom: 20px;
-}
-
-.chart-container {
-    height: 200px;
-    display: flex;
-    align-items: flex-end;
-    justify-content: space-between;
-    padding: 10px 0;
-}
-
-.chart-bar {
-    width: 12%;
-    background: linear-gradient(to top, #3498db, #2980b9);
-    border-radius: 4px 4px 0 0;
-    transition: height 0.3s ease;
-}
-
-.chart-labels {
-    display: flex;
-    justify-content: space-between;
-    margin-top: 10px;
-    color: rgba(255, 255, 255, 0.8);
-}
-
-.stats-summary {
+.stats-grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(2, 1fr);
     gap: 15px;
     margin-top: 20px;
 }
 
-.stat-item {
+.stat-card {
     background: rgba(255, 255, 255, 0.1);
     padding: 15px;
-    border-radius: 8px;
-    text-align: center;
+    border-radius: 12px;
+    transition: all 0.3s ease;
 }
 
-.stat-label {
-    display: block;
-    color: rgba(255, 255, 255, 0.7);
-    font-size: 0.9em;
-    margin-bottom: 5px;
+.stat-card:hover {
+    transform: translateY(-3px);
+    background: rgba(255, 255, 255, 0.2);
 }
 
 .stat-value {
-    display: block;
-    color: #3498db;
-    font-size: 1.2em;
+    font-size: 24px;
     font-weight: bold;
+    margin: 5px 0;
 }
 
-/* 响应式调整 */
-@media screen and (max-width: 768px) {
-    .container3 {
-        max-width: 90%;
-        padding: 20px;
-    }
+.stat-label {
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.8);
+}
 
-    .stats-summary {
-        grid-template-columns: 1fr;
-    }
+/* 学习时长图表容器 */
+.study-chart {
+    margin-top: 30px;
+    padding: 20px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+}
 
-    .chart-bar {
-        width: 10%;
-    }
+.chart-container {
+    width: 100%;
+    height: 200px;
+    margin-top: 15px;
+}
+
+/* 登出按钮样式 */
+.logout-btn {
+    margin-top: 20px;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    background: linear-gradient(135deg, #ff6b6b, #ee5253);
+    color: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.logout-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(238, 82, 83, 0.4);
 }

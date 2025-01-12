@@ -374,7 +374,7 @@ function removeTaskFromStorage(taskElement) {
 }
 
 // 修改 startTimer 函数中的相关部分
-function startTimer() {
+async function startTimer() {
     // 判断timerInterval是否为null，即未启动，如果是，则往下执行
     if (!timerInterval) {
         // 关闭弹窗
@@ -407,10 +407,7 @@ function startTimer() {
         // 保存用户当前累积的番茄币数量
         localStorage.setItem(STORAGE_KEY.COINS, coins);
 
-
-
-        
-        timerInterval = setInterval(() => {
+        timerInterval = setInterval(async () => {
             timeLeft--;
             updateDisplay();
 
@@ -438,21 +435,29 @@ function startTimer() {
                         }, 500);
                     }
 
-                    // 更新总学习时长
-                    const currentDailyStudyTime = parseInt(localStorage.getItem(STORAGE_KEY.DAILY_STUDY_TIME) || '0');
-                    const newDailyStudyTime = currentDailyStudyTime + workTime;
-                    
-                    // 保存新的学习时长
-                    localStorage.setItem(STORAGE_KEY.DAILY_STUDY_TIME, newDailyStudyTime.toString());
-                    
-                    // 更新显示
-                    updateStudyDurationDisplay(newDailyStudyTime);
+                    // 记录学习时长到后端
+                    try {
+                        await recordStudyTime(workTime);
+                        
+                        // 更新总学习时长
+                        const currentDailyStudyTime = parseInt(localStorage.getItem(STORAGE_KEY.DAILY_STUDY_TIME) || '0');
+                        const newDailyStudyTime = currentDailyStudyTime + workTime;
+                        
+                        // 保存新的学习时长
+                        localStorage.setItem(STORAGE_KEY.DAILY_STUDY_TIME, newDailyStudyTime.toString());
+                        
+                        // 更新显示
+                        updateStudyDurationDisplay(newDailyStudyTime);
 
-                    // 增加番茄数
-                    coins++;
-                    coinsDisplay.textContent = `番茄: ${coins}`;
-                    
-                    updateRewardButton();
+                        // 增加番茄数
+                        coins++;
+                        coinsDisplay.textContent = `番茄: ${coins}`;
+                        
+                        updateRewardButton();
+                    } catch (error) {
+                        console.error('记录学习时间失败:', error);
+                    }
+
                     alert("工作时间结束！开始休息吧！");
                     timeLeft = breakTime * 60;
                     isWorking = false;
@@ -496,53 +501,28 @@ function pauseTimer() {
 }
 
 function stopTimer() {
-    if (timerInterval) {
-        clearInterval(timerInterval);
-        timerInterval = null;
-        
-        // 如果是正常结束（不是中途停止），则记录学习时长
-        if (timeLeft === 0) {
-            const duration = Math.floor(initialTime / 60); // 将秒转换为分钟
-            console.log('计时结束，记录学习时长:', duration, '分钟');
-            uploadStudyRecord(duration).then(() => {
-                console.log('学习记录已上传，正在更新统计数据...');
-                return loadWeeklyStats();  // 确保在上传后更新统计
-            }).catch(error => {
-                console.error('更新学习记录失败:', error);
-            });
-        }
-    }
-    
-    // 重置所有状态
-    timeLeft = 0;
-    initialTime = 0;
+    clearInterval(timerInterval);
+    timerInterval = null;
     isPaused = false;
     isWorking = true;
-    
-    // 更新显示
+    timeLeft = workTime * 60;
     updateDisplay();
-    
-    // 更新按钮状态
     startBtn.disabled = false;
     pauseBtn.disabled = true;
     stopBtn.disabled = true;
-    
-    // 停止音乐
-    if (!bgm.paused) {
-        bgm.pause();
-        bgm.currentTime = 0;
-    }
-    
-    // 隐藏音乐名称和粒子效果
-    currentSongDisplay.classList.remove('show');
+    bgm.pause();
+    bgm.currentTime = 0;
     hideParticles();
+    hideQuote();
+
+    // 隐藏音乐名称
+    currentSongDisplay.classList.remove('show');
     
-    // 清除所有存储的状态
+    // 清除存储的状态
     localStorage.removeItem(STORAGE_KEY.START_TIME);
     localStorage.removeItem(STORAGE_KEY.TIME_LEFT);
     localStorage.removeItem(STORAGE_KEY.IS_WORKING);
     localStorage.removeItem(STORAGE_KEY.IS_ACTIVE);
-    localStorage.removeItem(STORAGE_KEY.IS_PAUSED);
 }
 
 
@@ -821,9 +801,12 @@ todoInput.addEventListener('keypress', (e) => {
     }
 });
 
-// 后端API地址
-const API_BASE_URL = 'https://learning-backend-8rvl.onrender.com';  // 使用新的后端地址
-console.log('当前 API 地址:', API_BASE_URL);
+// 更新 API 配置
+const API_KEY = 'sk-b859ba10518f4de29c8d139fa1824308'; // 替换为你的 DeepSeek API key
+const API_URL = 'https://api.deepseek.com/chat/completions';
+
+// 添加API基础URL
+const API_BASE_URL = 'https://learning-backend-7fla.onrender.com/api';
 
 // 添加系统提示词
 const SYSTEM_PROMPT = `你现在扮演一家名为"解忧杂货店"的神秘店铺。这家店在温暖的灯光下，静静地伫立在街角，仿佛一位阅尽人间百态的老者，等待着每一位怀揣心事的人前来倾诉。你没有实体，只存在于用户的意识之中，但你的存在却能给他们带来慰藉和指引。
@@ -899,9 +882,15 @@ async function sendToAI(message) {
         const response = await fetch(API_URL, {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${API_KEY}`
             },
-            body: JSON.stringify({ messages })
+            body: JSON.stringify({
+                model: "deepseek-chat",
+                messages: messages,
+                temperature: 0.7,
+                max_tokens: 4000
+            })
         });
 
         const data = await response.json();
@@ -1241,280 +1230,387 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
-// 登录注册相关的DOM元素
-const loginForm = document.getElementById('loginForm');
-const registerForm = document.getElementById('registerForm');
-const profileSection = document.getElementById('profileSection');
-const showRegisterBtn = document.getElementById('showRegister');
-const showLoginBtn = document.getElementById('showLogin');
-const loginBtn = document.getElementById('loginBtn');
-const registerBtn = document.getElementById('registerBtn');
-const logoutBtn = document.getElementById('logoutBtn');
-const profileUsername = document.getElementById('profileUsername');
+// 登录系统相关函数
+function showForm(formType) {
+    const loginForm = document.querySelector('.login-form');
+    const registerForm = document.querySelector('.register-form');
+    const loginBtn = document.querySelector('.auth-btn:nth-child(1)');
+    const registerBtn = document.querySelector('.auth-btn:nth-child(2)');
 
-// 切换登录/注册表单显示
-showRegisterBtn.addEventListener('click', () => {
-    loginForm.style.display = 'none';
-    registerForm.style.display = 'block';
+    if (formType === 'login') {
+        loginForm.classList.add('form-active');
+        registerForm.classList.remove('form-active');
+        loginBtn.classList.add('active');
+        registerBtn.classList.remove('active');
+    } else {
+        loginForm.classList.remove('form-active');
+        registerForm.classList.add('form-active');
+        loginBtn.classList.remove('active');
+        registerBtn.classList.add('active');
+    }
+}
+
+// 初始化图表
+function initWeeklyChart() {
+    const ctx = document.getElementById('weeklyChart').getContext('2d');
+    const gradient = ctx.createLinearGradient(0, 0, 0, 200);
+    gradient.addColorStop(0, 'rgba(106, 17, 203, 0.5)');
+    gradient.addColorStop(1, 'rgba(37, 117, 252, 0.1)');
+
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: ['周一', '周二', '周三', '周四', '周五', '周六', '周日'],
+            datasets: [{
+                label: '学习时长(分钟)',
+                data: [0, 0, 0, 0, 0, 0, 0],
+                fill: true,
+                backgroundColor: gradient,
+                borderColor: 'rgba(106, 17, 203, 1)',
+                tension: 0.4,
+                pointBackgroundColor: 'white',
+                pointBorderColor: 'rgba(106, 17, 203, 1)',
+                pointRadius: 4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    grid: {
+                        color: 'rgba(255, 255, 255, 0.1)'
+                    },
+                    ticks: {
+                        color: 'rgba(255, 255, 255, 0.7)'
+                    }
+                },
+                x: {
+                    grid: {
+                        color: 'rgba(255, 255, 255, 0.1)'
+                    },
+                    ticks: {
+                        color: 'rgba(255, 255, 255, 0.7)'
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    display: false
+                }
+            }
+        }
+    });
+}
+
+// 添加表单提交事件监听器
+document.getElementById('loginForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const username = this.querySelector('input[type="text"]').value;
+    const password = this.querySelector('input[type="password"]').value;
+
+    try {
+        const response = await login(username, password);
+        if (response.token) {
+            localStorage.setItem('token', response.token);
+            localStorage.setItem('userId', response.userId);
+            showUserProfile();
+            alert('登录成功!');
+        }
+    } catch (error) {
+        alert('登录失败: ' + error.message);
+    }
 });
 
-showLoginBtn.addEventListener('click', () => {
-    registerForm.style.display = 'none';
-    loginForm.style.display = 'block';
-});
-
-// 注册功能
-registerBtn.addEventListener('click', async () => {
-    const username = document.getElementById('registerUsername').value;
-    const password = document.getElementById('registerPassword').value;
-    const confirmPassword = document.getElementById('confirmPassword').value;
+document.getElementById('registerForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const username = this.querySelector('input[type="text"]').value;
+    const password = this.querySelector('input[type="password"]').value;
+    const confirmPassword = this.querySelectorAll('input[type="password"]')[1].value;
 
     if (password !== confirmPassword) {
-        alert('两次输入的密码不一致！');
-        return;
-    }
-
-    console.log('正在发送注册请求到:', `${API_BASE_URL}/api/auth/register`);
-    console.log('注册数据:', { username, password });
-
-    try {
-        const response = await fetch(`${API_BASE_URL}/api/auth/register`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ username, password }),
-        });
-
-        console.log('服务器响应状态:', response.status);
-        const data = await response.json();
-        console.log('服务器响应数据:', data);
-
-        if (response.ok) {
-            alert('注册成功！请登录');
-            showLoginBtn.click();
-        } else {
-            alert(data.message || '注册失败，请重试');
-        }
-    } catch (error) {
-        console.error('注册错误详情:', error);
-        alert('注册失败，请检查网络连接或服务器状态');
-    }
-});
-
-// 登录功能
-loginBtn.addEventListener('click', async () => {
-    const username = document.getElementById('loginUsername').value;
-    const password = document.getElementById('loginPassword').value;
-
-    // 显示请求信息
-    console.log('正在发送登录请求到:', `${API_BASE_URL}/api/auth/login`);
-    console.log('登录数据:', { username, password });
-
-    try {
-        const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ username, password }),
-        });
-
-        console.log('服务器响应状态:', response.status);
-        const data = await response.json();
-        console.log('服务器响应数据:', data);
-
-        if (response.ok) {
-            localStorage.setItem('token', data.token);
-            localStorage.setItem('username', username);
-            showProfile(username);
-            alert('登录成功！');
-        } else {
-            alert(data.message || '登录失败，请检查用户名和密码');
-        }
-    } catch (error) {
-        console.error('登录错误详情:', error);
-        alert('登录失败，请检查网络连接或服务器状态');
-    }
-});
-
-// 退出登录
-logoutBtn.addEventListener('click', () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('username');
-    profileSection.style.display = 'none';
-    loginForm.style.display = 'block';
-});
-
-// 显示个人档案
-function showProfile(username) {
-    loginForm.style.display = 'none';
-    registerForm.style.display = 'none';
-    profileSection.style.display = 'block';
-    profileUsername.textContent = username;
-    loadWeeklyStats();
-}
-
-// 加载周学习统计数据
-async function loadWeeklyStats() {
-    const token = localStorage.getItem('token');
-    if (!token) {
-        console.log('未登录，无法加载统计数据');
+        alert('两次输入的密码不一致!');
         return;
     }
 
     try {
-        console.log('正在获取最新周统计数据...');
-        const response = await fetch(`${API_BASE_URL}/api/stats/weekly`, {
-            headers: {
-                'Authorization': `Bearer ${token}`,
-            },
-        });
-
-        console.log('周统计响应状态:', response.status);
-        const data = await response.json();
-        console.log('周统计数据:', data);
-
-        if (response.ok) {
-            console.log('更新图表和统计摘要...');
-            updateWeeklyChart(data.weeklyData);
-            updateStatsSummary(data);
-            console.log('统计数据更新完成');
-        } else {
-            console.error('加载周统计失败:', data.message);
-            throw new Error(data.message);
+        const response = await register(username, password);
+        if (response.token) {
+            localStorage.setItem('token', response.token);
+            localStorage.setItem('userId', response.userId);
+            
+            // 延迟显示用户资料面板，确保 DOM 已更新
+            setTimeout(() => {
+                showUserProfile();
+                // 确保元素存在后再初始化图表
+                const chartCanvas = document.getElementById('weeklyChart');
+                if (chartCanvas && typeof chartCanvas.getContext === 'function') {
+                    initWeeklyChart();
+                }
+                alert('注册成功!');
+            }, 100);
         }
     } catch (error) {
-        console.error('加载统计数据错误:', error);
-        throw error;
+        alert('注册失败: ' + error.message);
+    }
+});
+
+// 修改显示用户资料的函数
+async function showUserProfile() {
+    document.querySelector('.auth-buttons').style.display = 'none';
+    document.querySelector('.login-form').style.display = 'none';
+    document.querySelector('.register-form').style.display = 'none';
+    document.querySelector('.user-profile').style.display = 'block';
+
+    try {
+        // 获取周学习记录
+        const weeklyData = await getWeeklyRecord();
+        console.log('获取到的周学习记录:', weeklyData);
+        
+        // 计算统计数据
+        const todayDate = new Date().toISOString().split('T')[0];
+        console.log('今天日期:', todayDate);
+        
+        // 查找今天的记录
+        const todayRecord = weeklyData.find(record => {
+            const recordDate = new Date(record.date).toISOString().split('T')[0];
+            return recordDate === todayDate;
+        });
+        console.log('今天的记录:', todayRecord);
+
+        // 计算本周总时长和总专注次数
+        const totalMinutes = weeklyData.reduce((sum, record) => sum + parseInt(record.duration), 0);
+        const totalSessions = weeklyData.reduce((sum, record) => sum + parseInt(record.focus_count), 0);
+        
+        // 计算平均每次专注时长
+        const averageTime = totalSessions > 0 ? Math.round(totalMinutes / totalSessions) : 0;
+
+        // 更新显示
+        document.getElementById('todayStudyTime').textContent = todayRecord ? todayRecord.duration : 0;
+        document.getElementById('weekTotalTime').textContent = totalMinutes;
+        document.getElementById('totalSessions').textContent = totalSessions;
+        document.getElementById('averageTime').textContent = averageTime;
+
+        // 更新图表
+        updateWeeklyChart(weeklyData);
+    } catch (error) {
+        console.error('获取学习记录失败:', error);
     }
 }
 
-// 上传学习记录
-async function uploadStudyRecord(duration) {
-    const token = localStorage.getItem('token');
-    if (!token) {
-        console.log('未登录，无法记录学习时长');
-        return;
-    }
+// 添加更新图表的函数
+function updateWeeklyChart(weeklyData) {
+    const ctx = document.getElementById('weeklyChart').getContext('2d');
+    const days = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
+    const today = new Date();
+    const weekData = new Array(7).fill(0);
 
-    try {
-        console.log('正在上传学习记录:', duration, '分钟');
-        const response = await fetch(`${API_BASE_URL}/api/stats/record`, {
-            method: 'POST',
-            headers: {
-                'Authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json',
+    // 填充过去7天的数据
+    weeklyData.forEach(record => {
+        const recordDate = new Date(record.date);
+        const dayDiff = Math.floor((today - recordDate) / (1000 * 60 * 60 * 24));
+        if (dayDiff < 7) {
+            weekData[6 - dayDiff] = record.duration;
+        }
+    });
+
+    // 获取正确的星期标签
+    const labels = Array(7).fill().map((_, i) => {
+        const d = new Date(today);
+        d.setDate(d.getDate() - (6 - i));
+        return days[d.getDay()];
+    });
+
+    const gradient = ctx.createLinearGradient(0, 0, 0, 200);
+    gradient.addColorStop(0, 'rgba(106, 17, 203, 0.5)');
+    gradient.addColorStop(1, 'rgba(37, 117, 252, 0.1)');
+
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: '学习时长(分钟)',
+                data: weekData,
+                fill: true,
+                backgroundColor: gradient,
+                borderColor: 'rgba(106, 17, 203, 1)',
+                tension: 0.4,
+                pointBackgroundColor: 'white',
+                pointBorderColor: 'rgba(106, 17, 203, 1)',
+                pointRadius: 4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    grid: {
+                        color: 'rgba(255, 255, 255, 0.1)'
+                    },
+                    ticks: {
+                        color: 'rgba(255, 255, 255, 0.7)'
+                    }
+                },
+                x: {
+                    grid: {
+                        color: 'rgba(255, 255, 255, 0.1)'
+                    },
+                    ticks: {
+                        color: 'rgba(255, 255, 255, 0.7)'
+                    }
+                }
             },
-            body: JSON.stringify({
-                duration,
-                timestamp: new Date().toISOString(),
-            }),
-        });
-
-        console.log('上传响应状态:', response.status);
-        const data = await response.json();
-        console.log('上传响应数据:', data);
-
-        if (response.ok) {
-            console.log('学习记录上传成功');
-            
-            // 更新今日学习时长
-            const currentDailyTime = parseInt(localStorage.getItem(STORAGE_KEY.DAILY_STUDY_TIME) || '0');
-            const newDailyTime = currentDailyTime + duration;
-            localStorage.setItem(STORAGE_KEY.DAILY_STUDY_TIME, newDailyTime.toString());
-            updateStudyDurationDisplay(newDailyTime);
-            
-            // 更新统计数据
-            if (data.stats) {
-                console.log('收到新的统计数据:', data.stats);
-                updateWeeklyChart(data.stats.weeklyData);
-                updateStatsSummary(data.stats);
-            } else {
-                console.log('正在重新获取统计数据...');
-                await loadWeeklyStats();
+            plugins: {
+                legend: {
+                    display: false
+                }
             }
-            
+        }
+    });
+}
+
+function logout() {
+    document.querySelector('.auth-buttons').style.display = 'flex';
+    document.querySelector('.login-form').style.display = 'flex';
+    document.querySelector('.user-profile').style.display = 'none';
+    showForm('login');
+}
+
+// 在页面加载完成后初始化
+document.addEventListener('DOMContentLoaded', function() {
+    // 添加 Chart.js CDN
+    const script = document.createElement('script');
+    script.src = 'https://cdn.jsdelivr.net/npm/chart.js';
+    script.onload = function() {
+        // Chart.js 加载完成后初始化图表
+        if (document.querySelector('.user-profile').style.display === 'block') {
+            initWeeklyChart();
+        }
+    };
+    document.head.appendChild(script);
+});
+
+// 注册函数
+async function register(username, password) {
+    try {
+        console.log('开始注册请求...');
+        const response = await fetch(`${API_BASE_URL}/auth/register`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ username, password })
+        });
+        
+        console.log('收到服务器响应:', response.status);
+        const data = await response.json();
+        
+        if (response.ok) {
+            console.log('注册成功');
+            localStorage.setItem('token', data.token);
             return data;
         } else {
-            console.error('上传学习记录失败:', data.message);
-            throw new Error(data.message);
+            console.error('注册失败:', data);
+            throw new Error(data.message || '注册失败，请稍后重试');
         }
     } catch (error) {
-        console.error('上传学习记录错误:', error);
+        console.error('注册过程出错:', error);
+        if (error.name === 'TypeError' && error.message.includes('Failed to fetch')) {
+            throw new Error('无法连接到服务器，请检查网络连接或稍后重试');
+        }
         throw error;
     }
 }
 
-// 更新统计摘要
-function updateStatsSummary(data) {
+// 登录函数
+async function login(username, password) {
     try {
-        console.log('正在更新统计摘要，数据:', data);
-        const weeklyTotal = document.getElementById('weeklyTotal');
-        const dailyAverage = document.getElementById('dailyAverage');
-        const longestSession = document.getElementById('longestSession');
+        console.log('开始登录请求...');
+        const response = await fetch(`${API_BASE_URL}/auth/login`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ username, password })
+        });
+        const data = await response.json();
         
-        if (weeklyTotal) weeklyTotal.textContent = `${data.weeklyTotal || 0}分钟`;
-        if (dailyAverage) dailyAverage.textContent = `${Math.round(data.dailyAverage) || 0}分钟`;
-        if (longestSession) longestSession.textContent = `${data.longestSession || 0}分钟`;
-        
-        console.log('统计摘要更新成功');
+        if (response.ok) {
+            console.log('登录成功');
+            localStorage.setItem('token', data.token);
+            return data;
+        } else {
+            console.error('登录失败:', data);
+            if (response.status === 401) {
+                throw new Error('用户名或密码错误，请重试');
+            } else {
+                throw new Error(data.message || '登录失败，请稍后重试');
+            }
+        }
     } catch (error) {
-        console.error('更新统计摘要失败:', error);
+        console.error('登录过程出错:', error);
+        if (error.name === 'TypeError' && error.message.includes('Failed to fetch')) {
+            throw new Error('无法连接到服务器，请检查网络连接或稍后重试');
+        }
+        throw error;
     }
 }
 
-// 更新周学习图表
-function updateWeeklyChart(weeklyData) {
-    console.log('正在更新周学习图表，数据:', weeklyData);
-    const chartContainer = document.querySelector('.chart-container');
-    if (!chartContainer) {
-        console.error('找不到图表容器');
-        return;
-    }
-    
-    chartContainer.innerHTML = '';
-    
-    if (!weeklyData || !Array.isArray(weeklyData)) {
-        console.error('无效的周数据:', weeklyData);
-        return;
-    }
+// 记录学习时长
+async function recordStudyTime(duration) {
+    try {
+        const token = localStorage.getItem('token');
+        if (!token) {
+            console.error('未找到认证令牌');
+            return;
+        }
 
-    const maxStudyTime = Math.max(...weeklyData, 1); // 确保至少有高度
-    
-    weeklyData.forEach((time, index) => {
-        const bar = document.createElement('div');
-        bar.className = 'chart-bar';
-        const height = (time / maxStudyTime) * 100;
-        bar.style.height = `${height}%`;
-        
-        // 添加提示信息
-        bar.title = `${time} 分钟`;
-        
-        // 添加日期标签
-        const label = document.createElement('div');
-        label.className = 'bar-label';
-        const days = ['日', '一', '二', '三', '四', '五', '六'];
-        label.textContent = days[index];
-        bar.appendChild(label);
-        
-        chartContainer.appendChild(bar);
-    });
-    
-    console.log('图表更新完成');
-}
+        console.log('开始记录学习时长:', duration, '分钟');
+        const response = await fetch(`${API_BASE_URL}/study/record`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({ duration })
+        });
 
-// 检查登录状态并初始化
-function checkAuthStatus() {
-    const token = localStorage.getItem('token');
-    const username = localStorage.getItem('username');
+        const data = await response.json();
+        console.log('服务器响应:', data);
 
-    if (token && username) {
-        showProfile(username);
+        if (!response.ok) {
+            throw new Error(data.message || '记录学习时长失败');
+        }
+
+        // 记录成功后立即更新用户资料显示
+        await showUserProfile();
+        
+        return data;
+    } catch (error) {
+        console.error('记录学习时长失败:', error);
+        throw error;
     }
 }
 
-// 在页面加载时检查登录状态
-document.addEventListener('DOMContentLoaded', () => {
-    checkAuthStatus();
-});
+// 获取周学习记录
+async function getWeeklyRecord() {
+    try {
+        const token = localStorage.getItem('token');
+        const response = await fetch(`${API_BASE_URL}/study/weekly`, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+        const data = await response.json();
+        if (!response.ok) {
+            throw new Error(data.message);
+        }
+        return data;
+    } catch (error) {
+        throw error;
+    }
+}
