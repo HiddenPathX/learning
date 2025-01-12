@@ -989,3 +989,187 @@ body.loaded .container2 {
 
 
 /* --------------------------------------------------------------- */
+
+/* 容器框架3 */
+.container3 {
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    padding: 40px;
+    border-radius: 55px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    margin: 15px;
+    width: 100%;
+    max-width: 400px;
+    flex-shrink: 0;
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    transition: all 0.3s ease;
+}
+
+/* 登录注册表单样式 */
+.auth-form {
+    padding: 20px;
+}
+
+.auth-form h2 {
+    color: rgba(255, 255, 255, 0.95);
+    margin-bottom: 30px;
+    font-size: 1.8em;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.form-group input {
+    padding: 12px;
+    border: none;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    font-size: 1em;
+    transition: all 0.3s ease;
+}
+
+.form-group input::placeholder {
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.form-group input:focus {
+    outline: none;
+    background: rgba(255, 255, 255, 0.2);
+    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.3);
+}
+
+.auth-btn {
+    padding: 12px 25px;
+    border: none;
+    border-radius: 8px;
+    background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+    color: white;
+    font-size: 1em;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.auth-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(52, 152, 219, 0.4);
+}
+
+.switch-form {
+    margin-top: 20px;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.switch-form span {
+    color: #3498db;
+    cursor: pointer;
+    text-decoration: underline;
+    margin-left: 5px;
+}
+
+/* 个人档案样式 */
+.profile-section {
+    padding: 20px;
+}
+
+.profile-info {
+    margin-bottom: 30px;
+    color: rgba(255, 255, 255, 0.95);
+}
+
+.profile-info p {
+    font-size: 1.2em;
+    margin-bottom: 20px;
+}
+
+.study-stats {
+    text-align: left;
+}
+
+.study-stats h3 {
+    color: rgba(255, 255, 255, 0.95);
+    margin-bottom: 20px;
+    font-size: 1.4em;
+}
+
+.weekly-chart {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 20px;
+    border-radius: 12px;
+    margin-bottom: 20px;
+}
+
+.chart-container {
+    height: 200px;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    padding: 10px 0;
+}
+
+.chart-bar {
+    width: 12%;
+    background: linear-gradient(to top, #3498db, #2980b9);
+    border-radius: 4px 4px 0 0;
+    transition: height 0.3s ease;
+}
+
+.chart-labels {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 10px;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.stats-summary {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.stat-item {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 15px;
+    border-radius: 8px;
+    text-align: center;
+}
+
+.stat-label {
+    display: block;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 0.9em;
+    margin-bottom: 5px;
+}
+
+.stat-value {
+    display: block;
+    color: #3498db;
+    font-size: 1.2em;
+    font-weight: bold;
+}
+
+/* 响应式调整 */
+@media screen and (max-width: 768px) {
+    .container3 {
+        max-width: 90%;
+        padding: 20px;
+    }
+
+    .stats-summary {
+        grid-template-columns: 1fr;
+    }
+
+    .chart-bar {
+        width: 10%;
+    }
+}

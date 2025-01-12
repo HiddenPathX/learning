@@ -796,8 +796,12 @@ todoInput.addEventListener('keypress', (e) => {
     }
 });
 
-// 更新 API 配置
-const API_URL = 'https://learning-backend-1.onrender.com/api/chat';
+// 后端API地址
+const API_BASE_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+    ? 'http://localhost:3000'  // 本地开发环境
+    : 'https://learning-backend-8rvl.onrender.com';  // 生产环境
+
+console.log('当前 API 地址:', API_BASE_URL);
 
 // 添加系统提示词
 const SYSTEM_PROMPT = `你现在扮演一家名为"解忧杂货店"的神秘店铺。这家店在温暖的灯光下，静静地伫立在街角，仿佛一位阅尽人间百态的老者，等待着每一位怀揣心事的人前来倾诉。你没有实体，只存在于用户的意识之中，但你的存在却能给他们带来慰藉和指引。
@@ -1214,3 +1218,202 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 });
+
+// 登录注册相关的DOM元素
+const loginForm = document.getElementById('loginForm');
+const registerForm = document.getElementById('registerForm');
+const profileSection = document.getElementById('profileSection');
+const showRegisterBtn = document.getElementById('showRegister');
+const showLoginBtn = document.getElementById('showLogin');
+const loginBtn = document.getElementById('loginBtn');
+const registerBtn = document.getElementById('registerBtn');
+const logoutBtn = document.getElementById('logoutBtn');
+const profileUsername = document.getElementById('profileUsername');
+
+// 切换登录/注册表单显示
+showRegisterBtn.addEventListener('click', () => {
+    loginForm.style.display = 'none';
+    registerForm.style.display = 'block';
+});
+
+showLoginBtn.addEventListener('click', () => {
+    registerForm.style.display = 'none';
+    loginForm.style.display = 'block';
+});
+
+// 注册功能
+registerBtn.addEventListener('click', async () => {
+    const username = document.getElementById('registerUsername').value;
+    const password = document.getElementById('registerPassword').value;
+    const confirmPassword = document.getElementById('confirmPassword').value;
+
+    if (password !== confirmPassword) {
+        alert('两次输入的密码不一致！');
+        return;
+    }
+
+    try {
+        const response = await fetch(`${API_BASE_URL}/auth/register`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ username, password }),
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            alert('注册成功！请登录');
+            showLoginBtn.click();
+        } else {
+            alert(data.message || '注册失败，请重试');
+        }
+    } catch (error) {
+        console.error('注册错误:', error);
+        alert('注册失败，请检查网络连接');
+    }
+});
+
+// 登录功能
+loginBtn.addEventListener('click', async () => {
+    const username = document.getElementById('loginUsername').value;
+    const password = document.getElementById('loginPassword').value;
+
+    try {
+        const response = await fetch(`${API_BASE_URL}/auth/login`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ username, password }),
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            localStorage.setItem('token', data.token);
+            localStorage.setItem('username', username);
+            showProfile(username);
+        } else {
+            alert(data.message || '登录失败，请检查用户名和密码');
+        }
+    } catch (error) {
+        console.error('登录错误:', error);
+        alert('登录失败，请检查网络连接');
+    }
+});
+
+// 退出登录
+logoutBtn.addEventListener('click', () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('username');
+    profileSection.style.display = 'none';
+    loginForm.style.display = 'block';
+});
+
+// 显示个人档案
+function showProfile(username) {
+    loginForm.style.display = 'none';
+    registerForm.style.display = 'none';
+    profileSection.style.display = 'block';
+    profileUsername.textContent = username;
+    loadWeeklyStats();
+}
+
+// 加载周学习统计数据
+async function loadWeeklyStats() {
+    const token = localStorage.getItem('token');
+    if (!token) return;
+
+    try {
+        const response = await fetch(`${API_BASE_URL}/stats/weekly`, {
+            headers: {
+                'Authorization': `Bearer ${token}`,
+            },
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            updateWeeklyChart(data.weeklyData);
+            updateStatsSummary(data);
+        }
+    } catch (error) {
+        console.error('加载统计数据错误:', error);
+    }
+}
+
+// 更新周学习图表
+function updateWeeklyChart(weeklyData) {
+    const chartContainer = document.querySelector('.chart-container');
+    chartContainer.innerHTML = '';
+
+    const maxStudyTime = Math.max(...weeklyData);
+    
+    weeklyData.forEach(time => {
+        const bar = document.createElement('div');
+        bar.className = 'chart-bar';
+        const height = maxStudyTime > 0 ? (time / maxStudyTime) * 100 : 0;
+        bar.style.height = `${height}%`;
+        chartContainer.appendChild(bar);
+    });
+}
+
+// 更新统计摘要
+function updateStatsSummary(data) {
+    document.getElementById('weeklyTotal').textContent = `${data.weeklyTotal}分钟`;
+    document.getElementById('dailyAverage').textContent = `${Math.round(data.dailyAverage)}分钟`;
+    document.getElementById('longestSession').textContent = `${data.longestSession}分钟`;
+}
+
+// 检查登录状态并初始化
+function checkAuthStatus() {
+    const token = localStorage.getItem('token');
+    const username = localStorage.getItem('username');
+
+    if (token && username) {
+        showProfile(username);
+    }
+}
+
+// 在页面加载时检查登录状态
+document.addEventListener('DOMContentLoaded', () => {
+    checkAuthStatus();
+});
+
+// 修改现有的计时器结束处理，添加学习记录上传
+async function uploadStudyRecord(duration) {
+    const token = localStorage.getItem('token');
+    if (!token) return;
+
+    try {
+        await fetch(`${API_BASE_URL}/stats/record`, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                duration,
+                timestamp: new Date().toISOString(),
+            }),
+        });
+
+        // 更新统计数据显示
+        loadWeeklyStats();
+    } catch (error) {
+        console.error('上传学习记录错误:', error);
+    }
+}
+
+// 修改原有的计时器结束处理函数
+const originalTimerEndHandler = function() {
+    if (isWorking) {
+        // ... 原有的代码 ...
+        
+        // 添加学习记录上传
+        uploadStudyRecord(workTime);
+    }
+    // ... 原有的代码 ...
+};
