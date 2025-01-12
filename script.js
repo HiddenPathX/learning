@@ -797,10 +797,7 @@ todoInput.addEventListener('keypress', (e) => {
 });
 
 // 后端API地址
-const API_BASE_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-    ? 'http://localhost:3000'  // 本地开发环境
-    : 'https://learning-backend-8rvl.onrender.com';  // 生产环境
-
+const API_BASE_URL = 'https://learning-backend-8rvl.onrender.com';  // 使用远程后端
 console.log('当前 API 地址:', API_BASE_URL);
 
 // 添加系统提示词
@@ -1252,8 +1249,11 @@ registerBtn.addEventListener('click', async () => {
         return;
     }
 
+    console.log('正在发送注册请求到:', `${API_BASE_URL}/api/auth/register`);
+    console.log('注册数据:', { username, password });
+
     try {
-        const response = await fetch(`${API_BASE_URL}/auth/register`, {
+        const response = await fetch(`${API_BASE_URL}/api/auth/register`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -1261,7 +1261,9 @@ registerBtn.addEventListener('click', async () => {
             body: JSON.stringify({ username, password }),
         });
 
+        console.log('服务器响应状态:', response.status);
         const data = await response.json();
+        console.log('服务器响应数据:', data);
 
         if (response.ok) {
             alert('注册成功！请登录');
@@ -1270,8 +1272,8 @@ registerBtn.addEventListener('click', async () => {
             alert(data.message || '注册失败，请重试');
         }
     } catch (error) {
-        console.error('注册错误:', error);
-        alert('注册失败，请检查网络连接');
+        console.error('注册错误详情:', error);
+        alert('注册失败，请检查网络连接或服务器状态');
     }
 });
 
@@ -1280,8 +1282,12 @@ loginBtn.addEventListener('click', async () => {
     const username = document.getElementById('loginUsername').value;
     const password = document.getElementById('loginPassword').value;
 
+    // 显示请求信息
+    console.log('正在发送登录请求到:', `${API_BASE_URL}/api/auth/login`);
+    console.log('登录数据:', { username, password });
+
     try {
-        const response = await fetch(`${API_BASE_URL}/auth/login`, {
+        const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -1289,18 +1295,21 @@ loginBtn.addEventListener('click', async () => {
             body: JSON.stringify({ username, password }),
         });
 
+        console.log('服务器响应状态:', response.status);
         const data = await response.json();
+        console.log('服务器响应数据:', data);
 
         if (response.ok) {
             localStorage.setItem('token', data.token);
             localStorage.setItem('username', username);
             showProfile(username);
+            alert('登录成功！');
         } else {
             alert(data.message || '登录失败，请检查用户名和密码');
         }
     } catch (error) {
-        console.error('登录错误:', error);
-        alert('登录失败，请检查网络连接');
+        console.error('登录错误详情:', error);
+        alert('登录失败，请检查网络连接或服务器状态');
     }
 });
 
