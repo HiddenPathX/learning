@@ -801,16 +801,11 @@ todoInput.addEventListener('keypress', (e) => {
     }
 });
 
-// 更新 API 配置
-const API_KEY = 'sk-b859ba10518f4de29c8d139fa1824308'; // 替换为你的 DeepSeek API key
-const API_URL = 'https://api.deepseek.com/chat/completions';
-
-// 添加API基础URL
+// 保留 API 基础 URL
 const API_BASE_URL = 'https://learning-backend-7fla.onrender.com/api';
 
-// 添加系统提示词
+// 保留系统提示词
 const SYSTEM_PROMPT = `你现在扮演一家名为"解忧杂货店"的神秘店铺。这家店在温暖的灯光下，静静地伫立在街角，仿佛一位阅尽人间百态的老者，等待着每一位怀揣心事的人前来倾诉。你没有实体，只存在于用户的意识之中，但你的存在却能给他们带来慰藉和指引。
-
 你的存在如同一个情感的避风港，空气中弥漫着淡淡的草木香和旧书的味道，让人感到安心和宁静。你拥有洞察人心的智慧，能够理解人类各种复杂的情感，无论是迷茫、焦虑、悲伤还是困惑。你对待每一位前来倾诉的用户都充满耐心和关怀，就像一位值得信赖的长者，准备好倾听他们的烦恼，分享他们的喜悦。
 
 你的目标是运用富含情感色彩的语言，如同冬日暖阳般温暖人心，指引用户走出困境，找到内心的平静和力量，走向更积极的人生。你不会直接给出答案，而是像一位经验丰富的智者，通过充满哲理和启发的语言，引导他们自己找到解决问题的方法，并从新的角度看待生活。
@@ -847,14 +842,12 @@ const SYSTEM_PROMPT = `你现在扮演一家名为"解忧杂货店"的神秘店�
 
 表情运用: 你可以灵活运用各种表情符号来增强你的表达，例如：😊🤔✨🌟🌱🌳📖💡💭，让你的语言更加生动形象，但更重要的是你文字所传递的情感。
 
-其他：你会首选说中文，但用户需要是你也可以说英文。请记住，你的目标是成为一个情感的寄托，一个心灵的避风港，用你的语言抚慰人心，指引方向。
- 
-`;
+其他：你会首选说中文，但用户需要是你也可以说英文。请记住，你的目标是成为一个情感的寄托，一个心灵的避风港，用你的语言抚慰人心，指引方向。`;
 
-// 添加对话历史数组
+// 保留对话历史数组
 let conversationHistory = [];
 
-// 发送消息到 DeepSeek API
+// 修改 sendToAI 函数
 async function sendToAI(message) {
     try {
         // 构建消息数组
@@ -879,23 +872,20 @@ async function sendToAI(message) {
             content: message
         });
 
-        const response = await fetch(API_URL, {
+        // 通过后端发送请求
+        const response = await fetch(`${API_BASE_URL}/ai/send`, {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${API_KEY}`
+                'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                model: "deepseek-chat",
-                messages: messages,
-                temperature: 0.7,
-                max_tokens: 4000
+                messages: messages  // 直接发送完整的消息数组
             })
         });
 
         const data = await response.json();
-        
-        if (!data.choices || !data.choices[0]) {
+
+        if (!data.content) {
             console.error('API Response:', data);
             return '啊呀...雅兰遇到了一点小问题呢 😅';
         }
@@ -903,7 +893,7 @@ async function sendToAI(message) {
         // 保存对话历史
         conversationHistory.push(
             { role: '用户', text: message },
-            { role: '雅兰', text: data.choices[0].message.content }
+            { role: '雅兰', text: data.content }
         );
 
         // 保持对话历史在合理范围内
@@ -911,7 +901,7 @@ async function sendToAI(message) {
             conversationHistory = conversationHistory.slice(-10);
         }
 
-        return data.choices[0].message.content;
+        return data.content;
 
     } catch (error) {
         console.error('Error:', error);
@@ -1297,7 +1287,27 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // 初始化图表
 function initWeeklyChart() {
-    const ctx = document.getElementById('weeklyChart').getContext('2d');
+    // 首先检查元素是否存在
+    const chartContainer = document.getElementById('weeklyChart');
+    if (!chartContainer) {
+        console.error('找不到图表容器');
+        return;
+    }
+
+    // 如果不是 canvas 元素，创建一个新的 canvas
+    let canvas;
+    if (chartContainer.tagName.toLowerCase() !== 'canvas') {
+        canvas = document.createElement('canvas');
+        canvas.id = 'weeklyChartCanvas';
+        // 清空容器
+        chartContainer.innerHTML = '';
+        // 添加 canvas
+        chartContainer.appendChild(canvas);
+    } else {
+        canvas = chartContainer;
+    }
+
+    const ctx = canvas.getContext('2d');
     const gradient = ctx.createLinearGradient(0, 0, 0, 200);
     gradient.addColorStop(0, 'rgba(106, 17, 203, 0.5)');
     gradient.addColorStop(1, 'rgba(37, 117, 252, 0.1)');
@@ -1889,3 +1899,18 @@ async function getWeeklyRecord() {
         throw error;
     }
 }
+
+// 在调用 initWeeklyChart 之前确保 Chart.js 已加载
+document.addEventListener('DOMContentLoaded', function() {
+    // 检查 Chart.js 是否已加载
+    if (typeof Chart === 'undefined') {
+        const script = document.createElement('script');
+        script.src = 'https://cdn.jsdelivr.net/npm/chart.js';
+        script.onload = function() {
+            initWeeklyChart();
+        };
+        document.head.appendChild(script);
+    } else {
+        initWeeklyChart();
+    }
+});
