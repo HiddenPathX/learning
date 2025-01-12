@@ -39,12 +39,16 @@
     flex-wrap: wrap;
     gap: 20px;
     position: relative;
-    /* 添加背景图片相关属性 */
-    background-image: url('./images/p1.png');
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-    background-attachment: fixed;
+    /* 设置暗色背景 */
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+    /* 添加半透明壁纸 */
+    background-image: url('./images/p1.png'); 
+     background-blend-mode: overlay; 
+    background-size: cover; 
+    background-position: center; 
+    background-repeat: no-repeat; 
+    background-attachment: fixed; 
+    background-color: rgba(0, 0, 0, 0.1); /* 调整这个值可以控制整体暗度 */
 }
 
 
