@@ -1232,23 +1232,68 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // 登录系统相关函数
 function showForm(formType) {
-    const loginForm = document.querySelector('.login-form');
-    const registerForm = document.querySelector('.register-form');
-    const loginBtn = document.querySelector('.auth-btn:nth-child(1)');
-    const registerBtn = document.querySelector('.auth-btn:nth-child(2)');
+    try {
+        const loginForm = document.querySelector('.login-form');
+        const registerForm = document.querySelector('.register-form');
+        const loginBtn = document.querySelector('.auth-btn:nth-child(1)');
+        const registerBtn = document.querySelector('.auth-btn:nth-child(2)');
 
-    if (formType === 'login') {
-        loginForm.classList.add('form-active');
-        registerForm.classList.remove('form-active');
-        loginBtn.classList.add('active');
-        registerBtn.classList.remove('active');
-    } else {
-        loginForm.classList.remove('form-active');
-        registerForm.classList.add('form-active');
-        loginBtn.classList.remove('active');
-        registerBtn.classList.add('active');
+        if (!loginForm || !registerForm || !loginBtn || !registerBtn) {
+            console.error('找不到必要的表单元素');
+            return;
+        }
+
+        console.log('切换到表单:', formType);
+
+        // 更新表单显示
+        if (formType === 'login') {
+            loginForm.style.display = 'flex';
+            registerForm.style.display = 'none';
+            loginBtn.classList.add('active');
+            registerBtn.classList.remove('active');
+        } else {
+            loginForm.style.display = 'none';
+            registerForm.style.display = 'flex';
+            loginBtn.classList.remove('active');
+            registerBtn.classList.add('active');
+        }
+    } catch (error) {
+        console.error('切换表单时出错:', error);
     }
 }
+
+// 修改事件监听器的添加方式
+document.addEventListener('DOMContentLoaded', function() {
+    try {
+        const loginBtn = document.querySelector('.auth-btn:nth-child(1)');
+        const registerBtn = document.querySelector('.auth-btn:nth-child(2)');
+
+        // 移除可能存在的旧事件监听器
+        if (loginBtn) {
+            const newLoginBtn = loginBtn.cloneNode(true);
+            loginBtn.parentNode.replaceChild(newLoginBtn, loginBtn);
+            newLoginBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation(); // 阻止事件冒泡
+                console.log('点击登录按钮');
+                showForm('login');
+            });
+        }
+
+        if (registerBtn) {
+            const newRegisterBtn = registerBtn.cloneNode(true);
+            registerBtn.parentNode.replaceChild(newRegisterBtn, registerBtn);
+            newRegisterBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation(); // 阻止事件冒泡
+                console.log('点击注册按钮');
+                showForm('register');
+            });
+        }
+    } catch (error) {
+        console.error('设置表单切换监听器时出错:', error);
+    }
+});
 
 // 初始化图表
 function initWeeklyChart() {
@@ -1310,6 +1355,22 @@ document.getElementById('loginForm').addEventListener('submit', async function(e
     const username = this.querySelector('input[type="text"]').value;
     const password = this.querySelector('input[type="password"]').value;
 
+    // 添加输入验证
+    if (username.length > 15) {
+        alert('用户名不能超过15个字符！');
+        return;
+    }
+
+    if (password.length < 6) {
+        alert('密码不能少于6个字符！');
+        return;
+    }
+
+    if (password.length > 15) {
+        alert('密码不能超过15个字符！');
+        return;
+    }
+
     try {
         const response = await login(username, password);
         if (response.token) {
@@ -1328,6 +1389,22 @@ document.getElementById('registerForm').addEventListener('submit', async functio
     const username = this.querySelector('input[type="text"]').value;
     const password = this.querySelector('input[type="password"]').value;
     const confirmPassword = this.querySelectorAll('input[type="password"]')[1].value;
+
+    // 添加输入验证
+    if (username.length > 15) {
+        alert('用户名不能超过15个字符！');
+        return;
+    }
+
+    if (password.length < 6) {
+        alert('密码不能少于6个字符！');
+        return;
+    }
+
+    if (password.length > 15) {
+        alert('密码不能超过15个字符！');
+        return;
+    }
 
     if (password !== confirmPassword) {
         alert('两次输入的密码不一致!');
@@ -1363,6 +1440,12 @@ async function showUserProfile() {
     document.querySelector('.register-form').style.display = 'none';
     document.querySelector('.user-profile').style.display = 'block';
 
+    // 显示用户名
+    const username = localStorage.getItem('username');
+    if (username) {
+        document.querySelector('.username').textContent = `挑战者：${username}`;
+    }
+
     try {
         // 获取周学习记录
         const weeklyData = await getWeeklyRecord();
@@ -1392,106 +1475,297 @@ async function showUserProfile() {
         document.getElementById('totalSessions').textContent = totalSessions;
         document.getElementById('averageTime').textContent = averageTime;
 
+        // 确保Chart.js已加载
+        if (typeof Chart === 'undefined') {
+            console.log('等待Chart.js加载...');
+            await new Promise(resolve => {
+                const checkChart = setInterval(() => {
+                    if (typeof Chart !== 'undefined') {
+                        clearInterval(checkChart);
+                        resolve();
+                    }
+                }, 100);
+            });
+        }
+
+        // 确保图表容器存在并正确初始化
+        const chartContainer = document.getElementById('weeklyChart');
+        if (!chartContainer) {
+            console.error('找不到图表容器');
+            return;
+        }
+
+        // 如果容器不是canvas，创建一个新的canvas
+        if (chartContainer.tagName.toLowerCase() !== 'canvas') {
+            const canvas = document.createElement('canvas');
+            canvas.id = 'weeklyChartCanvas';
+            // 清空容器
+            chartContainer.innerHTML = '';
+            // 添加canvas
+            chartContainer.appendChild(canvas);
+        }
+
         // 更新图表
         updateWeeklyChart(weeklyData);
     } catch (error) {
         console.error('获取学习记录失败:', error);
+        // 显示友好的错误信息
+        const chartContainer = document.getElementById('weeklyChart');
+        if (chartContainer) {
+            chartContainer.innerHTML = '<p style="color: rgba(255, 255, 255, 0.8);">暂无学习记录数据</p>';
+        }
     }
 }
 
 // 添加更新图表的函数
 function updateWeeklyChart(weeklyData) {
-    const ctx = document.getElementById('weeklyChart').getContext('2d');
-    const days = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
-    const today = new Date();
-    const weekData = new Array(7).fill(0);
-
-    // 填充过去7天的数据
-    weeklyData.forEach(record => {
-        const recordDate = new Date(record.date);
-        const dayDiff = Math.floor((today - recordDate) / (1000 * 60 * 60 * 24));
-        if (dayDiff < 7) {
-            weekData[6 - dayDiff] = record.duration;
+    try {
+        // 1. 获取容器
+        const chartContainer = document.getElementById('weeklyChart');
+        if (!chartContainer) {
+            console.error('找不到图表容器');
+            return;
         }
-    });
 
-    // 获取正确的星期标签
-    const labels = Array(7).fill().map((_, i) => {
-        const d = new Date(today);
-        d.setDate(d.getDate() - (6 - i));
-        return days[d.getDay()];
-    });
+        // 2. 确保容器是canvas元素，如果不是则创建
+        let canvas;
+        if (chartContainer.tagName.toLowerCase() !== 'canvas') {
+            // 清空容器
+            chartContainer.innerHTML = '';
+            // 创建canvas元素
+            canvas = document.createElement('canvas');
+            canvas.id = 'weeklyChartCanvas';
+            canvas.style.width = '100%';
+            canvas.style.height = '300px';
+            chartContainer.appendChild(canvas);
+        } else {
+            canvas = chartContainer;
+        }
 
-    const gradient = ctx.createLinearGradient(0, 0, 0, 200);
-    gradient.addColorStop(0, 'rgba(106, 17, 203, 0.5)');
-    gradient.addColorStop(1, 'rgba(37, 117, 252, 0.1)');
+        // 3. 确保数据格式正确
+        if (!Array.isArray(weeklyData)) {
+            console.error('无效的数据格式:', weeklyData);
+            return;
+        }
 
-    new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: labels,
-            datasets: [{
-                label: '学习时长(分钟)',
-                data: weekData,
-                fill: true,
-                backgroundColor: gradient,
-                borderColor: 'rgba(106, 17, 203, 1)',
-                tension: 0.4,
-                pointBackgroundColor: 'white',
-                pointBorderColor: 'rgba(106, 17, 203, 1)',
-                pointRadius: 4
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    grid: {
-                        color: 'rgba(255, 255, 255, 0.1)'
-                    },
-                    ticks: {
-                        color: 'rgba(255, 255, 255, 0.7)'
-                    }
-                },
-                x: {
-                    grid: {
-                        color: 'rgba(255, 255, 255, 0.1)'
-                    },
-                    ticks: {
-                        color: 'rgba(255, 255, 255, 0.7)'
-                    }
-                }
-            },
-            plugins: {
-                legend: {
-                    display: false
-                }
+        console.log('原始数据:', weeklyData);
+
+        // 4. 准备数据
+        const today = new Date();
+        const weekData = new Array(7).fill(0);
+        const labels = [];
+
+        // 生成过去7天的日期
+        for (let i = 6; i >= 0; i--) {
+            const date = new Date(today);
+            date.setDate(date.getDate() - i);
+            const dateStr = date.toISOString().split('T')[0];
+            labels.push(['周日','周一','周二','周三','周四','周五','周六'][date.getDay()]);
+            
+            // 查找对应日期的记录
+            const record = weeklyData.find(r => r.date.split('T')[0] === dateStr);
+            if (record) {
+                weekData[6-i] = parseInt(record.duration) || 0;
             }
         }
-    });
+
+        console.log('处理后的数据:', {labels, weekData});
+
+        // 5. 销毁旧图表
+        const existingChart = Chart.getChart(canvas);
+        if (existingChart) {
+            existingChart.destroy();
+        }
+
+        // 6. 创建新图表
+        const ctx = canvas.getContext('2d');
+        const gradient = ctx.createLinearGradient(0, 0, 0, 300);
+        gradient.addColorStop(0, 'rgba(106, 17, 203, 0.5)');
+        gradient.addColorStop(1, 'rgba(37, 117, 252, 0.1)');
+
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: '学习时长(分钟)',
+                    data: weekData,
+                    fill: true,
+                    backgroundColor: gradient,
+                    borderColor: 'rgba(106, 17, 203, 1)',
+                    borderWidth: 2,
+                    tension: 0.4,
+                    pointBackgroundColor: 'white',
+                    pointBorderColor: 'rgba(106, 17, 203, 1)',
+                    pointRadius: 4,
+                    pointHoverRadius: 6
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                animation: {
+                    duration: 1000
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.1)'
+                        },
+                        ticks: {
+                            color: 'rgba(255, 255, 255, 0.7)',
+                            font: {
+                                size: 12
+                            }
+                        }
+                    },
+                    x: {
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.1)'
+                        },
+                        ticks: {
+                            color: 'rgba(255, 255, 255, 0.7)',
+                            font: {
+                                size: 12
+                            }
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: true,
+                        labels: {
+                            color: 'rgba(255, 255, 255, 0.7)',
+                            font: {
+                                size: 12
+                            }
+                        }
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                        titleFont: {
+                            size: 14
+                        },
+                        bodyFont: {
+                            size: 13
+                        },
+                        callbacks: {
+                            label: function(context) {
+                                return `学习时长: ${context.raw}分钟`;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+    } catch (error) {
+        console.error('创建图表时出错:', error);
+    }
 }
 
 function logout() {
+    // 清除存储的数据
+    localStorage.removeItem('username');
+    localStorage.removeItem('token');
+    localStorage.removeItem('userId');
+    
+    // 显示登录/注册按钮和登录表单
     document.querySelector('.auth-buttons').style.display = 'flex';
-    document.querySelector('.login-form').style.display = 'flex';
+    document.querySelector('.login-form').style.display = 'none';
+    document.querySelector('.register-form').style.display = 'none';
     document.querySelector('.user-profile').style.display = 'none';
+    
+    // 重新初始化按钮状态
+    const loginBtn = document.querySelector('.auth-btn:nth-child(1)');
+    const registerBtn = document.querySelector('.auth-btn:nth-child(2)');
+    
+    // 移除旧的事件监听器
+    const newLoginBtn = loginBtn.cloneNode(true);
+    const newRegisterBtn = registerBtn.cloneNode(true);
+    
+    loginBtn.parentNode.replaceChild(newLoginBtn, loginBtn);
+    registerBtn.parentNode.replaceChild(newRegisterBtn, registerBtn);
+    
+    // 添加新的事件监听器
+    newLoginBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        showForm('login');
+    });
+    
+    newRegisterBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        showForm('register');
+    });
+    
+    // 重置按钮状态
+    newLoginBtn.classList.add('active');
+    newRegisterBtn.classList.remove('active');
+    
+    // 显示登录表单
     showForm('login');
 }
 
-// 在页面加载完成后初始化
+// 添加检查登录状态的函数
+function checkLoginStatus() {
+    const token = localStorage.getItem('token');
+    const username = localStorage.getItem('username');
+    
+    if (token && username) {
+        console.log('发现已保存的登录状态');
+        // 直接显示用户资料面板
+        showUserProfile();
+        return true;
+    }
+    return false;
+}
+
+// 修改页面加载的初始化函数
 document.addEventListener('DOMContentLoaded', function() {
+    // 检查登录状态
+    checkLoginStatus();
+    
     // 添加 Chart.js CDN
     const script = document.createElement('script');
     script.src = 'https://cdn.jsdelivr.net/npm/chart.js';
     script.onload = function() {
-        // Chart.js 加载完成后初始化图表
+        // Chart.js 加载完成后，如果用户已登录则初始化图表
         if (document.querySelector('.user-profile').style.display === 'block') {
             initWeeklyChart();
         }
     };
     document.head.appendChild(script);
+    
+    // 设置表单切换的事件监听器
+    try {
+        const loginBtn = document.querySelector('.auth-btn:nth-child(1)');
+        const registerBtn = document.querySelector('.auth-btn:nth-child(2)');
+
+        if (loginBtn) {
+            const newLoginBtn = loginBtn.cloneNode(true);
+            loginBtn.parentNode.replaceChild(newLoginBtn, loginBtn);
+            newLoginBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                showForm('login');
+            });
+        }
+
+        if (registerBtn) {
+            const newRegisterBtn = registerBtn.cloneNode(true);
+            registerBtn.parentNode.replaceChild(newRegisterBtn, registerBtn);
+            newRegisterBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                showForm('register');
+            });
+        }
+    } catch (error) {
+        console.error('设置表单切换监听器时出错:', error);
+    }
 });
 
 // 注册函数
@@ -1542,6 +1816,7 @@ async function login(username, password) {
         if (response.ok) {
             console.log('登录成功');
             localStorage.setItem('token', data.token);
+            localStorage.setItem('username', username); // 保存用户名
             return data;
         } else {
             console.error('登录失败:', data);

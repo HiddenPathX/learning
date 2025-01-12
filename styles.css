@@ -199,7 +199,7 @@
     overflow: hidden;
     margin: 15px;
     width: 100%;
-    max-width: 600px;
+    max-width: 450px;
     flex-shrink: 0;
     border: 1px solid rgba(255, 255, 255, 0.18);
     transition: all 0.3s ease;
@@ -1105,21 +1105,11 @@ body.loaded .container2 {
 }
 
 .profile-header {
-    margin-bottom: 30px;
+    margin-bottom: 25px;
+    padding: 10px;
 }
 
-.profile-avatar {
-    width: 100px;
-    height: 100px;
-    border-radius: 50%;
-    margin: 0 auto 15px;
-    background: linear-gradient(135deg, #00b09b, #96c93d);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 40px;
-    color: white;
-}
+
 
 .study-stats {
     margin-top: 20px;
@@ -1184,4 +1174,54 @@ body.loaded .container2 {
 .logout-btn:hover {
     transform: translateY(-2px);
     box-shadow: 0 5px 15px rgba(238, 82, 83, 0.4);
+}
+
+/* 用户名样式 */
+.username {
+    font-size: 1.6em;
+    font-weight: 500;
+    color: #98ffb3;  /* 淡绿色 */
+    text-shadow: 0 0 10px rgba(152, 255, 179, 0.5),
+                0 0 20px rgba(152, 255, 179, 0.3);  /* 淡绿色发光效果 */
+    margin: 15px 0;
+    padding: 10px 20px;
+    background: rgba(20, 60, 30, 0.4);  /* 深绿色半透明背景 */
+    border-radius: 12px;
+    display: inline-block;
+    transition: all 0.3s ease;
+    border: 1px solid rgba(152, 255, 179, 0.4);  /* 淡绿色边框 */
+    box-shadow: 0 0 15px rgba(152, 255, 179, 0.2);  /* 淡绿色外发光 */
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    position: relative;
+    overflow: hidden;
+}
+
+.username:hover {
+    transform: translateY(-2px);
+    background: rgba(25, 75, 35, 0.5);  /* 更深的绿色背景 */
+    border-color: rgba(152, 255, 179, 0.6);
+    box-shadow: 0 0 20px rgba(152, 255, 179, 0.3);
+}
+
+/* 简化的扫光效果 */
+.username::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(152, 255, 179, 0.3),
+        transparent
+    );
+    transform: skewX(-15deg);
+    transition: 0.5s ease;
+}
+
+.username:hover::before {
+    left: 100%;
 }
