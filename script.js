@@ -802,7 +802,7 @@ todoInput.addEventListener('keypress', (e) => {
 });
 
 // 后端API地址
-const API_BASE_URL = 'https://learning-backend-8rvl.onrender.com';  // 使用远程后端
+const API_BASE_URL = 'https://learning-backend-8rvl.onrender.com';  // 使用新的后端地址
 console.log('当前 API 地址:', API_BASE_URL);
 
 // 添加系统提示词
