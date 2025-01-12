@@ -1336,44 +1336,108 @@ async function loadWeeklyStats() {
     if (!token) return;
 
     try {
-        const response = await fetch(`${API_BASE_URL}/stats/weekly`, {
+        const response = await fetch(`${API_BASE_URL}/api/stats/weekly`, {
             headers: {
                 'Authorization': `Bearer ${token}`,
             },
         });
 
+        console.log('周统计响应状态:', response.status);
         const data = await response.json();
+        console.log('周统计数据:', data);
 
         if (response.ok) {
             updateWeeklyChart(data.weeklyData);
             updateStatsSummary(data);
+        } else {
+            console.error('加载周统计失败:', data.message);
         }
     } catch (error) {
         console.error('加载统计数据错误:', error);
     }
 }
 
+// 上传学习记录
+async function uploadStudyRecord(duration) {
+    const token = localStorage.getItem('token');
+    if (!token) {
+        console.log('未登录，无法记录学习时长');
+        return;
+    }
+
+    try {
+        console.log('正在上传学习记录:', duration, '分钟');
+        const response = await fetch(`${API_BASE_URL}/api/stats/record`, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                duration,
+                timestamp: new Date().toISOString(),
+            }),
+        });
+
+        console.log('上传响应状态:', response.status);
+        const data = await response.json();
+        console.log('上传响应数据:', data);
+
+        if (response.ok) {
+            console.log('学习记录上传成功');
+            // 更新统计数据显示
+            await loadWeeklyStats();
+        } else {
+            console.error('上传学习记录失败:', data.message);
+        }
+    } catch (error) {
+        console.error('上传学习记录错误:', error);
+    }
+}
+
 // 更新周学习图表
 function updateWeeklyChart(weeklyData) {
     const chartContainer = document.querySelector('.chart-container');
-    chartContainer.innerHTML = '';
-
-    const maxStudyTime = Math.max(...weeklyData);
+    if (!chartContainer) {
+        console.error('找不到图表容器');
+        return;
+    }
     
-    weeklyData.forEach(time => {
+    chartContainer.innerHTML = '';
+    console.log('周数据:', weeklyData);
+
+    const maxStudyTime = Math.max(...weeklyData, 1); // 确保至少有高度
+    
+    weeklyData.forEach((time, index) => {
         const bar = document.createElement('div');
         bar.className = 'chart-bar';
-        const height = maxStudyTime > 0 ? (time / maxStudyTime) * 100 : 0;
+        const height = (time / maxStudyTime) * 100;
         bar.style.height = `${height}%`;
+        
+        // 添加提示信息
+        bar.title = `${time} 分钟`;
+        
+        // 添加日期标签
+        const label = document.createElement('div');
+        label.className = 'bar-label';
+        const days = ['日', '一', '二', '三', '四', '五', '六'];
+        label.textContent = days[index];
+        bar.appendChild(label);
+        
         chartContainer.appendChild(bar);
     });
 }
 
 // 更新统计摘要
 function updateStatsSummary(data) {
-    document.getElementById('weeklyTotal').textContent = `${data.weeklyTotal}分钟`;
-    document.getElementById('dailyAverage').textContent = `${Math.round(data.dailyAverage)}分钟`;
-    document.getElementById('longestSession').textContent = `${data.longestSession}分钟`;
+    try {
+        document.getElementById('weeklyTotal').textContent = `${data.weeklyTotal}分钟`;
+        document.getElementById('dailyAverage').textContent = `${Math.round(data.dailyAverage)}分钟`;
+        document.getElementById('longestSession').textContent = `${data.longestSession}分钟`;
+        console.log('统计摘要更新成功');
+    } catch (error) {
+        console.error('更新统计摘要失败:', error);
+    }
 }
 
 // 检查登录状态并初始化
@@ -1390,39 +1454,3 @@ function checkAuthStatus() {
 document.addEventListener('DOMContentLoaded', () => {
     checkAuthStatus();
 });
-
-// 修改现有的计时器结束处理，添加学习记录上传
-async function uploadStudyRecord(duration) {
-    const token = localStorage.getItem('token');
-    if (!token) return;
-
-    try {
-        await fetch(`${API_BASE_URL}/stats/record`, {
-            method: 'POST',
-            headers: {
-                'Authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                duration,
-                timestamp: new Date().toISOString(),
-            }),
-        });
-
-        // 更新统计数据显示
-        loadWeeklyStats();
-    } catch (error) {
-        console.error('上传学习记录错误:', error);
-    }
-}
-
-// 修改原有的计时器结束处理函数
-const originalTimerEndHandler = function() {
-    if (isWorking) {
-        // ... 原有的代码 ...
-        
-        // 添加学习记录上传
-        uploadStudyRecord(workTime);
-    }
-    // ... 原有的代码 ...
-};
