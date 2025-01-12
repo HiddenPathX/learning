@@ -195,7 +195,7 @@ function addTodo() {
     }
 
     // 添加时长范围验证
-    if (duration < 10 || duration > 60) {
+    if (duration < 1 || duration > 60) {
         alert('工作时长必须在10-60分钟之间！');
         return;
     }
@@ -496,28 +496,33 @@ function pauseTimer() {
 }
 
 function stopTimer() {
-    clearInterval(timerInterval);
-    timerInterval = null;
-    isPaused = false;
-    isWorking = true;
-    timeLeft = workTime * 60;
-    updateDisplay();
-    startBtn.disabled = false;
-    pauseBtn.disabled = true;
-    stopBtn.disabled = true;
-    bgm.pause();
-    bgm.currentTime = 0;
-    hideParticles();
-    hideQuote();
-
-    // 隐藏音乐名称
-    currentSongDisplay.classList.remove('show');
-    
-    // 清除存储的状态
-    localStorage.removeItem(STORAGE_KEY.START_TIME);
-    localStorage.removeItem(STORAGE_KEY.TIME_LEFT);
-    localStorage.removeItem(STORAGE_KEY.IS_WORKING);
-    localStorage.removeItem(STORAGE_KEY.IS_ACTIVE);
+    if (timerInterval) {
+        clearInterval(timerInterval);
+        timerInterval = null;
+        
+        // 如果是正常结束（不是中途停止），则记录学习时长
+        if (timeLeft === 0) {
+            const duration = Math.floor(initialTime / 60); // 将秒转换为分钟
+            console.log('计时结束，记录学习时长:', duration, '分钟');
+            uploadStudyRecord(duration).then(() => {
+                console.log('学习记录已上传，正在更新统计数据...');
+                return loadWeeklyStats();  // 确保在上传后更新统计
+            }).catch(error => {
+                console.error('更新学习记录失败:', error);
+            });
+        }
+        
+        // 重置计时器状态
+        timeLeft = 0;
+        updateDisplay();
+        updateButtons();
+        
+        // 停止音乐
+        if (!bgm.paused) {
+            bgm.pause();
+            bgm.currentTime = 0;
+        }
+    }
 }
 
 
@@ -616,7 +621,7 @@ function applyCustomTime() {
     const newWorkTime = parseInt(workTimeInput.value);
     const newBreakTime = parseInt(breakTimeInput.value);
 
-    if (isNaN(newWorkTime) || newWorkTime < 10) {
+    if (isNaN(newWorkTime) || newWorkTime < 0) {
         alert("请勿偷懒!工作时长不能少于10分钟！");
         return;
     }
@@ -1333,9 +1338,13 @@ function showProfile(username) {
 // 加载周学习统计数据
 async function loadWeeklyStats() {
     const token = localStorage.getItem('token');
-    if (!token) return;
+    if (!token) {
+        console.log('未登录，无法加载统计数据');
+        return;
+    }
 
     try {
+        console.log('正在获取最新周统计数据...');
         const response = await fetch(`${API_BASE_URL}/api/stats/weekly`, {
             headers: {
                 'Authorization': `Bearer ${token}`,
@@ -1347,13 +1356,17 @@ async function loadWeeklyStats() {
         console.log('周统计数据:', data);
 
         if (response.ok) {
+            console.log('更新图表和统计摘要...');
             updateWeeklyChart(data.weeklyData);
             updateStatsSummary(data);
+            console.log('统计数据更新完成');
         } else {
             console.error('加载周统计失败:', data.message);
+            throw new Error(data.message);
         }
     } catch (error) {
         console.error('加载统计数据错误:', error);
+        throw error;
     }
 }
 
@@ -1385,13 +1398,16 @@ async function uploadStudyRecord(duration) {
 
         if (response.ok) {
             console.log('学习记录上传成功');
-            // 更新统计数据显示
+            // 立即更新统计数据显示
             await loadWeeklyStats();
+            return data;
         } else {
             console.error('上传学习记录失败:', data.message);
+            throw new Error(data.message);
         }
     } catch (error) {
         console.error('上传学习记录错误:', error);
+        throw error;
     }
 }
 
