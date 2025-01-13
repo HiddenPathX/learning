@@ -320,25 +320,54 @@
     }
 
     /* 调整控制按钮的大小和间距 */
-    /* .controls button {
+    .controls button {
+        min-width: 80px;  /* 设置最小宽度 */
         padding: 8px 15px;
         font-size: 0.9em;
-    } */
+        white-space: nowrap;  /* 防止文字换行 */
+    }
 
-    /* 调整待办事项输入框 */
-    .todo-input {
+    /* 调整按钮容器布局 */
+    .controls {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);  /* 两列布局 */
+        gap: 10px;  /* 按钮之间的间距 */
+        padding: 10px;
+    }
+
+    /* 调整容器内部布局 */
+    .container, .container2 {
+        padding: 20px;
+        width: 90%;  /* 调整容器宽度 */
+        margin: 10px auto;  /* 居中对齐 */
+    }
+
+    /* 调整输入框和其他元素的布局 */
+    .customization {
+        display: flex;
         flex-direction: column;
-        gap: 5px;
+        gap: 10px;
     }
 
-    .todo-input input {
-        width: 90%;
-        margin: 0 auto;
+    .customization input[type="number"] {
+        width: 100%;  /* 让输入框占满宽度 */
+        margin: 5px 0;
     }
 
-    .todo-input button {
-        width: 90%;
-        margin: 0 auto;
+    /* 调整文字大小 */
+    .timer {
+        font-size: 2.5em;  /* 调整计时器大小 */
+    }
+
+    .current-time {
+        font-size: 1.8em;  /* 调整当前时间显示大小 */
+    }
+
+    /* 调整弹窗内容 */
+    .modal-content {
+        width: 95%;
+        padding: 20px;
+        margin: 10px auto;
     }
 
     /* 调整标题大小 */
@@ -390,6 +419,20 @@
 
     .current-time {
         font-size: 1.8em;
+    }
+
+    .controls button {
+        min-width: 70px;  /* 更小的最小宽度 */
+        padding: 8px 10px;
+        font-size: 0.85em;
+    }
+
+    .timer {
+        font-size: 2em;
+    }
+
+    .current-time {
+        font-size: 1.5em;
     }
 }
 
@@ -875,7 +918,7 @@ body.loaded .container2 {
 
 /* 弹窗内容 */
 .modal-content {
-    background: rgba(255, 255, 255, 0.15);
+    background: rgba(255, 255, 255, 0.15);  /* 修改为与 container 相同的透明度 */
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
     margin: 5% auto;
@@ -888,8 +931,13 @@ body.loaded .container2 {
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
     color: rgba(255, 255, 255, 0.95);
     animation: modalFadeIn 0.3s ease;
-    max-height: 85vh; /* 限制最大高度为视口高度的85% */
-    overflow-y: auto; /* 内容超出时显示滚动条 */
+    max-height: 85vh;
+    overflow-y: auto;
+}
+
+/* 添加悬浮效果，与 container 保持一致 */
+.modal-content:hover {
+    background: rgba(255, 255, 255, 0.2);
 }
 
 /* 弹窗动画 */
