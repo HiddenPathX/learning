@@ -1658,17 +1658,8 @@ function updateWeeklyChart(weeklyData) {
         console.log('原始数据:', weeklyData);
 
         // 4. 准备数据
-        // 获取北京时间
         const today = new Date();
-        // 获取时区偏移量（分钟）
-        const offsetMinutes = today.getTimezoneOffset();
-        // 计算北京时间（UTC+8）的偏移量（分钟）
-        const beijingOffsetMinutes = -480; // UTC+8 = -480分钟
-        // 计算需要调整的总分钟数
-        const adjustMinutes = beijingOffsetMinutes - offsetMinutes;
-        // 创建北京时间对象
-        const chinaTime = new Date(today.getTime() + adjustMinutes * 60 * 1000);
-
+        const chinaTime = new Date(today.getTime() + (8 * 60 * 60 * 1000));
         const weekData = new Array(7).fill(0);
         const labels = [];
 
@@ -1677,7 +1668,6 @@ function updateWeeklyChart(weeklyData) {
             const date = new Date(chinaTime);
             date.setDate(date.getDate() - i);
             const dateStr = date.toISOString().split('T')[0];
-            // 使用与 getDay() 对应的星期数组
             labels.push(['周日','周一','周二','周三','周四','周五','周六'][date.getDay()]);
             
             // 查找对应日期的记录
