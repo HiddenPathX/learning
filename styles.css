@@ -39,18 +39,161 @@
     flex-wrap: wrap;
     gap: 20px;
     position: relative;
-    /* 设置暗色背景 */
+    
+    /* 设置暗色背景作为占位 */
     background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
-    /* 添加半透明壁纸 */
-    background-image: url('./images/p1.png'); 
-     background-blend-mode: overlay; 
-    background-size: cover; 
-    background-position: center; 
-    background-repeat: no-repeat; 
-    background-attachment: fixed; 
-    background-color: rgba(0, 0, 0, 0.1); /* 调整这个值可以控制整体暗度 */
+    
+    /* 优化背景图片加载 */
+    background-image: linear-gradient(
+        rgba(0, 0, 0, 0.5),
+        rgba(0, 0, 0, 0.5)
+    ), url('./images/p1.png');
+    background-blend-mode: overlay;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    background-color: rgba(0, 0, 0, 0.1);
+    
+    /* 添加平滑过渡效果 */
+    transition: background-image 0.3s ease-in-out;
 }
 
+/* 预加载背景样式 */
+.preload-background {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: #000;
+    z-index: 9999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 1;
+    transition: opacity 0.8s ease-out;
+}
+
+#matrix-canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0.8;
+}
+
+.loading-content {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+}
+
+.matrix-text {
+    color: #00ff00;
+    font-family: 'Courier New', monospace;
+    font-size: 2em;
+    text-shadow: 0 0 10px #00ff00;
+    margin-bottom: 20px;
+    animation: glitch 1s infinite;
+}
+
+.matrix-text-small {
+    color: #00ff00;
+    font-family: 'Courier New', monospace;
+    font-size: 1em;
+    opacity: 0.8;
+    margin-top: 10px;
+    animation: flicker 2s infinite;
+}
+
+.loading-progress {
+    width: 300px;
+    height: 2px;
+    background: rgba(0, 255, 0, 0.2);
+    margin: 20px auto;
+    position: relative;
+    overflow: hidden;
+}
+
+.progress-bar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 0%;
+    background: #00ff00;
+    box-shadow: 0 0 10px #00ff00;
+    animation: progress 2s ease-in-out infinite;
+}
+
+@keyframes progress {
+    0% {
+        width: 0%;
+    }
+    50% {
+        width: 100%;
+    }
+    100% {
+        width: 100%;
+    }
+}
+
+@keyframes glitch {
+    0% {
+        text-shadow: 0 0 10px #00ff00;
+        transform: translateX(0);
+    }
+    25% {
+        text-shadow: 2px 0 10px #00ff00, -2px 0 10px #0ff;
+        transform: translateX(-2px);
+    }
+    50% {
+        text-shadow: -2px 0 10px #00ff00, 2px 0 10px #0ff;
+        transform: translateX(2px);
+    }
+    75% {
+        text-shadow: 2px 0 10px #00ff00, -2px 0 10px #0ff;
+        transform: translateX(-2px);
+    }
+    100% {
+        text-shadow: 0 0 10px #00ff00;
+        transform: translateX(0);
+    }
+}
+
+@keyframes flicker {
+    0% { opacity: 0.8; }
+    50% { opacity: 0.3; }
+    100% { opacity: 0.8; }
+}
+
+.preload-background.loaded {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.loading-spinner {
+    width: 50px;
+    height: 50px;
+    border: 5px solid rgba(255, 255, 255, 0.3);
+    border-top: 5px solid #fff;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+.loading-text {
+    color: #fff;
+    margin-top: 20px;
+    font-size: 1.2em;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
 
 /* ------------------------导航-------------------------------- */
 /* 统一导航框架 */
@@ -918,7 +1061,7 @@ body.loaded .container2 {
 
 /* 弹窗内容 */
 .modal-content {
-    background: rgba(255, 255, 255, 0.15);  /* 修改为与 container 相同的透明度 */
+    background: rgba(255, 255, 255, 0.15);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
     margin: 5% auto;
@@ -931,13 +1074,8 @@ body.loaded .container2 {
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
     color: rgba(255, 255, 255, 0.95);
     animation: modalFadeIn 0.3s ease;
-    max-height: 85vh;
-    overflow-y: auto;
-}
-
-/* 添加悬浮效果，与 container 保持一致 */
-.modal-content:hover {
-    background: rgba(255, 255, 255, 0.2);
+    max-height: 85vh; /* 限制最大高度为视口高度的85% */
+    overflow-y: auto; /* 内容超出时显示滚动条 */
 }
 
 /* 弹窗动画 */
@@ -1275,4 +1413,39 @@ body.loaded .container2 {
 
 .username:hover::before {
     left: 100%;
+}
+
+/* 添加预加载动画样式 */
+.preload-background {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+    z-index: 9999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 1;
+    transition: opacity 0.5s ease-out;
+}
+
+.preload-background.loaded {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.loading-spinner {
+    width: 50px;
+    height: 50px;
+    border: 5px solid #f3f3f3;
+    border-top: 5px solid #3498db;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
 }

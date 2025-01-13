@@ -311,6 +311,18 @@ h1,
 
 <!----------------------------------- indexhtml专用body ----------------------------------- -->
 <body class="html_body">
+    <!-- 添加预加载提示 -->
+    <div class="preload-background">
+        <canvas id="matrix-canvas"></canvas>
+        <div class="loading-content">
+            <div class="matrix-text">System Loading...</div>
+            <div class="loading-progress">
+                <div class="progress-bar"></div>
+            </div>
+            <div class="matrix-text-small">Initializing Matrix...</div>
+        </div>
+    </div>
+    
     <!-- 可拖动的图片 -->
     <img src="https://media.giphy.com/media/BOPrq7m5jYS1W/giphy.gif?cid=ecf05e47thyimsex5sbgp71wsdltktt003kah1f7bv3k8zk3&ep=v1_stickers_search&rid=giphy.gif&ct=s" 
         alt="拖动" 

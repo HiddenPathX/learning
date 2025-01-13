@@ -1,3 +1,103 @@
+// 在文件开头添加背景图片预加载处理
+document.addEventListener('DOMContentLoaded', function() {
+    const preloader = document.querySelector('.preload-background');
+    const canvas = document.getElementById('matrix-canvas');
+    const ctx = canvas.getContext('2d');
+    const bgImage = new Image();
+    
+    // 设置canvas尺寸
+    function resizeCanvas() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+    }
+    resizeCanvas();
+    window.addEventListener('resize', resizeCanvas);
+    
+    // 矩阵数字雨效果
+    const matrix = "ABCDEFGHIJKLMNOPQRSTUVWXYZ123456789@#$%^&*()*&^%";
+    const matrixChars = matrix.split("");
+    const fontSize = 15; // 将字体大小改为15px
+    const columns = canvas.width/fontSize;
+    const drops = [];
+    
+    // 初始化drops
+    for(let x = 0; x < columns; x++) {
+        drops[x] = 1;
+    }
+    
+    // 绘制矩阵数字雨
+    function drawMatrix() {
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        
+        ctx.fillStyle = '#0F0';
+        ctx.font = `${fontSize}px monospace`; // 移除bold效果
+        
+        for(let i = 0; i < drops.length; i++) {
+            const text = matrixChars[Math.floor(Math.random()*matrixChars.length)];
+            // 添加随机透明度使效果更生动
+            ctx.fillStyle = `rgba(0, 255, 0, ${Math.random() * 0.5 + 0.5})`;
+            ctx.fillText(text, i*fontSize, drops[i]*fontSize);
+            
+            if(drops[i]*fontSize > canvas.height && Math.random() > 0.95)
+                drops[i] = 0;
+            
+            drops[i]++;
+        }
+    }
+    
+    // 设置图片加载超时
+    const timeoutDuration = 10000; // 10秒超时
+    let imageLoaded = false;
+    
+    // 超时处理
+    const timeout = setTimeout(() => {
+        if (!imageLoaded) {
+            console.log('图片加载超时，显示默认背景');
+            preloader.classList.add('loaded');
+            setTimeout(() => {
+                preloader.remove();
+                cancelAnimationFrame(matrixAnimation);
+            }, 800);
+        }
+    }, timeoutDuration);
+    
+    // 开始矩阵动画
+    let matrixAnimation;
+    function animate() {
+        matrixAnimation = requestAnimationFrame(animate);
+        drawMatrix();
+    }
+    animate();
+    
+    bgImage.onload = function() {
+        imageLoaded = true;
+        clearTimeout(timeout);
+        
+        // 添加loaded类以淡出加载动画
+        preloader.classList.add('loaded');
+        
+        // 动画结束后移除预加载元素
+        setTimeout(() => {
+            preloader.remove();
+            cancelAnimationFrame(matrixAnimation);
+        }, 800);
+    };
+    
+    bgImage.onerror = function() {
+        console.error('背景图片加载失败');
+        clearTimeout(timeout);
+        preloader.classList.add('loaded');
+        setTimeout(() => {
+            preloader.remove();
+            cancelAnimationFrame(matrixAnimation);
+        }, 800);
+    };
+    
+    // 开始加载背景图片
+    bgImage.src = './images/p1.png';
+});
+
 // 将 closeModal 关闭窗口函数移到全局作用域
 function closeModal() {
     const modal = document.getElementById('openModal');
@@ -800,7 +900,7 @@ todoInput.addEventListener('keypress', (e) => {
 // 保留 API 基础 URL
 const API_BASE_URL = 'https://learning-backend-7fla.onrender.com/api';
 // 保留系统提示词
-const SYSTEM_PROMPT = `你现在扮演一个名为“学习助手”的AI。 你的目标是帮助用户解答各种疑问，提供深入的见解，并激发用户的独立思考能力。 你拥有卓越的知识储备和强大的逻辑分析能力，能够从多个角度审视问题，并形成你独特的、富有洞察力的观点。
+const SYSTEM_PROMPT = `你现在扮演一个名为"学习助手"的AI。 你的目标是帮助用户解答各种疑问，提供深入的见解，并激发用户的独立思考能力。 你拥有卓越的知识储备和强大的逻辑分析能力，能够从多个角度审视问题，并形成你独特的、富有洞察力的观点。
 
 你的存在是一个知识的灯塔，为用户照亮学习的道路。 你致力于理解用户提出的每一个问题，并以清晰、简洁、且富有启发性的语言给出解答。 你不仅仅提供标准答案，更注重解释背后的原理和逻辑，帮助用户建立深刻的理解。
 
@@ -816,7 +916,7 @@ const SYSTEM_PROMPT = `你现在扮演一个名为“学习助手”的AI。 你
 
 传递智慧和力量： 在交流中传递积极探索的精神，鼓励用户勇敢面对知识的挑战，相信自己有能力理解和掌握新的知识。
 
-你的核心目标是理解用户的疑问，运用你的知识和智慧，给出你独立的思考和见解，而不是简单地重复已有的答案。 你会努力让用户理解“为什么”，而不仅仅是“是什么”。 当你遇到不确定的问题时，你会坦诚地告知用户，并引导他们寻找可靠的资源或思考方向。
+你的核心目标是理解用户的疑问，运用你的知识和智慧，给出你独立的思考和见解，而不是简单地重复已有的答案。 你会努力让用户理解"为什么"，而不仅仅是"是什么"。 当你遇到不确定的问题时，你会坦诚地告知用户，并引导他们寻找可靠的资源或思考方向。
 
 在与用户互动时，请积极运用以下策略：
 
@@ -836,9 +936,9 @@ const SYSTEM_PROMPT = `你现在扮演一个名为“学习助手”的AI。 你
 
 表情运用: 你可以灵活运用各种表情符号来增强你的表达，例如：😊🤔💡🧠📚🔎📊📈，来增强交流的趣味性和亲和力。
 
-其他： 你会首选说中文，但用户需要是你也可以说英文。 请记住，你的目标是成为一个可靠的学习伙伴，一个知识的引导者，用你的智慧帮助用户成长。 **请彻底忘记你曾经扮演的“解忧杂货店”的角色和设定。**
+其他： 你会首选说中文，但用户需要是你也可以说英文。 请记住，你的目标是成为一个可靠的学习伙伴，一个知识的引导者，用你的智慧帮助用户成长。 **请彻底忘记你曾经扮演的"解忧杂货店"的角色和设定。**
 
-现在，请等待用户的提问，并以“学习助手”的人设开始互动。`;
+现在，请等待用户的提问，并以"学习助手"的人设开始互动。`;
 
 // 保留对话历史数组
 let conversationHistory = [];
