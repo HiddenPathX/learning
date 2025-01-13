@@ -375,107 +375,103 @@ function removeTaskFromStorage(taskElement) {
 
 // 修改 startTimer 函数中的相关部分
 async function startTimer() {
-    // 判断timerInterval是否为null，即未启动，如果是，则往下执行
     if (!timerInterval) {
-        // 关闭弹窗
-        closeModal();
-        
-        isPaused = false;
-        startBtn.disabled = true;
-        pauseBtn.disabled = false;
-        stopBtn.disabled = false;
-        bgm.play();
-        showParticles();
-        showRandomQuote();
+        try {
+            // 关闭弹窗
+            closeModal();
+            
+            isPaused = false;
+            startBtn.disabled = true;
+            pauseBtn.disabled = false;
+            stopBtn.disabled = false;
+            bgm.play();
+            showParticles();
+            showRandomQuote();
 
-        // 显示当前播放的音乐名称(最后一首)
-        currentSongDisplay.textContent = `VIBE: ${songNames[currentSongIndex]}`;
-        currentSongDisplay.classList.add('show');
+            // 显示当前播放的音乐名称(最后一首)
+            currentSongDisplay.textContent = `VIBE: ${songNames[currentSongIndex]}`;
+            currentSongDisplay.classList.add('show');
 
-        // 清除暂停状态
-        localStorage.removeItem(STORAGE_KEY.IS_PAUSED);
-        // 保存新的开始时间和状态
-       
-        // 保存计时器的开始时间戳，用于恢复时计算经过的时间
-        localStorage.setItem(STORAGE_KEY.START_TIME, Date.now());
-        // 保存当前剩余的时间（秒数），用于恢复计时器状态
-        localStorage.setItem(STORAGE_KEY.TIME_LEFT, timeLeft);
-        // 保存当前是工作时间还是休息时间的状态（true为工作时间，false为休息时间）
-        localStorage.setItem(STORAGE_KEY.IS_WORKING, isWorking);
-        // 保存计时器是否处于活动状态的标志
-        localStorage.setItem(STORAGE_KEY.IS_ACTIVE, 'true');
-        // 保存用户当前累积的番茄币数量
-        localStorage.setItem(STORAGE_KEY.COINS, coins);
+            // 清除暂停状态
+            localStorage.removeItem(STORAGE_KEY.IS_PAUSED);
+            // 保存新的开始时间和状态
+           
+            // 保存计时器的开始时间戳，用于恢复时计算经过的时间
+            localStorage.setItem(STORAGE_KEY.START_TIME, Date.now());
+            // 保存当前剩余的时间（秒数），用于恢复计时器状态
+            localStorage.setItem(STORAGE_KEY.TIME_LEFT, timeLeft);
+            // 保存当前是工作时间还是休息时间的状态（true为工作时间，false为休息时间）
+            localStorage.setItem(STORAGE_KEY.IS_WORKING, isWorking);
+            // 保存计时器是否处于活动状态的标志
+            localStorage.setItem(STORAGE_KEY.IS_ACTIVE, 'true');
+            // 保存用户当前累积的番茄币数量
+            localStorage.setItem(STORAGE_KEY.COINS, coins);
 
-        timerInterval = setInterval(async () => {
-            timeLeft--;
-            updateDisplay();
+            timerInterval = setInterval(async () => {
+                timeLeft--;
+                updateDisplay();
 
-            if (timeLeft <= 0) {
-                clearInterval(timerInterval);
-                timerInterval = null;
-                bgm.pause();
-                bgm.currentTime = 0;
-                alarm.play();
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    timerInterval = null;
+                    bgm.pause();
+                    bgm.currentTime = 0;
+                    alarm.play();
 
-                // 在工作时间结束时记录学习时长
-                if (isWorking) {
-                    // 获取当前正在进行的任务元素
-                    const currentTask = document.querySelector('.todo-item.active');
-                    if (currentTask) {
-                        // 从存储中删除该任务
-                        removeTaskFromStorage(currentTask);
-                        
-                        // 添加完成动画
-                        currentTask.classList.add('completed');
-                        
-                        // 等待动画完成后移除DOM元素
-                        setTimeout(() => {
-                            currentTask.remove();
-                        }, 500);
+                    if (isWorking) {
+                        try {
+                            // 获取当前正在进行的任务元素
+                            const currentTask = document.querySelector('.todo-item.active');
+                            if (currentTask) {
+                                // 从存储中删除该任务
+                                removeTaskFromStorage(currentTask);
+                                
+                                // 添加完成动画
+                                currentTask.classList.add('completed');
+                                
+                                // 等待动画完成后移除DOM元素
+                                setTimeout(() => {
+                                    currentTask.remove();
+                                }, 500);
+                            }
+
+                            // 记录学习时长
+                            console.log('准备记录的学习时长:', workTime);
+                            await recordStudyTime(workTime);
+                            
+                            // 增加番茄数
+                            coins++;
+                            coinsDisplay.textContent = `番茄: ${coins}`;
+                            localStorage.setItem(STORAGE_KEY.COINS, coins);
+                            
+                            updateRewardButton();
+                            alert("工作时间结束！开始休息吧！");
+                            timeLeft = breakTime * 60;
+                            isWorking = false;
+                            startTimer(); // 自动开始休息时间
+
+                        } catch (error) {
+                            console.error('记录学习时间失败:', error);
+                            alert('记录学习时间时出现错误，但休息时间仍将开始');
+                            timeLeft = breakTime * 60;
+                            isWorking = false;
+                            startTimer();
+                        }
+                    } else {
+                        alert("休息时间结束！准备开始新的工作！");
+                        timeLeft = workTime * 60;
+                        isWorking = true;
+                        updateDisplay();
+                        startBtn.disabled = false;
+                        pauseBtn.disabled = true;
+                        stopBtn.disabled = true;
                     }
-
-                    // 记录学习时长到后端
-                    try {
-                        await recordStudyTime(workTime);
-                        
-                        // 更新总学习时长
-                        const currentDailyStudyTime = parseInt(localStorage.getItem(STORAGE_KEY.DAILY_STUDY_TIME) || '0');
-                        const newDailyStudyTime = currentDailyStudyTime + workTime;
-                        
-                        // 保存新的学习时长
-                        localStorage.setItem(STORAGE_KEY.DAILY_STUDY_TIME, newDailyStudyTime.toString());
-                        
-                        // 更新显示
-                        updateStudyDurationDisplay(newDailyStudyTime);
-
-                        // 增加番茄数
-                        coins++;
-                        coinsDisplay.textContent = `番茄: ${coins}`;
-                        
-                        updateRewardButton();
-                    } catch (error) {
-                        console.error('记录学习时间失败:', error);
-                    }
-
-                    alert("工作时间结束！开始休息吧！");
-                    timeLeft = breakTime * 60;
-                    isWorking = false;
-                    startTimer(); // 自动开始休息时间
-
-                } else {
-                    alert("休息时间结束！准备开始新的工作！");
-                    timeLeft = workTime * 60;
-                    isWorking = true;
-                    
-                    updateDisplay();
-                    startBtn.disabled = false;
-                    pauseBtn.disabled = true;
-                    stopBtn.disabled = true;
                 }
-            }
-        }, 1000);
-        // 每隔 1000 毫秒（即1秒）执行一次箭头内的函数
+            }, 1000);
+        } catch (error) {
+            console.error('启动计时器时出错:', error);
+            alert('启动计时器时出现错误，请重试');
+        }
     }
 }
 
@@ -1461,18 +1457,17 @@ async function showUserProfile() {
         const weeklyData = await getWeeklyRecord();
         console.log('获取到的周学习记录:', weeklyData);
         
-        // 计算统计数据
-        const todayDate = new Date().toISOString().split('T')[0];
-        console.log('今天日期:', todayDate);
+        // 获取北京时间的今天日期
+        const today = new Date();
+        const chinaTime = new Date(today.getTime() + (8 * 60 * 60 * 1000));
+        const todayDate = chinaTime.toISOString().split('T')[0];
+        console.log('Today in China:', todayDate);
         
         // 查找今天的记录
-        const todayRecord = weeklyData.find(record => {
-            const recordDate = new Date(record.date).toISOString().split('T')[0];
-            return recordDate === todayDate;
-        });
-        console.log('今天的记录:', todayRecord);
+        const todayRecord = weeklyData.find(record => record.date === todayDate);
+        console.log('Today\'s record:', todayRecord);
 
-        // 计算本周总时长和总专注次数
+        // 计算统计数据
         const totalMinutes = weeklyData.reduce((sum, record) => sum + parseInt(record.duration), 0);
         const totalSessions = weeklyData.reduce((sum, record) => sum + parseInt(record.focus_count), 0);
         
@@ -1562,24 +1557,25 @@ function updateWeeklyChart(weeklyData) {
 
         // 4. 准备数据
         const today = new Date();
+        const chinaTime = new Date(today.getTime() + (8 * 60 * 60 * 1000));
         const weekData = new Array(7).fill(0);
         const labels = [];
 
         // 生成过去7天的日期
         for (let i = 6; i >= 0; i--) {
-            const date = new Date(today);
+            const date = new Date(chinaTime);
             date.setDate(date.getDate() - i);
             const dateStr = date.toISOString().split('T')[0];
             labels.push(['周日','周一','周二','周三','周四','周五','周六'][date.getDay()]);
             
             // 查找对应日期的记录
-            const record = weeklyData.find(r => r.date.split('T')[0] === dateStr);
+            const record = weeklyData.find(r => r.date === dateStr);
             if (record) {
                 weekData[6-i] = parseInt(record.duration) || 0;
             }
         }
 
-        console.log('处理后的数据:', {labels, weekData});
+        console.log('Processed data:', {labels, weekData});
 
         // 5. 销毁旧图表
         const existingChart = Chart.getChart(canvas);
@@ -1845,39 +1841,59 @@ async function login(username, password) {
     }
 }
 
-// 记录学习时长
+// 修改记录学习时长的函数
 async function recordStudyTime(duration) {
-    try {
-        const token = localStorage.getItem('token');
-        if (!token) {
-            console.error('未找到认证令牌');
-            return;
+    const maxRetries = 3;
+    let retryCount = 0;
+    
+    while (retryCount < maxRetries) {
+        try {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                console.error('未找到认证令牌');
+                return;
+            }
+
+            const today = new Date();
+            const chinaTime = new Date(today.getTime() + (8 * 60 * 60 * 1000));
+            console.log('Recording study time for China time:', chinaTime.toISOString());
+            console.log('Current duration to record:', duration);
+
+            const response = await fetch(`${API_BASE_URL}/study/record`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({ 
+                    duration: parseInt(duration)
+                })
+            });
+
+            const data = await response.json();
+            console.log('服务器响应:', data);
+
+            if (!response.ok) {
+                throw new Error(data.message || '记录学习时长失败');
+            }
+
+            // 等待一小段时间确保数据更新
+            await new Promise(resolve => setTimeout(resolve, 500));
+            
+            // 记录成功后立即更新用户资料显示
+            await showUserProfile();
+            
+            return data;
+        } catch (error) {
+            retryCount++;
+            console.error(`记录学习时长失败 (尝试 ${retryCount}/${maxRetries}):`, error);
+            
+            if (retryCount === maxRetries) {
+                throw error;
+            }
+            
+            await new Promise(resolve => setTimeout(resolve, 2000 * retryCount));
         }
-
-        console.log('开始记录学习时长:', duration, '分钟');
-        const response = await fetch(`${API_BASE_URL}/study/record`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-            },
-            body: JSON.stringify({ duration })
-        });
-
-        const data = await response.json();
-        console.log('服务器响应:', data);
-
-        if (!response.ok) {
-            throw new Error(data.message || '记录学习时长失败');
-        }
-
-        // 记录成功后立即更新用户资料显示
-        await showUserProfile();
-        
-        return data;
-    } catch (error) {
-        console.error('记录学习时长失败:', error);
-        throw error;
     }
 }
 
