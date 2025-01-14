@@ -124,7 +124,7 @@ function createNavigation() {
     const links = [
         { href: 'index.html', text: 'TIMEBOXING', icon: '🕚' },
         { href: 'blog.html', text: 'NOTE', icon: '📝' },
-        { href: 'https://news-ao8.pages.dev/', text: '时事新闻', icon: '📰' }
+        { href: 'https://news-ao8.pages.dev/', text: 'NEWS', icon: '📰' }
     ];
     
     links.forEach(link => {
