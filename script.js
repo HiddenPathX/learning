@@ -11,14 +11,21 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // 添加音频结束事件监听器
     preloadAudio.addEventListener('ended', () => {
-        // 音频播放结束时,重置音频
         preloadAudio.currentTime = 0;
     });
     
-    // 播放预加载音频
-    preloadAudio.play().catch(error => {
-        console.log('预加载音频播放失败:', error);
-    });
+    // 改为监听用户第一次点击
+    let hasInteracted = false;
+    document.addEventListener('click', function playAudioOnFirstClick() {
+        if (!hasInteracted) {
+            preloadAudio.play().catch(error => {
+                console.log('预加载音频播放失败:', error);
+            });
+            hasInteracted = true;
+            // 移除监听器，因为我们只需要第一次点击
+            document.removeEventListener('click', playAudioOnFirstClick);
+        }
+    }, { once: true }); // 使用 once 选项，监听器会在触发一次后自动移除
     
     // 设置canvas尺寸
     function resizeCanvas() {
