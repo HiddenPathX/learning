@@ -24,7 +24,7 @@
 /* 标题 */
 h1 {
     color: #333;
-    margin: 20px 0;
+    margin: 20px;
     font-size: 2.5em;
     line-height: 1;
 }
@@ -195,12 +195,10 @@ h1 {
 }
 
 /* 调整时间显示的间距 */
-h1,
-.study-duration,
-
 .timer {
-    margin: 5px 0;  /* 将上下间距改为5px */
-    line-height: 1;  /* 减小行高 */
+    margin: 15px;
+    margin-top: -20px;
+    line-height: 1;
 }
 
 /* ---------------------todo按钮--------------------- */    
@@ -336,10 +334,8 @@ h1,
 
     <!-- 第一个框架 -->
     <div class="container">
-        <div id="current-time" class="current-time"></div>
-        <h1>今日学习时长</h1>
-           
-        <div id="study-duration" class="study-duration">0分钟</div>
+      
+      
         
         <div class="timer">
             <span id="minutes">60</span>:<span id="seconds">00</span>
@@ -355,8 +351,8 @@ h1,
             <div class="audio-controls">
                 <button id="muteBgmBtn">静音</button>
                 <div class="volume-control">
-                    <input type="range" id="volumeSlider" min="0" max="100" value="30">
-                    <span id="volumeValue">30%</span>
+                    <input type="range" id="volumeSlider" min="0" max="100" value="50">
+                    <span id="volumeValue">50%</span>
                 </div>
                 <button id="nextSongBtn">下一首</button>
             </div>
@@ -367,6 +363,19 @@ h1,
             <button id="rewardBtn" disabled>奖励 (需消耗 2 番茄)</button>
         </div>
 
+        <div class="chat-container">
+            <div id="chat-messages" class="chat-messages"></div>
+            <div class="chat-input">
+                <div class="input-container">
+                    <textarea id="user-input" placeholder="有什么可以帮你的吗..." rows="2"></textarea>
+                    <div class="button-group">
+                        <input type="file" id="file-input" multiple style="display: none;">
+                        <button id="upload-button" class="upload-button">上传</button>
+                        <button id="send-button">发送</button>
+                    </div>
+                </div>
+            </div>
+        </div>
         <div class="todo-container">
            
             <ul id="todoList" class="todo-list"></ul>
@@ -378,27 +387,7 @@ h1,
     </div>
 
 
-
-
-    <!-- 第二个框架 -->
-    <div class="container2">
-        <h2>学习助手😀</h2>
-        <div class="chat-container">
-            <div id="chat-messages" class="chat-messages"></div>
-            <div class="chat-input">
-                <div class="input-container">
-                    <textarea id="user-input" placeholder="有什么可以帮你的吗..." rows="3"></textarea>
-                    <div class="button-group">
-                        <input type="file" id="file-input" multiple style="display: none;">
-                        <button id="upload-button" class="upload-button">上传</button>
-                        <button id="send-button">发送</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
    
-
 
 
 

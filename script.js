@@ -199,7 +199,6 @@ const bgm = document.getElementById('bgm');
 const alarm = document.getElementById('alarm');
 const muteBgmBtn = document.getElementById('muteBgmBtn');
 const nextSongBtn = document.getElementById('nextSongBtn');
-const currentTimeDisplay = document.getElementById('current-time');
 const songs = [
     'songs/m1.mp3',
     'songs/m2.mp3',
@@ -219,7 +218,7 @@ const songNames = [
 
 
 const currentSongDisplay = document.getElementById('current-song');
-const studyDurationDisplay = document.getElementById('study-duration');
+
 // localstorage存储
 const STORAGE_KEY = {
     TIME_LEFT: 'timeLeft',
@@ -231,8 +230,9 @@ const STORAGE_KEY = {
     TODO_ITEMS: 'todoItems',
     WORK_TIME: 'workTime',     // 新增工作时长存储
     BREAK_TIME: 'breakTime',    // 新增休息时长存储
-    DAILY_STUDY_TIME: 'dailyStudyTime',
-    LAST_STUDY_DATE: 'lastStudyDate'
+
+
+
 };
 
 let currentSongIndex = 0;
@@ -626,10 +626,10 @@ function stopTimer() {
 
 // 添加初始化函数，在页面加载时检查并恢复状态
 function initializeTimer() {
-    // 初始化音量设置为30%
-    bgm.volume = 0.3;
-    volumeSlider.value = 30;
-    volumeValue.textContent = '30%';
+    // 初始化音量设置为50%
+    bgm.volume = 0.5;
+    volumeSlider.value = 50;
+    volumeValue.textContent = '50%';
 
     // 恢复保存的工作和休息时长
     const savedWorkTime = localStorage.getItem(STORAGE_KEY.WORK_TIME);
@@ -689,31 +689,11 @@ if (savedCoins) {
     }
   
 
-    // 检查并初始化今日学习时长
-    checkAndInitDailyStudyTime();
+
 }
 
-// 添加检查和初始化每日学习时长的函数
-function checkAndInitDailyStudyTime() {
-    const today = new Date().toDateString();
-    const lastStudyDate = localStorage.getItem(STORAGE_KEY.LAST_STUDY_DATE);
-    
-    if (lastStudyDate !== today) {
-        // 如果是新的一天，重置学习时长
-        localStorage.setItem(STORAGE_KEY.DAILY_STUDY_TIME, '0');
-        localStorage.setItem(STORAGE_KEY.LAST_STUDY_DATE, today);
-    }
-    
-    // 显示保存的学习时长
-    const dailyStudyTime = parseInt(localStorage.getItem(STORAGE_KEY.DAILY_STUDY_TIME) || '0');
-    updateStudyDurationDisplay(dailyStudyTime);
-}
 
-// 添加更新学习时长显示的函数
-function updateStudyDurationDisplay(minutes) {
-    const displayMinutes = Math.max(0, minutes); // 确保显示的是非负数
-    studyDurationDisplay.textContent = `${displayMinutes}分钟`;
-}
+
 
 function applyCustomTime() {
     const newWorkTime = parseInt(workTimeInput.value);
@@ -835,7 +815,7 @@ function toggleMuteBgm() {
     } else {
         muteBgmBtn.textContent = "静音";
         // 恢复之前的音量
-        const previousVolume = Math.max(30, volumeSlider.value);
+        const previousVolume = Math.max(50, volumeSlider.value);
         volumeSlider.value = previousVolume;
         volumeValue.textContent = `${previousVolume}%`;
         bgm.volume = previousVolume / 100;
@@ -878,17 +858,7 @@ updateDisplay();
 updateRewardButton();
 initializeTimer();
 
-function updateCurrentTime() {
-    const now = new Date();
-    const hours = String(now.getHours()).padStart(2, '0');
-    const minutes = String(now.getMinutes()).padStart(2, '0');
-    const seconds = String(now.getSeconds()).padStart(2, '0');
-    currentTimeDisplay.textContent = `${hours}:${minutes}:${seconds}`;
-}
 
-// 初始化时间显示并每秒更新
-updateCurrentTime();
-setInterval(updateCurrentTime, 1000);
 
 // 添加事件监听器
 addTodoBtn.addEventListener('click', addTodo);
