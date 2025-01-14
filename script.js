@@ -5,6 +5,21 @@ document.addEventListener('DOMContentLoaded', function() {
     const ctx = canvas.getContext('2d');
     const bgImage = new Image();
     
+    // 创建预加载音频
+    const preloadAudio = new Audio('songs/yu.mp3');
+    preloadAudio.volume = 0.5;
+    
+    // 添加音频结束事件监听器
+    preloadAudio.addEventListener('ended', () => {
+        // 音频播放结束时,重置音频
+        preloadAudio.currentTime = 0;
+    });
+    
+    // 播放预加载音频
+    preloadAudio.play().catch(error => {
+        console.log('预加载音频播放失败:', error);
+    });
+    
     // 设置canvas尺寸
     function resizeCanvas() {
         canvas.width = window.innerWidth;
@@ -47,7 +62,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     // 设置图片加载超时
-    const timeoutDuration = 10000; // 10秒超时
+    const timeoutDuration = 10000;
     let imageLoaded = false;
     
     // 超时处理
@@ -58,6 +73,7 @@ document.addEventListener('DOMContentLoaded', function() {
             setTimeout(() => {
                 preloader.remove();
                 cancelAnimationFrame(matrixAnimation);
+                // 不停止音频,让它继续播放
             }, 800);
         }
     }, timeoutDuration);
@@ -70,20 +86,20 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     animate();
     
+    // 图片加载成功处理
     bgImage.onload = function() {
         imageLoaded = true;
         clearTimeout(timeout);
         
-        // 添加loaded类以淡出加载动画
         preloader.classList.add('loaded');
-        
-        // 动画结束后移除预加载元素
         setTimeout(() => {
             preloader.remove();
             cancelAnimationFrame(matrixAnimation);
+            // 不停止音频,让它继续播放
         }, 800);
     };
     
+    // 图片加载失败处理
     bgImage.onerror = function() {
         console.error('背景图片加载失败');
         clearTimeout(timeout);
@@ -91,6 +107,7 @@ document.addEventListener('DOMContentLoaded', function() {
         setTimeout(() => {
             preloader.remove();
             cancelAnimationFrame(matrixAnimation);
+            // 不停止音频,让它继续播放
         }, 800);
     };
     
@@ -197,6 +214,7 @@ const quoteDisplay = document.getElementById('quote');
 const particlesContainer = document.getElementById('particles-container');
 const bgm = document.getElementById('bgm');
 const alarm = document.getElementById('alarm');
+const alarmBreak = document.getElementById('alarmBreak');
 const muteBgmBtn = document.getElementById('muteBgmBtn');
 const nextSongBtn = document.getElementById('nextSongBtn');
 const songs = [
@@ -205,7 +223,6 @@ const songs = [
     'songs/m3.mp3',
     'songs/m4.mp3',
     'songs/m5.mp3',
-
 ];
 const songNames = [
     '🎵 Assassin \'s Creed II: Florence at Night佛罗伦萨之夜',  
@@ -213,7 +230,6 @@ const songNames = [
     '🎵 深渊的回声，深层思绪的对话',
     'The Last of Us Part 2 🎵 Chill Ambient Music 🎵 + Rain & Storm Sounds',
     '🎵 New Matrix Synthwave | Hacker\'s Mix | Matrix Background 💻👩‍💻',
-   
 ];
 
 
@@ -518,10 +534,15 @@ async function startTimer() {
                     timerInterval = null;
                     bgm.pause();
                     bgm.currentTime = 0;
-                    alarm.play();
 
                     if (isWorking) {
                         try {
+                            // 先播放工作结束铃声并等待播放完成
+                            await new Promise((resolve) => {
+                                alarm.play();
+                                alarm.onended = resolve;
+                            });
+
                             // 获取当前正在进行的任务元素
                             const currentTask = document.querySelector('.todo-item.active');
                             if (currentTask) {
@@ -560,13 +581,33 @@ async function startTimer() {
                             startTimer();
                         }
                     } else {
-                        alert("休息时间结束！准备开始新的工作！");
-                        timeLeft = workTime * 60;
-                        isWorking = true;
-                        updateDisplay();
-                        startBtn.disabled = false;
-                        pauseBtn.disabled = true;
-                        stopBtn.disabled = true;
+                        // 休息时间结束
+                        try {
+                            // 播放铃声并等待播放完成
+                            await new Promise((resolve) => {
+                                alarmBreak.play();
+                                alarmBreak.onended = resolve;
+                            });
+                            
+                            // 铃声播放完成后再显示提示
+                            alert("休息时间结束！准备开始新的工作！");
+                            timeLeft = workTime * 60;
+                            isWorking = true;
+                            updateDisplay();
+                            startBtn.disabled = false;
+                            pauseBtn.disabled = true;
+                            stopBtn.disabled = true;
+                        } catch (error) {
+                            console.error('播放休息结束铃声时出错:', error);
+                            // 如果播放出错，仍然显示提示
+                            alert("休息时间结束！准备开始新的工作！");
+                            timeLeft = workTime * 60;
+                            isWorking = true;
+                            updateDisplay();
+                            startBtn.disabled = false;
+                            pauseBtn.disabled = true;
+                            stopBtn.disabled = true;
+                        }
                     }
                 }
             }, 1000);
