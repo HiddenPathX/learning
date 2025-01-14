@@ -299,10 +299,26 @@ h1 {
     border-left: 4px solid #2ecc71;
 }
 
+/* 修改预加载动画样式 */
+.preload-background {
+    background: #0a0a0f;
+}
 
+.matrix-text {
+    color: #00ff9d;
+    text-shadow: 0 0 15px rgba(0, 255, 157, 0.8);
+    font-family: 'Orbitron', sans-serif;
+}
+
+.progress-bar {
+    background: linear-gradient(90deg, #00ff9d, #0f3460);
+    box-shadow: 0 0 20px rgba(0, 255, 157, 0.3);
+}
 
 </style>
 
+<!-- 添加字体链接 -->
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600&display=swap" rel="stylesheet">
 
 </head>
 
@@ -322,17 +338,17 @@ h1 {
     </div>
     
     <!-- 可拖动的图片 -->
-    <img src="https://media.giphy.com/media/BOPrq7m5jYS1W/giphy.gif?cid=ecf05e47thyimsex5sbgp71wsdltktt003kah1f7bv3k8zk3&ep=v1_stickers_search&rid=giphy.gif&ct=s" 
+    <!-- <img src="https://media.giphy.com/media/BOPrq7m5jYS1W/giphy.gif?cid=ecf05e47thyimsex5sbgp71wsdltktt003kah1f7bv3k8zk3&ep=v1_stickers_search&rid=giphy.gif&ct=s" 
         alt="拖动" 
         class="draggable-image" 
         loading="lazy"
         decoding="async"
-        style="position: fixed; right: 20px; top: 50px; height: 40vh; cursor: move;">
+        style="position: fixed; right: 20px; top: 50px; height: 40vh; cursor: move;"> -->
     
  
         
 
-    <!-- 第一个框架 -->
+    <!-- 第一个容器 -->
     <div class="container">
       
       
@@ -391,7 +407,7 @@ h1 {
 
 
 
-    <!-- 在第二个container后添加第三个container -->
+    <!-- 第二个容器 -->
     <div class="container3">
         <div class="auth-buttons">
             <button class="auth-btn active" onclick="showForm('login')">登录页</button>

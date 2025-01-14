@@ -236,7 +236,7 @@ const songNames = [
     '🎼 漂浮在星云间,意识的涟漪在宇宙低语中荡漾',
     '🎵 深渊的回声，深层思绪的对话',
     'The Last of Us Part 2 🎵 Chill Ambient Music 🎵 + Rain & Storm Sounds',
-    '🎵 New Matrix Synthwave | Hacker\'s Mix | Matrix Background 💻👩‍💻',
+    '🎵 HOTEL - Blade Runner Ambience - Calm Snowy Cyberpunk Atmosphere',
 ];
 
 
@@ -2050,5 +2050,116 @@ document.addEventListener('DOMContentLoaded', function() {
     } else {
         initWeeklyChart();
     }
+});
+
+// 添加动态背景动画
+document.addEventListener('DOMContentLoaded', function() {
+    const canvas = document.createElement('canvas');
+    canvas.style.position = 'fixed';
+    canvas.style.top = '0';
+    canvas.style.left = '0';
+    canvas.style.width = '100%';
+    canvas.style.height = '100%';
+    canvas.style.zIndex = '-1';
+    document.body.prepend(canvas);
+
+    const ctx = canvas.getContext('2d');
+    let particles = [];
+    let animationId;
+
+    function resizeCanvas() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+    }
+
+    resizeCanvas();
+    window.addEventListener('resize', resizeCanvas);
+
+    class Particle {
+        constructor() {
+            this.x = Math.random() * canvas.width;
+            this.y = Math.random() * canvas.height;
+            this.vx = (Math.random() - 0.5) * 0.5;
+            this.vy = (Math.random() - 0.5) * 0.5;
+            this.size = Math.random() * 2;
+            this.color = `rgba(0, ${155 + Math.random() * 100}, ${157 + Math.random() * 98}, ${0.2 + Math.random() * 0.5})`;
+        }
+
+        update() {
+            this.x += this.vx;
+            this.y += this.vy;
+
+            // 边界检查
+            if (this.x < 0 || this.x > canvas.width) this.vx *= -1;
+            if (this.y < 0 || this.y > canvas.height) this.vy *= -1;
+        }
+
+        draw() {
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+            ctx.fillStyle = this.color;
+            ctx.fill();
+        }
+    }
+
+    function createParticles() {
+        const particleCount = Math.floor((canvas.width * canvas.height) / 10000);
+        for (let i = 0; i < particleCount; i++) {
+            particles.push(new Particle());
+        }
+    }
+
+    function drawLines() {
+        for (let i = 0; i < particles.length; i++) {
+            for (let j = i + 1; j < particles.length; j++) {
+                const dx = particles[i].x - particles[j].x;
+                const dy = particles[i].y - particles[j].y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+
+                if (distance < 100) {
+                    ctx.beginPath();
+                    ctx.strokeStyle = `rgba(0, 255, 157, ${0.1 * (1 - distance / 100)})`;
+                    ctx.lineWidth = 0.5;
+                    ctx.moveTo(particles[i].x, particles[i].y);
+                    ctx.lineTo(particles[j].x, particles[j].y);
+                    ctx.stroke();
+                }
+            }
+        }
+    }
+
+    function animate() {
+        ctx.fillStyle = 'rgba(10, 10, 15, 0.1)';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        particles.forEach(particle => {
+            particle.update();
+            particle.draw();
+        });
+
+        drawLines();
+        animationId = requestAnimationFrame(animate);
+    }
+
+    // 添加鼠标交互效果
+    let mouse = {
+        x: null,
+        y: null,
+        radius: 100
+    };
+
+    canvas.addEventListener('mousemove', function(event) {
+        mouse.x = event.x;
+        mouse.y = event.y;
+
+        // 创建鼠标位置的涟漪效果
+        ctx.beginPath();
+        ctx.arc(mouse.x, mouse.y, 2, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(0, 255, 157, 0.8)';
+        ctx.fill();
+    });
+
+    createParticles();
+    animate();
 });
 
