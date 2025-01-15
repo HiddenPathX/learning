@@ -544,12 +544,9 @@ async function startTimer() {
 
                     if (isWorking) {
                         try {
-                            // 先播放工作结束铃声并等待播放完成
-                            await new Promise((resolve) => {
-                                alarm.play();
-                                alarm.onended = resolve;
-                            });
-
+                            // 播放工作结束铃声
+                            await playAlarm(alarm);
+                            
                             // 获取当前正在进行的任务元素
                             const currentTask = document.querySelector('.todo-item.active');
                             if (currentTask) {
@@ -581,8 +578,8 @@ async function startTimer() {
                             startTimer(); // 自动开始休息时间
 
                         } catch (error) {
-                            console.error('记录学习时间失败:', error);
-                            alert('记录学习时间时出现错误，但休息时间仍将开始');
+                            console.error('工作时间结束处理失败:', error);
+                            alert('工作时间结束！开始休息吧！');
                             timeLeft = breakTime * 60;
                             isWorking = false;
                             startTimer();
@@ -590,13 +587,9 @@ async function startTimer() {
                     } else {
                         // 休息时间结束
                         try {
-                            // 播放铃声并等待播放完成
-                            await new Promise((resolve) => {
-                                alarmBreak.play();
-                                alarmBreak.onended = resolve;
-                            });
+                            // 播放休息结束铃声
+                            await playAlarm(alarmBreak);
                             
-                            // 铃声播放完成后再显示提示
                             alert("休息时间结束！准备开始新的工作！");
                             timeLeft = workTime * 60;
                             isWorking = true;
@@ -605,8 +598,7 @@ async function startTimer() {
                             pauseBtn.disabled = true;
                             stopBtn.disabled = true;
                         } catch (error) {
-                            console.error('播放休息结束铃声时出错:', error);
-                            // 如果播放出错，仍然显示提示
+                            console.error('休息时间结束处理失败:', error);
                             alert("休息时间结束！准备开始新的工作！");
                             timeLeft = workTime * 60;
                             isWorking = true;
@@ -2168,5 +2160,54 @@ document.addEventListener('DOMContentLoaded', function() {
 
     createParticles();
     animate();
+});
+
+// 初始化音频播放
+function initializeAudio() {
+    // 预加载音频文件
+    alarm.load();
+    alarmBreak.load();
+    
+    // 添加错误处理
+    alarm.onerror = function(e) {
+        console.error('闹钟音频加载失败:', e);
+    };
+    
+    alarmBreak.onerror = function(e) {
+        console.error('休息铃声加载失败:', e);
+    };
+}
+
+// 修改播放音频的函数
+async function playAlarm(audioElement) {
+    try {
+        // 确保音频已加载
+        await audioElement.load();
+        
+        // 尝试播放
+        const playPromise = audioElement.play();
+        
+        if (playPromise !== undefined) {
+            await playPromise;
+            // 等待播放完成
+            await new Promise((resolve) => {
+                audioElement.onended = resolve;
+            });
+        }
+    } catch (error) {
+        console.error('音频播放失败:', error);
+        // 如果播放失败，至少确保提示信息显示
+        if (audioElement === alarm) {
+            alert("工作时间结束！开始休息吧！");
+        } else {
+            alert("休息时间结束！准备开始新的工作！");
+        }
+    }
+}
+
+// 在页面加载时初始化音频
+document.addEventListener('DOMContentLoaded', function() {
+    initializeAudio();
+    // ... existing code ...
 });
 
