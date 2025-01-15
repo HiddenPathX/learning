@@ -1197,6 +1197,13 @@ userInput.addEventListener('keypress', (e) => {
 // 实现图片拖动功能
 document.addEventListener('DOMContentLoaded', function() {
     const draggableImage = document.querySelector('.draggable-image');
+    
+    // 如果找不到可拖动图片元素，直接返回
+    if (!draggableImage) {
+        console.log('找不到可拖动图片元素');
+        return;
+    }
+    
     let isDragging = false;
     let currentX;
     let currentY;

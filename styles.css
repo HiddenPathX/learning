@@ -339,7 +339,7 @@
     overflow: hidden;
     margin: 15px;
     width: 100%;
-    max-width: 450px;
+    max-width: 400px;
     flex-shrink: 0;
     border: 1px solid rgba(255, 255, 255, 0.18);
     transition: all 0.3s ease;
@@ -359,7 +359,7 @@
     overflow: hidden;
     margin: 15px;
     width: 100%;
-    max-width: 450px;
+    max-width: 400px;
     flex-shrink: 0;
     transition: all 0.3s ease;
 }
@@ -760,9 +760,12 @@ p {
     gap: 1rem;
     margin-top: 1rem;
     margin-bottom: 1rem;
+    padding: 0 ;  /* 添加左右内边距 */
+    box-sizing: border-box;
 }
 
 .chat-messages {
+    width: 100%;  /* 改为100%以适应容器宽度 */
     height: 350px;
     overflow-y: auto;
     padding: 1rem;
@@ -771,6 +774,7 @@ p {
     box-shadow: 0 0 15px rgba(0, 255, 157, 0.1);
     border-radius: 12px;
     margin-bottom: 10px;
+    box-sizing: border-box;  /* 确保padding不会影响总宽度 */
 }
 
 /* 聊天消息基础样式 */
@@ -843,16 +847,14 @@ p {
 
 .chat-input {
     width: 100%;
-    padding: 0 0px;  /* 添加左右内边距 */
-    box-sizing: border-box;  /* 确保padding不会影响总宽度 */
+    box-sizing: border-box;
 }
 
 .input-container {
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
-    max-width: calc(100% - 0px);  /* 减去左右padding的宽度 */
-    margin: 0 auto;  /* 居中对齐 */
+    width: 100%;
 }
 
 /* 输入框样式 */
@@ -1336,7 +1338,7 @@ body.loaded .container2 {
     overflow: hidden;
     margin: 15px;
     width: 100%;
-    max-width: 450px;
+    max-width: 400px;
     flex-shrink: 0;
     border: 1px solid rgba(255, 255, 255, 0.18);
     transition: all 0.3s ease;
@@ -1355,7 +1357,7 @@ body.loaded .container2 {
     gap: 20px;
     padding: 30px;  /* 增加内边距 */
     width: 100%;    /* 确保宽度一致 */
-    max-width: 380px; /* 限制最大宽度 */
+    max-width: 350px; /* 限制最大宽度 */
     margin: 0 auto;  /* 居中显示 */
 }
 
@@ -1492,8 +1494,8 @@ body.loaded .container2 {
 .stats-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 20px;
-    margin: 25px 15px;
+    gap: 15px;
+    margin: 20px 10px;
 }
 
 .stat-card {
@@ -1530,7 +1532,7 @@ body.loaded .container2 {
 .chart-container {
     width: 100%;
     height: 250px;
-    margin: 20px 0;
+    margin: 15px 0;
 }
 
 /* 登出按钮样式 */
