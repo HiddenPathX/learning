@@ -533,23 +533,35 @@ async function startTimer() {
             localStorage.setItem(STORAGE_KEY.COINS, coins);
 
             timerInterval = setInterval(async () => {
-                timeLeft--;
-                updateDisplay();
+                if (timeLeft > 0) {
+                    timeLeft--;
+                    updateDisplay();
+                }
 
                 if (timeLeft <= 0) {
+                    // 先清除计时器
                     clearInterval(timerInterval);
                     timerInterval = null;
+                    
+                    // 暂停背景音乐
                     bgm.pause();
                     bgm.currentTime = 0;
 
                     if (isWorking) {
                         try {
-                            // 先播放音频
+                            // 确保倒计时显示为0
+                            updateDisplay();
+                            
+                            // 等待一小段时间确保显示更新
+                            await new Promise(resolve => setTimeout(resolve, 100));
+                            
+                            // 播放音频并等待完成
                             await playAlarm(alarm);
+                            
                             // 音频播放完成后再显示提示
                             alert("工作时间结束！开始休息吧！");
                             
-                            // 获取当前正在进行的任务元素
+                            // 处理任务完成
                             const currentTask = document.querySelector('.todo-item.active');
                             if (currentTask) {
                                 removeTaskFromStorage(currentTask);
@@ -577,7 +589,6 @@ async function startTimer() {
 
                         } catch (error) {
                             console.error('工作时间结束处理失败:', error);
-                            // 如果音频播放失败，仍然继续其他操作
                             alert("工作时间结束！开始休息吧！");
                             timeLeft = breakTime * 60;
                             isWorking = false;
@@ -585,8 +596,15 @@ async function startTimer() {
                         }
                     } else {
                         try {
-                            // 先播放音频
+                            // 确保倒计时显示为0
+                            updateDisplay();
+                            
+                            // 等待一小段时间确保显示更新
+                            await new Promise(resolve => setTimeout(resolve, 100));
+                            
+                            // 播放音频并等待完成
                             await playAlarm(alarmBreak);
+                            
                             // 音频播放完成后再显示提示
                             alert("休息时间结束！准备开始新的工作！");
                             
@@ -598,7 +616,6 @@ async function startTimer() {
                             stopBtn.disabled = true;
                         } catch (error) {
                             console.error('休息时间结束处理失败:', error);
-                            // 如果音频播放失败，仍然继续其他操作
                             alert("休息时间结束！准备开始新的工作！");
                             timeLeft = workTime * 60;
                             isWorking = true;
@@ -2195,6 +2212,9 @@ async function playAlarm(audioElement) {
         audioElement.pause();
         audioElement.currentTime = 0;
         
+        // 设置音量确保声音足够大
+        audioElement.volume = 1.0;
+        
         // 尝试播放
         const playPromise = audioElement.play();
         
@@ -2207,7 +2227,6 @@ async function playAlarm(audioElement) {
         }
     } catch (error) {
         console.error('音频播放失败:', error);
-        // 不在这里显示提示，让调用方处理
         throw error;
     }
 }
