@@ -544,19 +544,16 @@ async function startTimer() {
 
                     if (isWorking) {
                         try {
-                            // 播放工作结束铃声
+                            // 先播放音频
                             await playAlarm(alarm);
+                            // 音频播放完成后再显示提示
+                            alert("工作时间结束！开始休息吧！");
                             
                             // 获取当前正在进行的任务元素
                             const currentTask = document.querySelector('.todo-item.active');
                             if (currentTask) {
-                                // 从存储中删除该任务
                                 removeTaskFromStorage(currentTask);
-                                
-                                // 添加完成动画
                                 currentTask.classList.add('completed');
-                                
-                                // 等待动画完成后移除DOM元素
                                 setTimeout(() => {
                                     currentTask.remove();
                                 }, 500);
@@ -572,25 +569,27 @@ async function startTimer() {
                             localStorage.setItem(STORAGE_KEY.COINS, coins);
                             
                             updateRewardButton();
-                            alert("工作时间结束！开始休息吧！");
+                            
+                            // 设置新的时间并开始休息
                             timeLeft = breakTime * 60;
                             isWorking = false;
-                            startTimer(); // 自动开始休息时间
+                            startTimer();
 
                         } catch (error) {
                             console.error('工作时间结束处理失败:', error);
-                            alert('工作时间结束！开始休息吧！');
+                            // 如果音频播放失败，仍然继续其他操作
+                            alert("工作时间结束！开始休息吧！");
                             timeLeft = breakTime * 60;
                             isWorking = false;
                             startTimer();
                         }
                     } else {
-                        // 休息时间结束
                         try {
-                            // 播放休息结束铃声
+                            // 先播放音频
                             await playAlarm(alarmBreak);
-                            
+                            // 音频播放完成后再显示提示
                             alert("休息时间结束！准备开始新的工作！");
+                            
                             timeLeft = workTime * 60;
                             isWorking = true;
                             updateDisplay();
@@ -599,6 +598,7 @@ async function startTimer() {
                             stopBtn.disabled = true;
                         } catch (error) {
                             console.error('休息时间结束处理失败:', error);
+                            // 如果音频播放失败，仍然继续其他操作
                             alert("休息时间结束！准备开始新的工作！");
                             timeLeft = workTime * 60;
                             isWorking = true;
@@ -2176,13 +2176,24 @@ function initializeAudio() {
     alarmBreak.onerror = function(e) {
         console.error('休息铃声加载失败:', e);
     };
+
+    // 添加用户交互时的音频解锁
+    document.addEventListener('touchstart', function() {
+        // 创建一个短暂的音频上下文并播放，以解锁音频
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        const source = audioContext.createBufferSource();
+        source.connect(audioContext.destination);
+        source.start(0);
+        source.stop(0.001);
+    }, { once: true });
 }
 
 // 修改播放音频的函数
 async function playAlarm(audioElement) {
     try {
-        // 确保音频已加载
-        await audioElement.load();
+        // 在播放前先暂停并重置
+        audioElement.pause();
+        audioElement.currentTime = 0;
         
         // 尝试播放
         const playPromise = audioElement.play();
@@ -2196,12 +2207,8 @@ async function playAlarm(audioElement) {
         }
     } catch (error) {
         console.error('音频播放失败:', error);
-        // 如果播放失败，至少确保提示信息显示
-        if (audioElement === alarm) {
-            alert("工作时间结束！开始休息吧！");
-        } else {
-            alert("休息时间结束！准备开始新的工作！");
-        }
+        // 不在这里显示提示，让调用方处理
+        throw error;
     }
 }
 
