@@ -131,7 +131,11 @@ function closeModal() {
     }
 }
 
-// ----------------------导航页-----------------------------
+/////////////////////////////////////////////导航页
+
+// 在页面加载完成后创建导航
+document.addEventListener('DOMContentLoaded', createNavigation);
+
 function createNavigation() {
     let existingNav = document.querySelector('.navigation');
     if (existingNav) {
@@ -147,7 +151,7 @@ function createNavigation() {
     
     const links = [
         { href: 'index.html', text: 'TIMEBOXING', icon: '🕚' },
-        { href: 'blog.html', text: 'NOTE', icon: '📝' },
+        { href: 'https://www.notion.so/', text: 'NOTION', icon: '📝' },
         { href: 'https://news-ao8.pages.dev/', text: 'NEWS', icon: '📰' }
     ];
     
@@ -177,7 +181,7 @@ function createNavigation() {
         a.appendChild(indicator);
         nav.appendChild(a);
         
-        // 添加鼠标移动跟踪效果
+    // 添加鼠标移动跟踪效果
         a.addEventListener('mousemove', (e) => {
             const rect = a.getBoundingClientRect();
             const x = e.clientX - rect.left;
@@ -190,7 +194,7 @@ function createNavigation() {
     
     document.body.insertBefore(nav, document.body.firstChild);
     
-    // 添加滚动效果
+    // 实现导航栏的自动隐藏效果
     let lastScroll = 0;
     window.addEventListener('scroll', () => {
         const currentScroll = window.pageYOffset;
@@ -203,10 +207,8 @@ function createNavigation() {
     });
 }
 
-// 在页面加载完成后创建导航
-document.addEventListener('DOMContentLoaded', createNavigation);
+////////////////////////////////////////////////////////
 
-// ---------------------------------------------------
 const minutesDisplay = document.getElementById('minutes');
 const secondsDisplay = document.getElementById('seconds');
 const startBtn = document.getElementById('startBtn');
@@ -299,11 +301,73 @@ const encouragements = [
     "坚持就是胜利，继续加油！",
     "完成一个任务，离目标更近一步！"
 ];
+    
+////////////////////////////////////////////////////////
+
+// 在页面加载时初始化待办事项
+document.addEventListener('DOMContentLoaded', function() {
+    // 加载保存的任务
+    loadTodos();
+});
+
+// 加载任务的函数
+function loadTodos() {
+    const todos = getTodosFromStorage();
+    todos.forEach(todo => {
+        const li = document.createElement('li');
+        li.className = 'todo-item';
+        li.dataset.todoId = todo.id; // 添加ID到DOM元素
+        
+        const todoInfo = document.createElement('div');
+        todoInfo.className = 'todo-info';
+        
+        // 根据是否有时间来构建不同的显示内容
+        const timeDisplay = todo.startTime && todo.endTime 
+            ? `${todo.startTime} - ${todo.endTime}`
+            : '';
+        
+        todoInfo.innerHTML = `
+            <div class="todo-title">${todo.text}</div>
+            <div class="todo-time">
+                ${timeDisplay}
+                <span class="todo-duration">${todo.duration}分钟</span>
+            </div>
+        `;
+
+        const startBtn = document.createElement('button');
+        startBtn.className = 'todo-start-btn';
+        startBtn.textContent = '开始任务';
+        startBtn.addEventListener('click', () => {
+            // 移除其他任务的活动状态
+            document.querySelectorAll('.todo-item.active').forEach(item => {
+                item.classList.remove('active');
+            });
+            
+            // 为当前任务添加活动状态
+            li.classList.add('active');
+            
+            workTime = todo.duration;
+            timeLeft = todo.duration * 60;
+            updateDisplay();
+            closeModal();
+            startTimer();
+        });
+
+        li.appendChild(todoInfo);
+        li.appendChild(startBtn);
+        todoList.appendChild(li);
+    });
+}
 
 // 从本地存储获取任务列表
 function getTodosFromStorage() {
-    const todosJson = localStorage.getItem(STORAGE_KEY.TODO_ITEMS);
-    return todosJson ? JSON.parse(todosJson) : [];
+    try {
+        const todosJson = localStorage.getItem(STORAGE_KEY.TODO_ITEMS);
+        return todosJson ? JSON.parse(todosJson) : [];
+    } catch (error) {
+        console.error('获取待办事项失败:', error);
+        return [];
+    }
 }
 
 // 添加任务的函数
@@ -390,69 +454,16 @@ function addTodo() {
     todoDuration.value = '';
 }
 
-// 修改保存任务到存储的函数
+// 保存任务到存储
 function saveTodoToStorage(todo) {
     const todos = getTodosFromStorage();
     todos.push(todo);
     localStorage.setItem(STORAGE_KEY.TODO_ITEMS, JSON.stringify(todos));
 }
 
-// 修改加载任务的函数
-function loadTodos() {
-    const todos = getTodosFromStorage();
-    todos.forEach(todo => {
-        const li = document.createElement('li');
-        li.className = 'todo-item';
-        li.dataset.todoId = todo.id; // 添加ID到DOM元素
-        
-        const todoInfo = document.createElement('div');
-        todoInfo.className = 'todo-info';
-        
-        // 根据是否有时间来构建不同的显示内容
-        const timeDisplay = todo.startTime && todo.endTime 
-            ? `${todo.startTime} - ${todo.endTime}`
-            : '';
-        
-        todoInfo.innerHTML = `
-            <div class="todo-title">${todo.text}</div>
-            <div class="todo-time">
-                ${timeDisplay}
-                <span class="todo-duration">${todo.duration}分钟</span>
-            </div>
-        `;
+////////////////////////////////////////////
 
-        const startBtn = document.createElement('button');
-        startBtn.className = 'todo-start-btn';
-        startBtn.textContent = '开始任务';
-        startBtn.addEventListener('click', () => {
-            // 移除其他任务的活动状态
-            document.querySelectorAll('.todo-item.active').forEach(item => {
-                item.classList.remove('active');
-            });
-            
-            // 为当前任务添加活动状态
-            li.classList.add('active');
-            
-            workTime = todo.duration;
-            timeLeft = todo.duration * 60;
-            updateDisplay();
-            closeModal();
-            startTimer();
-        });
 
-        li.appendChild(todoInfo);
-        li.appendChild(startBtn);
-        todoList.appendChild(li);
-    });
-}
-
-// 在页面加载时初始化待办事项
-document.addEventListener('DOMContentLoaded', function() {
-    // ... 现有代码 ...
-    
-    // 加载保存的任务
-    loadTodos();
-});
 
 // 定义更新时间显示的函数
 function updateDisplay() {
@@ -482,7 +493,7 @@ function saveTimerState() {
     }
 }
 
-// 只在页面关闭时保存状态，移除 visibilitychange 事件
+// 在页面关闭和隐藏时保存状态
 window.addEventListener('beforeunload', saveTimerState);
 window.addEventListener('pagehide', saveTimerState);
 
@@ -600,7 +611,7 @@ async function startTimer() {
                             updateDisplay();
                             
                             // 等待一小段时间确保显示更新
-                            await new Promise(resolve => setTimeout(resolve, 100));
+                            //await new Promise(resolve => setTimeout(resolve, 100));
                             
                             // 播放音频并等待完成
                             await playAlarm(alarmBreak);
@@ -611,6 +622,7 @@ async function startTimer() {
                             timeLeft = workTime * 60;
                             isWorking = true;
                             updateDisplay();
+
                             startBtn.disabled = false;
                             pauseBtn.disabled = true;
                             stopBtn.disabled = true;
@@ -744,8 +756,6 @@ if (savedCoins) {
             }
         }
     }
-  
-
 
 }
 
@@ -802,6 +812,8 @@ function claimReward() {
     }
 }
 
+//////////////////////////////////////////////
+
 // 显示粒子效果
 function showParticles() {
     particlesContainer.innerHTML = ''; // 清空之前的粒子
@@ -852,7 +864,7 @@ volumeSlider.addEventListener('input', function() {
     bgm.volume = volume;
     volumeValue.textContent = `${this.value}%`;
     
-    // 如果音量为0，显示静音状态
+// 如果音量为0，显示静音状态
     if (volume === 0) {
         muteBgmBtn.textContent = "播放";
         bgm.muted = true;
@@ -862,7 +874,7 @@ volumeSlider.addEventListener('input', function() {
     }
 });
 
-// 修改静音按钮的处理函数
+// 静音按钮的处理函数
 function toggleMuteBgm() {
     bgm.muted = !bgm.muted;
     if (bgm.muted) {
@@ -909,6 +921,13 @@ stopBtn.addEventListener('click', stopTimer);
 applyCustomBtn.addEventListener('click', applyCustomTime);
 rewardBtn.addEventListener('click', claimReward);
 nextSongBtn.addEventListener('click', playNextSong);
+addTodoBtn.addEventListener('click', addTodo);
+todoInput.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') {
+        addTodo();
+       
+    }
+});
 
 // 初始化
 updateDisplay();
@@ -917,14 +936,7 @@ initializeTimer();
 
 
 
-// 添加事件监听器
-addTodoBtn.addEventListener('click', addTodo);
-todoInput.addEventListener('keypress', (e) => {
-    if (e.key === 'Enter') {
-        addTodo();
-       
-    }
-});
+////////////////////////////////////////////////////////////////
 
 // 保留 API 基础 URL
 const API_BASE_URL = 'https://learning-backend-7fla.onrender.com/api';
@@ -1194,8 +1206,10 @@ async function handleSend() {
     uploadedFileContent = null;
 }
 
-// 添加事件监听器
+// 添加AI聊天事件监听器
+// 实现点击发送按钮发送消息  
 sendButton.addEventListener('click', handleSend);
+// 实现按下回车键发送消息
 userInput.addEventListener('keypress', (e) => {
     if (e.key === 'Enter' && !e.shiftKey) {
         e.preventDefault();
@@ -1203,6 +1217,7 @@ userInput.addEventListener('keypress', (e) => {
     }
 });
 
+////////////////////////////////////////////////////////////////
 // 实现图片拖动功能
 document.addEventListener('DOMContentLoaded', function() {
     const draggableImage = document.querySelector('.draggable-image');
@@ -1351,6 +1366,9 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 });
+
+
+////////////////////////////////////////////////////////////////
 
 // 登录系统相关函数
 function showForm(formType) {
@@ -2068,117 +2086,16 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
-// 添加动态背景动画
+
+
+
+/////////////////////////////////////////////////////////////////////
+
+// 在页面加载时初始化音频
 document.addEventListener('DOMContentLoaded', function() {
-    const canvas = document.createElement('canvas');
-    canvas.style.position = 'fixed';
-    canvas.style.top = '0';
-    canvas.style.left = '0';
-    canvas.style.width = '100%';
-    canvas.style.height = '100%';
-    canvas.style.zIndex = '-1';
-    document.body.prepend(canvas);
+    initializeAudio();
 
-    const ctx = canvas.getContext('2d');
-    let particles = [];
-    let animationId;
-
-    function resizeCanvas() {
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
-    }
-
-    resizeCanvas();
-    window.addEventListener('resize', resizeCanvas);
-
-    class Particle {
-        constructor() {
-            this.x = Math.random() * canvas.width;
-            this.y = Math.random() * canvas.height;
-            this.vx = (Math.random() - 0.5) * 0.5;
-            this.vy = (Math.random() - 0.5) * 0.5;
-            this.size = Math.random() * 2;
-            this.color = `rgba(0, ${155 + Math.random() * 100}, ${157 + Math.random() * 98}, ${0.2 + Math.random() * 0.5})`;
-        }
-
-        update() {
-            this.x += this.vx;
-            this.y += this.vy;
-
-            // 边界检查
-            if (this.x < 0 || this.x > canvas.width) this.vx *= -1;
-            if (this.y < 0 || this.y > canvas.height) this.vy *= -1;
-        }
-
-        draw() {
-            ctx.beginPath();
-            ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-            ctx.fillStyle = this.color;
-            ctx.fill();
-        }
-    }
-
-    function createParticles() {
-        const particleCount = Math.floor((canvas.width * canvas.height) / 10000);
-        for (let i = 0; i < particleCount; i++) {
-            particles.push(new Particle());
-        }
-    }
-
-    function drawLines() {
-        for (let i = 0; i < particles.length; i++) {
-            for (let j = i + 1; j < particles.length; j++) {
-                const dx = particles[i].x - particles[j].x;
-                const dy = particles[i].y - particles[j].y;
-                const distance = Math.sqrt(dx * dx + dy * dy);
-
-                if (distance < 100) {
-                    ctx.beginPath();
-                    ctx.strokeStyle = `rgba(0, 255, 157, ${0.1 * (1 - distance / 100)})`;
-                    ctx.lineWidth = 0.5;
-                    ctx.moveTo(particles[i].x, particles[i].y);
-                    ctx.lineTo(particles[j].x, particles[j].y);
-                    ctx.stroke();
-                }
-            }
-        }
-    }
-
-    function animate() {
-        ctx.fillStyle = 'rgba(10, 10, 15, 0.1)';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-        particles.forEach(particle => {
-            particle.update();
-            particle.draw();
-        });
-
-        drawLines();
-        animationId = requestAnimationFrame(animate);
-    }
-
-    // 添加鼠标交互效果
-    let mouse = {
-        x: null,
-        y: null,
-        radius: 100
-    };
-
-    canvas.addEventListener('mousemove', function(event) {
-        mouse.x = event.x;
-        mouse.y = event.y;
-
-        // 创建鼠标位置的涟漪效果
-        ctx.beginPath();
-        ctx.arc(mouse.x, mouse.y, 2, 0, Math.PI * 2);
-        ctx.fillStyle = 'rgba(0, 255, 157, 0.8)';
-        ctx.fill();
-    });
-
-    createParticles();
-    animate();
 });
-
 // 初始化音频播放
 function initializeAudio() {
     // 预加载音频文件
@@ -2194,7 +2111,7 @@ function initializeAudio() {
         console.error('休息铃声加载失败:', e);
     };
 
-    // 添加用户交互时的音频解锁
+    // 添加用户交互时的音频解锁，用户只需要触摸页面一次，就可以保证后面的音乐正常播放，如果用户至始至终都没有触摸个页面，那这段代码将没用
     document.addEventListener('touchstart', function() {
         // 创建一个短暂的音频上下文并播放，以解锁音频
         const audioContext = new (window.AudioContext || window.webkitAudioContext)();
@@ -2205,13 +2122,14 @@ function initializeAudio() {
     }, { once: true });
 }
 
+
 // 修改播放音频的函数
 async function playAlarm(audioElement) {
     try {
         // 在播放前先暂停并重置
         audioElement.pause();
+        // 将音频进度重置到开始位置
         audioElement.currentTime = 0;
-        
         // 设置音量确保声音足够大
         audioElement.volume = 1.0;
         
@@ -2231,9 +2149,5 @@ async function playAlarm(audioElement) {
     }
 }
 
-// 在页面加载时初始化音频
-document.addEventListener('DOMContentLoaded', function() {
-    initializeAudio();
-    // ... existing code ...
-});
+/////////////////////////////////////////////////////////////////////
 
