@@ -372,6 +372,26 @@ h1 {
                 </div>
                 <button id="nextSongBtn">下一首</button>
             </div>
+
+            <div class="todo-input">
+                <div class="todo-inputs">
+                    <input type="text" id="todoInput" placeholder="输入任务名称..." required>
+                    <input type="number" 
+                        id="todoDuration" 
+                        placeholder="工作时长(分钟)" 
+                        min="1" 
+                        max="60" 
+                        title="请输入1-60分钟之间的时长"
+                        required>
+                    <input type="time" 
+                        id="todoStartTime" 
+                        placeholder="开始时间（可选）">
+                    <input type="time" 
+                        id="todoEndTime" 
+                        placeholder="结束时间（可选）">
+                </div>
+                <button id="addTodoBtn">添加任务</button>
+            </div>
         </div>
 
         <div class="rewards">
@@ -379,19 +399,7 @@ h1 {
             <button id="rewardBtn" disabled>奖励 (需消耗 2 番茄)</button>
         </div>
 
-        <div class="chat-container">
-            <div id="chat-messages" class="chat-messages"></div>
-            <div class="chat-input">
-                 <div class="input-container">
-                    <textarea id="user-input" placeholder="有什么可以帮你的吗..." rows="2"></textarea>
-                    <div class="button-group">
-                        <input type="file" id="file-input" multiple style="display: none;">
-                        <button id="upload-button" class="upload-button">上传</button>
-                        <button id="send-button">发送</button>
-                    </div>
-                </div>
-            </div>    
-        </div>
+        
         <div class="todo-container">
            
             <ul id="todoList" class="todo-list"></ul>
@@ -403,12 +411,8 @@ h1 {
     </div>
 
 
-   
-
-
-
     <!-- 第二个容器 -->
-    <div class="container3">
+    <div class="container">
         <div class="auth-buttons">
             <button class="auth-btn active" onclick="showForm('login')">登录页</button>
             <button class="auth-btn" onclick="showForm('register')">注册页</button>
@@ -478,6 +482,23 @@ h1 {
     </div>
 
 
+<!-- 第三个容器 -->
+<div class="container3">  
+    <h2>英语学习助手</h2>   
+    <div class="chat-container"></div>
+        <div id="chat-messages" class="chat-messages"></div>
+        <div class="chat-input">
+             <div class="input-container">
+                <textarea id="user-input" placeholder="有什么可以帮你的吗..." rows="2"></textarea>
+                <div class="button-group">
+                    <input type="file" id="file-input" multiple style="display: none;">
+                    <button id="upload-button" class="upload-button">上传</button>
+                    <button id="send-button">发送</button>
+                </div>
+            </div>
+        </div>    
+    </div>
+</div>
 
 
     <!-- 当点击启动按钮时，在整个页面添加粒子效果 -->
@@ -508,24 +529,7 @@ h1 {
             <span class="close-button">&times;</span>
             <h2>🌟 使用窗口</h2>
             <div class="help-content">
-                <div class="todo-input">
-                    <input type="text" id="todoInput" placeholder="输入任务名称..." required>
-                    <input type="number" 
-                        id="todoDuration" 
-                        placeholder="工作时长(分钟)" 
-                        min="1" 
-                        max="60" 
-                        title="请输入1-60分钟之间的时长"
-                        required>
-                    <input type="time" 
-                        id="todoStartTime" 
-                        placeholder="开始时间（可选）">
-                    <input type="time" 
-                        id="todoEndTime" 
-                        placeholder="结束时间（可选）">
-                    
-                    <button id="addTodoBtn">添加任务</button>
-                </div>
+                
                          
 
                 

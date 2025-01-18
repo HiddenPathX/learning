@@ -374,9 +374,16 @@
 
 /* 调整内部文字颜色，使其在透明背景上更清晰 */
 .container h1,
+.container h2,
+.container3 h2,
+.container3 h1,
 .container2 h2{
     color: rgba(255, 255, 255, 0.95);
     text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    margin: 0;
+    padding: 10px 20px;  /* 修改padding，增加左右内边距为20px */
+    /* border-radius: 0px 0px 0 0; */
+    line-height: 1;
 }
 
 /* 调整计时器颜色 */
@@ -665,7 +672,7 @@ transition: transform 0.5s ease;
 .article-content p {
 margin: 0.5rem 0;    /* 添加一个小的上下边距 */
 line-height: 1.2;    /* 稍微增加一点行高 */
-font-size: 1.2rem;   /* 字体大小 */
+
 }
 
 
@@ -766,7 +773,7 @@ p {
 
 .chat-messages {
     width: 100%;  /* 改为100%以适应容器宽度 */
-    height: 350px;
+    height: 70vh;
     overflow-y: auto;
     padding: 1rem;
     background: rgba(16, 16, 28, 0.8);
@@ -775,6 +782,7 @@ p {
     border-radius: 12px;
     margin-bottom: 10px;
     box-sizing: border-box;  /* 确保padding不会影响总宽度 */
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 }
 
 /* 聊天消息基础样式 */
@@ -786,7 +794,8 @@ p {
     border: 1px solid rgba(0, 255, 157, 0.2);
     box-shadow: 0 0 15px rgba(0, 255, 157, 0.1);
     animation: messageFadeIn 0.3s ease;
-    font-family: 'Orbitron', sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    font-size: 1.5rem;  
 }
 
 /* 用户消息样式 */
@@ -866,7 +875,7 @@ p {
     background: rgba(16, 16, 28, 0.8);
     color: #00ff9d;
     resize: none;
-    font-family: 'Orbitron', sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
     transition: all 0.3s ease;
     box-shadow: 0 0 10px rgba(0, 255, 157, 0.1);
     box-sizing: border-box;  /* 确保padding不会影响总宽度 */
@@ -900,7 +909,7 @@ p {
     color: #00ff9d;
     cursor: pointer;
     transition: all 0.3s ease;
-    font-family: 'Orbitron', sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
     text-shadow: 0 0 5px rgba(0, 255, 157, 0.5);
     border: 1px solid rgba(0, 255, 157, 0.3);
     box-shadow: 0 0 15px rgba(0, 255, 157, 0.1);
@@ -1010,7 +1019,7 @@ p {
     border: 1px solid rgba(0, 255, 157, 0.2);
     box-shadow: 0 0 15px rgba(0, 255, 157, 0.1);
     border-radius: 8px;
-    font-family: 'Orbitron', sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
     white-space: pre-wrap;
     max-height: 200px;
     overflow-y: auto;
@@ -1040,7 +1049,7 @@ p {
     color: #00ff9d;
     cursor: pointer;
     transition: all 0.3s ease;
-    font-family: 'Orbitron', sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
     text-shadow: 0 0 5px rgba(0, 255, 157, 0.5);
     box-shadow: 0 0 15px rgba(0, 255, 157, 0.1);
     display: flex;
@@ -1322,7 +1331,6 @@ body.loaded .container2 {
 
 /* --------------------------------------------------------------- */
 
-/* 添加登录注册框架样式 */
 .container3 {
     background: rgba(16, 16, 28, 0.7);
     border: 1px solid rgba(0, 255, 157, 0.2);
@@ -1338,10 +1346,14 @@ body.loaded .container2 {
     overflow: hidden;
     margin: 15px;
     width: 100%;
-    max-width: 400px;
+    max-width: 1000px;
+    min-height: 80vh;
+    height: auto;
     flex-shrink: 0;
     border: 1px solid rgba(255, 255, 255, 0.18);
     transition: all 0.3s ease;
+
+
 }
 
 .container3:hover {
@@ -1843,4 +1855,54 @@ input[type="text"]:focus, input[type="number"]:focus, input[type="time"]:focus {
 /* 第二个容器的悬停效果 */
 .container2:hover {
     background: rgba(255, 255, 255, 0.18);
+}
+
+.todo-input {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 20px;
+    width: 100%;
+}
+
+/* 输入框容器 */
+.todo-inputs {
+    display: flex;
+    gap: 8px;
+    width: 100%;
+}
+
+.todo-input input[type="text"] {
+    flex: 2.5;  /* 任务名称占比稍大 */
+    min-width: 0;  /* 移除最小宽度限制 */
+    width: 0;  /* 允许收缩 */
+}
+
+.todo-input input[type="number"] {
+    flex: 1.5;
+    min-width: 0;
+    width: 0;
+}
+
+.todo-input input[type="time"] {
+    flex: 1;
+    min-width: 0;
+    width: 0;
+}
+
+.todo-input button {
+    width: 100%;
+    margin: 10px auto;  /* 修改为 auto 以实现水平居中 */
+    padding: 12px 25px;
+    background-color: #e74c3c;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    display: block;  /* 添加 display: block 以配合 margin: auto */
+}
+
+.todo-input button:hover {
+    background-color: #c0392b;
 }
