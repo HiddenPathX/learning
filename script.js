@@ -150,15 +150,21 @@ function createNavigation() {
     nav.className = 'navigation';
     
     const links = [
-        { href: 'index.html', text: 'TIMEBOXING', icon: '🕚' },
-        { href: 'https://www.notion.so/', text: 'NOTION', icon: '📝' },
-        { href: 'https://news-ao8.pages.dev/', text: 'NEWS', icon: '📰' }
+        { href: 'index.html', text: 'TIMEBOXING', icon: '🕚', newTab: false },
+        { href: 'https://www.notion.so/', text: 'NOTION', icon: '📝', newTab: true },
+        { href: 'https://news-ao8.pages.dev/', text: 'NEWS', icon: '📰', newTab: false }
     ];
     
     links.forEach(link => {
         const a = document.createElement('a');
         // 如果不是完整的URL（不包含http），则添加前缀
         a.href = link.href.includes('http') ? link.href : prefix + link.href;
+        
+        // 只为需要新标签页打开的链接添加属性
+        if (link.newTab) {
+            a.target = "_blank";
+            a.rel = "noopener noreferrer";
+        }
         
         // 创建内容容器
         const content = document.createElement('span');
