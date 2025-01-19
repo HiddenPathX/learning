@@ -1,3 +1,4 @@
+<!-- 每天三问自己，我为什么这么差劲 -->
 <!DOCTYPE html>
 <html lang="zh-CN">
 
@@ -18,6 +19,10 @@
     <!-- 添加 MathJax 支持，渲染LaTeX公式 -->
     <script id="MathJax-script" defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- 添加樱花效果的脚本 -->
+    <script src="https://api.suyanw.cn/api/mouse/yinghua.js"></script>
+
 <!-- ------------一些仅在index.html中使用的css样式------------    -->
 <style>
 
@@ -315,6 +320,110 @@ h1 {
     box-shadow: 0 0 20px rgba(0, 255, 157, 0.3);
 }
 
+/* 修改弹窗背景 */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    overflow-y: auto;
+}
+
+/* 修改弹窗内容样式 */
+.modal-content.custom-container {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border-radius: 55px;
+    padding: 20px;
+    margin: 50px auto;
+    color: white;
+    position: relative;
+}
+
+/* 开始按钮弹窗样式 */
+.modal-content.start-modal {
+    max-width: 400px;
+}
+
+/* 说明按钮弹窗样式 */
+.modal-content.help-modal {
+    max-width: 800px;
+}
+
+/* 修改关闭按钮样式 */
+.close-button {
+    position: absolute;
+    right: 20px;
+    top: 15px;
+    color: white;
+    font-size: 28px;
+    cursor: pointer;
+    transition: color 0.3s;
+}
+
+.close-button:hover {
+    color: #ff4444;
+}
+
+/* 修改输入框样式 */
+.customization input[type="number"] {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: white;
+    padding: 8px;
+    border-radius: 5px;
+}
+
+/* 修改标签样式 */
+.customization label {
+    color: rgba(255, 255, 255, 0.9);
+    margin: 10px 0;
+}
+
+/* 修改按钮样式 */
+.customization button {
+    background: rgba(46, 204, 113, 0.8);
+    border: none;
+    padding: 10px 20px;
+    color: white;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background 0.3s;
+    margin: 10px 5px;
+}
+
+.customization button:hover {
+    background: rgba(46, 204, 113, 1);
+}
+
+/* 帮助内容样式 */
+.help-content {
+    color: rgba(255, 255, 255, 0.9);
+    line-height: 1.6;
+}
+
+/* 滚动条样式 */
+.modal-content::-webkit-scrollbar {
+    width: 8px;
+}
+
+.modal-content::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.modal-content::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 4px;
+}
+
+.modal-content::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.4);
+}
+
 </style>
 
 <!-- 添加字体链接 -->
@@ -352,7 +461,7 @@ h1 {
     <div class="container">
       
       
-        
+      
         <div class="timer">
             <span id="minutes">60</span>:<span id="seconds">00</span>
         </div>
@@ -372,26 +481,6 @@ h1 {
                 </div>
                 <button id="nextSongBtn">下一首</button>
             </div>
-
-            <div class="todo-input">
-                <div class="todo-inputs">
-                    <input type="text" id="todoInput" placeholder="输入任务名称..." required>
-                    <input type="number" 
-                        id="todoDuration" 
-                        placeholder="工作时长(分钟)" 
-                        min="1" 
-                        max="60" 
-                        title="请输入1-60分钟之间的时长"
-                        required>
-                    <input type="time" 
-                        id="todoStartTime" 
-                        placeholder="开始时间（可选）">
-                    <input type="time" 
-                        id="todoEndTime" 
-                        placeholder="结束时间（可选）">
-                </div>
-                <button id="addTodoBtn">添加任务</button>
-            </div>
         </div>
 
         <div class="rewards">
@@ -399,19 +488,82 @@ h1 {
             <button id="rewardBtn" disabled>奖励 (需消耗 2 番茄)</button>
         </div>
 
-        
         <div class="todo-container">
-           
             <ul id="todoList" class="todo-list"></ul>
         </div>
         <!-- 添加音乐名称显示 -->
         <div id="current-song" class="current-song"></div>
         
-        <div id="quote" class="hidden"></div>
+        <div id="quote"></div>
     </div>
 
 
-    <!-- 第二个容器 -->
+    <div class="container2">  
+        <h2>任务日历</h2>
+        <div id="love-quote" style="width: 100%; height: 50px; color: #FFFFFF; text-align: center; padding: 15px 0;"></div>
+        
+        <div class="calendar-container">
+            <div class="calendar-header">
+                <button id="prevMonth">&lt;</button>
+                <h2 id="monthDisplay"></h2>
+                <button id="nextMonth">&gt;</button>
+            </div>
+            <div class="weekdays">
+                <div>日</div>
+                <div>一</div>
+                <div>二</div>
+                <div>三</div>
+                <div>四</div>
+                <div>五</div>
+                <div>六</div>
+            </div>
+            <div class="calendar-grid" id="calendarGrid"></div>
+        </div>
+    </div>
+
+    <div class="day-tasks-panel" id="dayTasksPanel">
+        <div class="day-tasks-header">
+            <h3 id="selectedDate"></h3>
+            <button class="close-day-tasks">&times;</button>
+        </div>
+        <div class="tasks-status">
+            <div class="status-item">
+                <span class="status-dot pending"></span>
+                <span>待完成</span>
+                <span id="pendingCount">0</span>
+            </div>
+            <div class="status-item">
+                <span class="status-dot completed"></span>
+                <span>已完成</span>
+                <span id="completedCount">0</span>
+            </div>
+        </div>
+        
+        <div class="todo-input">
+            <input type="text" id="todoInput" placeholder="输入任务名称..." required>
+            <div class="time-inputs">
+                <input type="number" 
+                    id="todoDuration" 
+                    placeholder="工作时长(分钟)" 
+                    min="1" 
+                    max="60" 
+                    title="请输入1-60分钟之间的时长"
+                    required>
+                <input type="time" 
+                    id="todoStartTime"
+                    placeholder="开始时间">
+                <input type="time" 
+                    id="todoEndTime" 
+                    placeholder="结束时间">
+            </div>
+            <button id="addTodoBtn">添加任务</button>
+        </div>
+
+        <div class="day-tasks-list" id="dayTasksList"></div>
+    </div>
+    <div class="modal-overlay" id="taskModalOverlay"></div>
+
+    <!-- 第三个容器 -->
     <div class="container">
         <div class="auth-buttons">
             <button class="auth-btn active" onclick="showForm('login')">登录页</button>
@@ -447,7 +599,7 @@ h1 {
         <div class="user-profile" id="userProfile">
              <div class="profile-header">
                
-                <h2 class="username">挑战者：</h2> 
+                <h2 class="username">显示学习数据</h2> 
             </div> 
 
             <div class="study-stats">
@@ -502,7 +654,16 @@ h1 {
 
 
     <!-- 当点击启动按钮时，在整个页面添加粒子效果 -->
-    <div id="particles-container"></div>  
+    <div id="particles-container" style="
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        z-index: 9999;
+        display: none;
+    "></div>  
     
     <audio id="bgm" loop preload="none">
         <source src="songs/m1.mp3" type="audio/mpeg">
@@ -524,27 +685,19 @@ h1 {
    
     <!-- 交互弹窗结构 -->
     <div id="openModal" class="modal">
-        <div class="modal-content">
+        <div class="modal-content custom-container start-modal">
             <div class="controls">
-            <span class="close-button">&times;</span>
-            <h2>🌟 使用窗口</h2>
-            <div class="help-content">
-                
-                         
-
-                
-                   
-                        <div class="customization">
+                <span class="close-button">&times;</span>
+                <h2>🌟 使用窗口</h2>
+                <div class="help-content">
+                    <div class="customization">
                         <label for="workTime">工作时长 (分钟):</label>
                         <input type="number" id="workTime" value="25" min="1">
                         <label for="breakTime">休息时长 (分钟):</label>
                         <input type="number" id="breakTime" value="5" min="1">
                         
                         <button id="applyCustom">应用</button>
-						<button id="startBtn">启动</button>
-                 
-                   
-               
+                        <button id="startBtn">启动</button>
                     </div>
                 </div>  
             </div>
@@ -552,7 +705,7 @@ h1 {
     </div>
 
     <div id="helpModal" class="modal">
-        <div class="modal-content">
+        <div class="modal-content custom-container help-modal">
             <span class="close-button" id="helpCloseBtn">&times;</span>
         
             <h1 style="color: #2ecc71; text-align: center;">🌟 Timeboxing 时间管理工具使用指南</h1>
@@ -637,6 +790,19 @@ h1 {
     
 <!-- 链接外部javascript脚本，一般不放在head里 -->   
 <script src="script.js"></script>
+
+    <!-- 添加一个控制按钮 -->
+    <button onclick="stopp()" style="
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        z-index: 100000;
+        padding: 10px 20px;
+        background: rgba(255, 255, 255, 0.208);
+        border: none;
+        border-radius: 55px;
+        cursor: pointer;
+    ">樱花效果</button>
 
 </body>
 </html>

@@ -315,17 +315,40 @@ document.addEventListener('DOMContentLoaded', function() {
 // 加载任务的函数
 function loadTodos() {
     const todos = getTodosFromStorage();
-    todos.forEach(todo => {
+    // 清空现有任务列表
+    todoList.innerHTML = '';
+    
+    // 获取今天的日期
+    const today = formatDate(new Date());
+    
+    // 只显示今天的未完成任务
+    const todayPendingTodos = todos.filter(todo => {
+        if (todo.completed) return false;
+        
+        // 如果有日期字段，使用日期字段判断
+        if (todo.date) {
+            return todo.date === today;
+        }
+        
+        // 如果有开始时间，使用开始时间判断
+        if (todo.startTime) {
+            return todo.startTime.split('T')[0] === today;
+        }
+        
+        // 如果都没有，使用任务创建时间判断
+        return formatDate(new Date(parseInt(todo.id))) === today;
+    });
+    
+    todayPendingTodos.forEach(todo => {
         const li = document.createElement('li');
         li.className = 'todo-item';
-        li.dataset.todoId = todo.id; // 添加ID到DOM元素
+        li.dataset.todoId = todo.id;
         
         const todoInfo = document.createElement('div');
         todoInfo.className = 'todo-info';
         
-        // 根据是否有时间来构建不同的显示内容
-        const timeDisplay = todo.startTime && todo.endTime 
-            ? `${todo.startTime} - ${todo.endTime}`
+        const timeDisplay = todo.startTime ? 
+            `${todo.startTime.split('T')[1]}${todo.endTime ? ' - ' + todo.endTime.split('T')[1] : ''}`
             : '';
         
         todoInfo.innerHTML = `
@@ -340,14 +363,11 @@ function loadTodos() {
         startBtn.className = 'todo-start-btn';
         startBtn.textContent = '开始任务';
         startBtn.addEventListener('click', () => {
-            // 移除其他任务的活动状态
             document.querySelectorAll('.todo-item.active').forEach(item => {
                 item.classList.remove('active');
             });
             
-            // 为当前任务添加活动状态
             li.classList.add('active');
-            
             workTime = todo.duration;
             timeLeft = todo.duration * 60;
             updateDisplay();
@@ -387,80 +407,69 @@ function addTodo() {
 
     // 添加时长范围验证
     if (duration < 1 || duration > 60) {
-        alert('工作时长必须在10-60分钟之间！');
+        alert('工作时长必须在1-60分钟之间！');
         return;
     }
+
+    // 获取选定的日期
+    const selectedDateStr = selectedDate ? formatDate(selectedDate) : formatDate(new Date());
+    const today = formatDate(new Date());
+
+    // 验证日期：不能添加过去的任务
+    if (selectedDateStr < today) {
+        alert('不能为过去的日期添加任务！');
+        return;
+    }
+
     closeModal();
-    // 创建任务对象，添加唯一ID
+    
+    // 创建任务对象，添加唯一ID和日期
     const todo = {
-        id: Date.now().toString(), // 使用时间戳作为唯一ID
+        id: Date.now().toString(),
         text: todoText,
-        startTime: startTime || null,
-        endTime: endTime || null,
-        duration: duration
+        startTime: startTime ? `${selectedDateStr}T${startTime}` : null,
+        endTime: endTime ? `${selectedDateStr}T${endTime}` : null,
+        duration: duration,
+        completed: false,
+        date: selectedDateStr // 添加日期字段
     };
 
     // 保存到本地存储
     saveTodoToStorage(todo);
-
-    // 创建任务元素
-    const li = document.createElement('li');
-    li.className = 'todo-item';
-    li.dataset.todoId = todo.id; // 将ID存储在DOM元素上
     
-    const todoInfo = document.createElement('div');
-    todoInfo.className = 'todo-info';
+    // 重新加载任务列表（如果是今天的任务）
+    if (selectedDateStr === today) {
+        loadTodos();
+    }
     
-    // 根据是否有时间来构建不同的显示内容
-    const timeDisplay = startTime && endTime 
-        ? `${startTime} - ${endTime}`
-        : '';
-    
-    todoInfo.innerHTML = `
-        <div class="todo-title">${todo.text}</div>
-        <div class="todo-time">
-            ${timeDisplay}
-            <span class="todo-duration">${todo.duration}分钟</span>
-        </div>
-    `;
-
-    const startBtn = document.createElement('button');
-    startBtn.className = 'todo-start-btn';
-    startBtn.textContent = '开始任务';
-    startBtn.addEventListener('click', () => {
-        // 移除其他任务的活动状态
-        document.querySelectorAll('.todo-item.active').forEach(item => {
-            item.classList.remove('active');
-        });
-        
-        // 为当前任务添加活动状态
-        li.classList.add('active');
-        
-        // 设置工作时长并启动计时器
-        workTime = todo.duration;
-        timeLeft = todo.duration * 60;
-        updateDisplay();
-        closeModal();
-        startTimer();
-       
-    });
-
-    li.appendChild(todoInfo);
-    li.appendChild(startBtn);
-    todoList.appendChild(li);
-
     // 清空输入框
     todoInput.value = '';
     todoStartTime.value = '';
     todoEndTime.value = '';
     todoDuration.value = '';
+
+    // 更新日历显示
+    renderCalendar();
+    
+    // 如果当前显示的是添加任务的日期，更新任务面板
+    if (selectedDate) {
+        showDayTasks(selectedDate);
+    }
 }
 
 // 保存任务到存储
 function saveTodoToStorage(todo) {
     const todos = getTodosFromStorage();
-    todos.push(todo);
+    // 确保todo对象包含所有必要的属性
+    const newTodo = {
+        ...todo,
+        completed: false,
+        startTime: todo.startTime || `${formatDate(new Date())}T00:00`,
+        id: todo.id || Date.now().toString()
+    };
+    todos.push(newTodo);
     localStorage.setItem(STORAGE_KEY.TODO_ITEMS, JSON.stringify(todos));
+    renderCalendar(); // 保存后立即更新日历
 }
 
 ////////////////////////////////////////////
@@ -503,151 +512,144 @@ window.addEventListener('pagehide', saveTimerState);
 function removeTaskFromStorage(taskElement) {
     const todos = getTodosFromStorage();
     const taskId = taskElement.dataset.todoId;
-    
-    // 使用ID过滤掉要删除的任务
     const updatedTodos = todos.filter(todo => todo.id !== taskId);
-    
-    // 更新存储
     localStorage.setItem(STORAGE_KEY.TODO_ITEMS, JSON.stringify(updatedTodos));
+    renderCalendar();
 }
 
-// 修改 startTimer 函数中的相关部分
-async function startTimer() {
-    if (!timerInterval) {
-        try {
-            // 关闭弹窗
-            closeModal();
-            
-            isPaused = false;
-            startBtn.disabled = true;
-            pauseBtn.disabled = false;
-            stopBtn.disabled = false;
-            bgm.play();
-            showParticles();
-            showRandomQuote();
-
-            // 显示当前播放的音乐名称(最后一首)
-            currentSongDisplay.textContent = `VIBE: ${songNames[currentSongIndex]}`;
-            currentSongDisplay.classList.add('show');
-
-            // 清除暂停状态
-            localStorage.removeItem(STORAGE_KEY.IS_PAUSED);
-            // 保存新的开始时间和状态
-           
-            // 保存计时器的开始时间戳，用于恢复时计算经过的时间
-            localStorage.setItem(STORAGE_KEY.START_TIME, Date.now());
-            // 保存当前剩余的时间（秒数），用于恢复计时器状态
-            localStorage.setItem(STORAGE_KEY.TIME_LEFT, timeLeft);
-            // 保存当前是工作时间还是休息时间的状态（true为工作时间，false为休息时间）
-            localStorage.setItem(STORAGE_KEY.IS_WORKING, isWorking);
-            // 保存计时器是否处于活动状态的标志
-            localStorage.setItem(STORAGE_KEY.IS_ACTIVE, 'true');
-            // 保存用户当前累积的番茄币数量
-            localStorage.setItem(STORAGE_KEY.COINS, coins);
-
-            timerInterval = setInterval(async () => {
-                if (timeLeft > 0) {
-                    timeLeft--;
-                    updateDisplay();
-                }
-
-                if (timeLeft <= 0) {
-                    // 先清除计时器
-                    clearInterval(timerInterval);
-                    timerInterval = null;
-                    
-                    // 暂停背景音乐
-                    bgm.pause();
-                    bgm.currentTime = 0;
-
-                    if (isWorking) {
-                        try {
-                            // 确保倒计时显示为0
-                            updateDisplay();
-                            
-                            // 等待一小段时间确保显示更新
-                            await new Promise(resolve => setTimeout(resolve, 100));
-                            
-                            // 播放音频并等待完成
-                            await playAlarm(alarm);
-                            
-                            // 音频播放完成后再显示提示
-                            alert("工作时间结束！开始休息吧！");
-                            
-                            // 处理任务完成
-                            const currentTask = document.querySelector('.todo-item.active');
-                            if (currentTask) {
-                                removeTaskFromStorage(currentTask);
-                                currentTask.classList.add('completed');
-                                setTimeout(() => {
-                                    currentTask.remove();
-                                }, 500);
-                            }
-
-                            // 记录学习时长
-                            console.log('准备记录的学习时长:', workTime);
-                            await recordStudyTime(workTime);
-                            
-                            // 增加番茄数
-                            coins++;
-                            coinsDisplay.textContent = `番茄: ${coins}`;
-                            localStorage.setItem(STORAGE_KEY.COINS, coins);
-                            
-                            updateRewardButton();
-                            
-                            // 设置新的时间并开始休息
-                            timeLeft = breakTime * 60;
-                            isWorking = false;
-                            startTimer();
-
-                        } catch (error) {
-                            console.error('工作时间结束处理失败:', error);
-                            alert("工作时间结束！开始休息吧！");
-                            timeLeft = breakTime * 60;
-                            isWorking = false;
-                            startTimer();
-                        }
-                    } else {
-                        try {
-                            // 确保倒计时显示为0
-                            updateDisplay();
-                            
-                            // 等待一小段时间确保显示更新
-                            //await new Promise(resolve => setTimeout(resolve, 100));
-                            
-                            // 播放音频并等待完成
-                            await playAlarm(alarmBreak);
-                            
-                            // 音频播放完成后再显示提示
-                            alert("休息时间结束！准备开始新的工作！");
-                            
-                            timeLeft = workTime * 60;
-                            isWorking = true;
-                            updateDisplay();
-
-                            startBtn.disabled = false;
-                            pauseBtn.disabled = true;
-                            stopBtn.disabled = true;
-                        } catch (error) {
-                            console.error('休息时间结束处理失败:', error);
-                            alert("休息时间结束！准备开始新的工作！");
-                            timeLeft = workTime * 60;
-                            isWorking = true;
-                            updateDisplay();
-                            startBtn.disabled = false;
-                            pauseBtn.disabled = true;
-                            stopBtn.disabled = true;
-                        }
-                    }
-                }
-            }, 1000);
-        } catch (error) {
-            console.error('启动计时器时出错:', error);
-            alert('启动计时器时出现错误，请重试');
-        }
+// 修改计时器相关函数
+function startTimer() {
+    if (timerInterval !== null) return;
+    
+    if (!isPaused) {
+        timeLeft = workTime * 60;
     }
+    
+    isPaused = false;
+    startBtn.disabled = true;
+    pauseBtn.disabled = false;
+    stopBtn.disabled = false;
+    
+    // 记录开始时间
+    localStorage.setItem(STORAGE_KEY.START_TIME, Date.now().toString());
+    localStorage.setItem(STORAGE_KEY.IS_ACTIVE, 'true');
+    localStorage.setItem(STORAGE_KEY.IS_WORKING, isWorking);
+    localStorage.setItem(STORAGE_KEY.TIME_LEFT, timeLeft);
+    
+    // 显示当前播放的音乐
+    currentSongDisplay.textContent = `VIBE: ${songNames[currentSongIndex]}`;
+    currentSongDisplay.classList.add('show');
+    
+    // 显示随机鼓励语
+    if (isWorking) {
+        showRandomQuote();
+    }
+    
+    // 开始播放背景音乐
+    bgm.play().catch(error => {
+        console.log('背景音乐播放失败:', error);
+    });
+    
+    showParticles();
+    closeModal();
+    
+    // 启用暂停和停止按钮
+    pauseBtn.disabled = false;
+    stopBtn.disabled = false;
+    
+    // 开始计时
+    timerInterval = setInterval(async () => {
+        timeLeft--;
+        updateDisplay();
+        
+        if (timeLeft <= 0) {
+            clearInterval(timerInterval);
+            timerInterval = null;
+            
+            // 获取当前活动的任务
+            const activeTask = document.querySelector('.todo-item.active');
+            
+            try {
+                // 停止背景音乐
+                bgm.pause();
+                bgm.currentTime = 0;
+                
+                if (isWorking) {
+                    // 如果有活动任务，处理任务完成
+                    if (activeTask) {
+                        const taskId = activeTask.dataset.todoId;
+                        
+                        // 移除活动任务的显示
+                        activeTask.classList.remove('active');
+                        activeTask.style.opacity = '0';
+                        setTimeout(() => {
+                            activeTask.remove();
+                        }, 300);
+
+                        // 更新任务状态
+                        completeTask(taskId);
+                    }
+                    
+                    // 无论是否有任务，都记录学习时长
+                    await recordStudyTime(workTime);
+                    
+                    // 播放提示音并显示提示
+                    await playAlarm(alarm);
+                    alert("工作时间结束！开始休息吧！");
+                    
+                    // 切换到休息时间
+                    isWorking = false;
+                    workTime = breakTime;
+                    coins++;
+                    localStorage.setItem(STORAGE_KEY.COINS, coins);
+                    coinsDisplay.textContent = `番茄: ${coins}`;
+                    
+                    // 显示随机激励语和特效
+                    showRandomQuote();
+                    createParticles();
+                    
+                    // 重新开始播放背景音乐
+                    bgm.play().catch(error => {
+                        console.log('背景音乐播放失败:', error);
+                    });
+                    
+                    // 自动开始休息时间
+                    timeLeft = breakTime * 60;
+                    updateDisplay();
+                    startTimer();
+                } else {
+                    // 休息时间结束
+                    await playAlarm(alarmBreak);
+                    alert("休息时间结束！");
+                    
+                    // 重置为工作状态但不自动开始
+                    isWorking = true;
+                    workTime = parseInt(localStorage.getItem(STORAGE_KEY.WORK_TIME)) || 25;
+                    timeLeft = workTime * 60;
+                    updateDisplay();
+                    
+                    // 重置按钮状态
+                    startBtn.disabled = false;
+                    pauseBtn.disabled = true;
+                    stopBtn.disabled = true;
+                }
+                
+                // 更新存储状态
+                localStorage.setItem(STORAGE_KEY.IS_ACTIVE, isWorking ? 'false' : 'true');
+                localStorage.setItem(STORAGE_KEY.IS_WORKING, isWorking);
+                localStorage.setItem(STORAGE_KEY.TIME_LEFT, timeLeft);
+                
+                renderCalendar();
+                
+            } catch (error) {
+                console.error('处理计时结束时出错:', error);
+                stopTimer();
+            }
+        }
+    }, 1000);
 }
 
+// 修改暂停函数
 function pauseTimer() {
     if (timerInterval) {
         clearInterval(timerInterval);
@@ -655,45 +657,69 @@ function pauseTimer() {
         isPaused = true;
         startBtn.disabled = false;
         pauseBtn.disabled = true;
-        bgm.pause();
+        
+        // 只隐藏粒子效果，不暂停音乐
         hideParticles();
-
-        // 隐藏音乐名称
-        currentSongDisplay.classList.remove('show');
-
-        // 保存暂停状态和当前剩余时间
+        
+        // 保存暂停状态
         localStorage.setItem(STORAGE_KEY.IS_PAUSED, 'true');
         localStorage.setItem(STORAGE_KEY.TIME_LEFT, timeLeft);
-        // 清除开始时间，因为已暂停
         localStorage.removeItem(STORAGE_KEY.START_TIME);
     }
 }
 
+// 修改停止函数
 function stopTimer() {
-    clearInterval(timerInterval);
-    timerInterval = null;
+    if (timerInterval) {
+        clearInterval(timerInterval);
+        timerInterval = null;
+    }
+    
     isPaused = false;
     isWorking = true;
     timeLeft = workTime * 60;
     updateDisplay();
+    
     startBtn.disabled = false;
     pauseBtn.disabled = true;
     stopBtn.disabled = true;
+    
+    // 停止背景音乐和特效
     bgm.pause();
     bgm.currentTime = 0;
     hideParticles();
     hideQuote();
-
-    // 隐藏音乐名称
+    
+    // 隐藏 VIBE 显示
+    currentSongDisplay.textContent = '';
     currentSongDisplay.classList.remove('show');
     
     // 清除存储的状态
+    localStorage.removeItem(STORAGE_KEY.IS_ACTIVE);
     localStorage.removeItem(STORAGE_KEY.START_TIME);
+    localStorage.removeItem(STORAGE_KEY.IS_PAUSED);
     localStorage.removeItem(STORAGE_KEY.TIME_LEFT);
     localStorage.removeItem(STORAGE_KEY.IS_WORKING);
-    localStorage.removeItem(STORAGE_KEY.IS_ACTIVE);
+    
+    // 移除任务的活动状态
+    document.querySelectorAll('.todo-item.active').forEach(item => {
+        item.classList.remove('active');
+    });
 }
 
+// 确保在页面加载时添加事件监听器
+document.addEventListener('DOMContentLoaded', function() {
+    // ... 其他初始化代码 ...
+    
+    // 添加计时器按钮事件监听
+    startBtn = document.getElementById('startBtn');
+    pauseBtn = document.getElementById('pauseBtn');
+    stopBtn = document.getElementById('stopBtn');
+    
+    if (startBtn) startBtn.addEventListener('click', startTimer);
+    if (pauseBtn) pauseBtn.addEventListener('click', pauseTimer);
+    if (stopBtn) stopBtn.addEventListener('click', stopTimer);
+});
 
 // 添加初始化函数，在页面加载时检查并恢复状态
 function initializeTimer() {
@@ -816,40 +842,31 @@ function claimReward() {
 
 // 显示粒子效果
 function showParticles() {
-    particlesContainer.innerHTML = ''; // 清空之前的粒子
-    const numParticles = 150;
-
-    for (let i = 0; i < numParticles; i++) {
-        const particle = document.createElement('div');
-        particle.classList.add('particle');
-        const size = Math.random() * 10 + 5;
-        particle.style.width = `${size}px`;
-        particle.style.height = `${size}px`;
-        particle.style.background = `hsl(${Math.random() * 360}, 70%, 50%)`;
-        particle.style.opacity = Math.random();
-        particle.style.position = 'absolute';
-        particle.style.top = `${Math.random() * 100}%`;
-        particle.style.left = `${Math.random() * 100}%`;
-        particle.style.animation = `float ${Math.random() * 2 + 1}s linear infinite,
-                                   drift ${Math.random() * 3 + 2}s ease-in-out infinite alternate`;
-        particlesContainer.appendChild(particle);
-    }
+    const container = document.getElementById('particles-container');
+    container.style.display = 'block';
+    createParticles(); // 创建新的粒子
 }
 
 // 隐藏粒子效果
 function hideParticles() {
-    particlesContainer.innerHTML = '';
+    const container = document.getElementById('particles-container');
+    container.style.display = 'none';
+    container.innerHTML = ''; // 清除所有粒子
 }
 
 // 显示随机鼓励语句 
 function showRandomQuote() {
-    const randomIndex = Math.floor(Math.random() * motivationalQuotes.length);
-    quoteDisplay.textContent = motivationalQuotes[randomIndex];
-    quoteDisplay.classList.add('show');
+    const quoteElement = document.getElementById('quote');
+    const randomQuote = motivationalQuotes[Math.floor(Math.random() * motivationalQuotes.length)];
+    quoteElement.textContent = randomQuote;
+    quoteElement.style.display = 'block'; // 确保元素可见
+    quoteElement.classList.add('show');
 }
 // 隐藏随机鼓励语句
 function hideQuote() {
-    quoteDisplay.classList.remove('show');
+    const quoteElement = document.getElementById('quote');
+    quoteElement.classList.remove('show');
+    quoteElement.style.display = 'none'; // 完全隐藏元素
 }
 
 // 添加音量控制相关变量
@@ -971,6 +988,7 @@ const SYSTEM_PROMPT = `
 * **请以耐心和鼓励的态度引导我学习。**
 * **请在我遇到困难时提供及时的帮助和指导。**
 * **请不要直接给出答案，而是引导我自己思考和解决问题。**
+* **给出的题目都使用英文。**
 
 现在，我们开始吧！请确认你理解了我的要求，并准备好主动提供练习题。
 `;
@@ -1597,7 +1615,7 @@ async function showUserProfile() {
     // 显示用户名
     const username = localStorage.getItem('username');
     if (username) {
-        document.querySelector('.username').textContent = `挑战者：${username}`;
+        document.querySelector('.username').textContent = `${username} 的学习数据`;
     }
 
     try {
@@ -2080,117 +2098,6 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
-// 添加动态背景动画
-document.addEventListener('DOMContentLoaded', function() {
-    const canvas = document.createElement('canvas');
-    canvas.style.position = 'fixed';
-    canvas.style.top = '0';
-    canvas.style.left = '0';
-    canvas.style.width = '100%';
-    canvas.style.height = '100%';
-    canvas.style.zIndex = '-1';
-    document.body.prepend(canvas);
-
-    const ctx = canvas.getContext('2d');
-    let particles = [];
-    let animationId;
-
-    function resizeCanvas() {
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
-    }
-
-    resizeCanvas();
-    window.addEventListener('resize', resizeCanvas);
-
-    class Particle {
-        constructor() {
-            this.x = Math.random() * canvas.width;
-            this.y = Math.random() * canvas.height;
-            this.vx = (Math.random() - 0.5) * 0.5;
-            this.vy = (Math.random() - 0.5) * 0.5;
-            this.size = Math.random() * 2;
-            this.color = `rgba(0, ${155 + Math.random() * 100}, ${157 + Math.random() * 98}, ${0.2 + Math.random() * 0.5})`;
-        }
-
-        update() {
-            this.x += this.vx;
-            this.y += this.vy;
-
-            // 边界检查
-            if (this.x < 0 || this.x > canvas.width) this.vx *= -1;
-            if (this.y < 0 || this.y > canvas.height) this.vy *= -1;
-        }
-
-        draw() {
-            ctx.beginPath();
-            ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-            ctx.fillStyle = this.color;
-            ctx.fill();
-        }
-    }
-
-    function createParticles() {
-        const particleCount = Math.floor((canvas.width * canvas.height) / 10000);
-        for (let i = 0; i < particleCount; i++) {
-            particles.push(new Particle());
-        }
-    }
-
-    function drawLines() {
-        for (let i = 0; i < particles.length; i++) {
-            for (let j = i + 1; j < particles.length; j++) {
-                const dx = particles[i].x - particles[j].x;
-                const dy = particles[i].y - particles[j].y;
-                const distance = Math.sqrt(dx * dx + dy * dy);
-
-                if (distance < 100) {
-                    ctx.beginPath();
-                    ctx.strokeStyle = `rgba(0, 255, 157, ${0.1 * (1 - distance / 100)})`;
-                    ctx.lineWidth = 0.5;
-                    ctx.moveTo(particles[i].x, particles[i].y);
-                    ctx.lineTo(particles[j].x, particles[j].y);
-                    ctx.stroke();
-                }
-            }
-        }
-    }
-
-    function animate() {
-        ctx.fillStyle = 'rgba(10, 10, 15, 0.1)';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-        particles.forEach(particle => {
-            particle.update();
-            particle.draw();
-        });
-
-        drawLines();
-        animationId = requestAnimationFrame(animate);
-    }
-
-    // 添加鼠标交互效果
-    let mouse = {
-        x: null,
-        y: null,
-        radius: 100
-    };
-
-    canvas.addEventListener('mousemove', function(event) {
-        mouse.x = event.x;
-        mouse.y = event.y;
-
-        // 创建鼠标位置的涟漪效果
-        ctx.beginPath();
-        ctx.arc(mouse.x, mouse.y, 2, 0, Math.PI * 2);
-        ctx.fillStyle = 'rgba(0, 255, 157, 0.8)';
-        ctx.fill();
-    });
-
-    createParticles();
-    animate();
-});
-
 
 /////////////////////////////////////////////////////////////////////
 
@@ -2253,4 +2160,362 @@ async function playAlarm(audioElement) {
 }
 
 /////////////////////////////////////////////////////////////////////
+
+// 日历相关变量
+let currentDate = new Date();
+let selectedDate = null;
+
+// 初始化日历
+function initCalendar() {
+    const monthDisplay = document.getElementById('monthDisplay');
+    const calendarGrid = document.getElementById('calendarGrid');
+    const prevMonthBtn = document.getElementById('prevMonth');
+    const nextMonthBtn = document.getElementById('nextMonth');
+
+    // 添加事件监听器
+    prevMonthBtn.addEventListener('click', () => {
+        currentDate.setMonth(currentDate.getMonth() - 1);
+        renderCalendar();
+    });
+
+    nextMonthBtn.addEventListener('click', () => {
+        currentDate.setMonth(currentDate.getMonth() + 1);
+        renderCalendar();
+    });
+
+    // 初始渲染
+    renderCalendar();
+}
+
+// 渲染日历
+function renderCalendar() {
+    const monthDisplay = document.getElementById('monthDisplay');
+    const calendarGrid = document.getElementById('calendarGrid');
+    
+    // 设置月份显示
+    const monthNames = ['一月', '二月', '三月', '四月', '五月', '六月', 
+                       '七月', '八月', '九月', '十月', '十一月', '十二月'];
+    monthDisplay.textContent = `${monthNames[currentDate.getMonth()]} ${currentDate.getFullYear()}`;
+
+    // 清空日历网格
+    calendarGrid.innerHTML = '';
+
+    // 获取当月第一天和最后一天
+    const firstDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+    const lastDay = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
+
+    // 填充前置空白天数
+    for (let i = 0; i < firstDay.getDay(); i++) {
+        const emptyDay = document.createElement('div');
+        emptyDay.className = 'calendar-day empty';
+        calendarGrid.appendChild(emptyDay);
+    }
+
+    // 填充日期
+    for (let date = 1; date <= lastDay.getDate(); date++) {
+        const dayElement = document.createElement('div');
+        dayElement.className = 'calendar-day';
+        dayElement.textContent = date;
+
+        // 检查是否是今天
+        const currentDateStr = new Date().toDateString();
+        const calendarDateStr = new Date(currentDate.getFullYear(), 
+                                       currentDate.getMonth(), date).toDateString();
+        if (currentDateStr === calendarDateStr) {
+            dayElement.classList.add('today');
+        }
+
+        // 添加任务标记
+        const dateStr = formatDate(new Date(currentDate.getFullYear(), 
+                                          currentDate.getMonth(), date));
+        const dayTasks = getTodosForDate(dateStr);
+        if (dayTasks.length > 0) {
+            dayElement.classList.add('has-tasks');
+            if (dayTasks.every(task => task.completed)) {
+                dayElement.classList.add('completed');
+            } else if (dayTasks.some(task => task.completed)) {
+                dayElement.classList.add('partial');
+            }
+        }
+
+        // 添加点击事件
+        dayElement.addEventListener('click', () => {
+            selectedDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), date);
+            showDayTasks(selectedDate);
+        });
+
+        calendarGrid.appendChild(dayElement);
+    }
+}
+
+// 修改显示某天的任务函数
+function showDayTasks(date) {
+    const panel = document.getElementById('dayTasksPanel');
+    const overlay = document.getElementById('taskModalOverlay');
+    const dateDisplay = document.getElementById('selectedDate');
+    const tasksList = document.getElementById('dayTasksList');
+    const pendingCount = document.getElementById('pendingCount');
+    const completedCount = document.getElementById('completedCount');
+
+    // 设置日期显示
+    dateDisplay.textContent = date.toLocaleDateString('zh-CN', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+    });
+
+    // 获取当天任务
+    const dateStr = formatDate(date);
+    const tasks = getTodosForDate(dateStr);
+
+    // 更新计数
+    const completed = tasks.filter(task => task.completed).length;
+    completedCount.textContent = completed;
+    pendingCount.textContent = tasks.length - completed;
+
+    // 清空并填充任务列表
+    tasksList.innerHTML = '';
+    
+    if (tasks.length === 0) {
+        const noTasksDiv = document.createElement('div');
+        noTasksDiv.className = 'no-tasks';
+        noTasksDiv.textContent = '当天没有任务';
+        tasksList.appendChild(noTasksDiv);
+    } else {
+        tasks.forEach((task, index) => {
+            const taskElement = document.createElement('div');
+            taskElement.className = `day-task-item ${task.completed ? 'completed' : 'pending'}`;
+            taskElement.style.setProperty('--index', index); // 设置动画延迟
+            taskElement.innerHTML = `
+                <div class="task-info">
+                    <span class="task-text">${task.text}</span>
+                    <div class="task-details">
+                        <span class="task-time">${task.startTime ? task.startTime.split('T')[1] : '未设置时间'}</span>
+                        <span class="task-duration">${task.duration}分钟</span>
+                        ${task.completed ? `<span class="completion-time">完成于 ${new Date(task.completedAt).toLocaleTimeString()}</span>` : ''}
+                    </div>
+                </div>
+            `;
+            tasksList.appendChild(taskElement);
+        });
+    }
+
+    // 显示遮罩和面板
+    overlay.style.display = 'block';
+    panel.style.display = 'flex';
+    
+    // 触发动画
+    requestAnimationFrame(() => {
+        overlay.classList.add('show');
+        panel.classList.add('show');
+    });
+
+    // 添加关闭按钮事件
+    const closeBtn = panel.querySelector('.close-day-tasks');
+    const closePanel = () => {
+        overlay.classList.remove('show');
+        panel.classList.remove('show');
+        
+        // 等待动画完成后隐藏元素
+        setTimeout(() => {
+            overlay.style.display = 'none';
+            panel.style.display = 'none';
+        }, 300);
+    };
+    
+    closeBtn.onclick = closePanel;
+    overlay.onclick = closePanel;
+}
+
+// 修改获取指定日期的任务函数
+function getTodosForDate(dateStr) {
+    try {
+        const todos = JSON.parse(localStorage.getItem(STORAGE_KEY.TODO_ITEMS) || '[]');
+        return todos.filter(todo => {
+            // 如果有日期字段，直接使用
+            if (todo.date) {
+                return todo.date === dateStr;
+            }
+            // 如果有开始时间，使用开始时间的日期部分
+            if (todo.startTime) {
+                const todoDate = todo.startTime.split('T')[0];
+                return todoDate === dateStr;
+            }
+            // 如果都没有，使用任务创建时间
+            const todoDate = formatDate(new Date(parseInt(todo.id)));
+            return todoDate === dateStr;
+        });
+    } catch (error) {
+        console.error('获取任务失败:', error);
+        return [];
+    }
+}
+
+// 添加任务完成状态更新函数
+function updateTaskStatus(taskId, completed) {
+    try {
+        const todos = JSON.parse(localStorage.getItem(STORAGE_KEY.TODO_ITEMS) || '[]');
+        const updatedTodos = todos.map(todo => {
+            if (todo.id === taskId) {
+                return { ...todo, completed };
+            }
+            return todo;
+        });
+        localStorage.setItem(STORAGE_KEY.TODO_ITEMS, JSON.stringify(updatedTodos));
+        renderCalendar(); // 更新日历显示
+    } catch (error) {
+        console.error('更新任务状态失败:', error);
+    }
+}
+
+// 格式化日期
+function formatDate(date) {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+}
+
+// 在页面加载时初始化日历
+document.addEventListener('DOMContentLoaded', function() {
+    initCalendar();
+});
+
+// 修改原有的addTodo函数，添加任务时更新日历显示
+const originalAddTodo = window.addTodo;
+window.addTodo = function() {
+    // 调用原始的addTodo函数并获取其返回值
+    const result = originalAddTodo.apply(this, arguments);
+    // 确保日历已初始化后再更新
+    if (document.getElementById('calendarGrid')) {
+        renderCalendar();
+    }
+    return result;
+};
+
+// 添加任务完成处理函数
+function completeTask(taskId) {
+    try {
+        const todos = JSON.parse(localStorage.getItem(STORAGE_KEY.TODO_ITEMS) || '[]');
+        const updatedTodos = todos.map(todo => {
+            if (todo.id === taskId) {
+                return { 
+                    ...todo, 
+                    completed: true,
+                    completedAt: new Date().toISOString() // 添加完成时间
+                };
+            }
+            return todo;
+        });
+        localStorage.setItem(STORAGE_KEY.TODO_ITEMS, JSON.stringify(updatedTodos));
+        
+        // 更新日历显示
+        renderCalendar();
+        
+        // 获取当前日期
+        const today = formatDate(new Date());
+        
+        // 重新加载今天的任务列表
+        loadTodos();
+        
+        // 如果当前显示的是任务面板，更新面板显示
+        if (selectedDate && formatDate(selectedDate) === today) {
+            showDayTasks(selectedDate);
+        }
+    } catch (error) {
+        console.error('更新任务状态失败:', error);
+    }
+}
+
+// 添加粒子效果相关函数
+function createParticles() {
+    const particlesContainer = document.getElementById('particles-container');
+    particlesContainer.innerHTML = ''; // 清空现有粒子
+    
+    const numParticles = 150; // 粒子数量
+    
+    for (let i = 0; i < numParticles; i++) {
+        const particle = document.createElement('div');
+        particle.className = 'particle';
+        
+        // 随机设置粒子的大小
+        const size = Math.random() * 10 + 5;
+        particle.style.width = `${size}px`;
+        particle.style.height = `${size}px`;
+        
+        // 随机设置粒子的颜色
+        particle.style.background = `hsl(${Math.random() * 360}, 70%, 50%)`;
+        particle.style.opacity = Math.random();
+        
+        // 随机设置粒子的位置
+        particle.style.position = 'absolute';
+        particle.style.top = `${Math.random() * 100}%`;
+        particle.style.left = `${Math.random() * 100}%`;
+        
+        // 添加动画
+        particle.style.animation = `
+            float ${Math.random() * 2 + 1}s linear infinite,
+            drift ${Math.random() * 3 + 2}s ease-in-out infinite alternate
+        `;
+        
+        particlesContainer.appendChild(particle);
+    }
+    
+    // 显示粒子容器
+    particlesContainer.style.display = 'block';
+}
+
+// 添加相关的 CSS 动画
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes float {
+        0% { transform: translateY(0); }
+        100% { transform: translateY(-100vh); }
+    }
+    
+    @keyframes drift {
+        0% { transform: translateX(-10px); }
+        100% { transform: translateX(10px); }
+    }
+    
+    .particle {
+        pointer-events: none;
+        z-index: 9999;
+    }
+`;
+document.head.appendChild(style);
+
+// 修改 showParticles 函数
+function showParticles() {
+    const container = document.getElementById('particles-container');
+    container.style.display = 'block';
+    createParticles(); // 创建新的粒子
+}
+
+// 修改 hideParticles 函数
+function hideParticles() {
+    const container = document.getElementById('particles-container');
+    container.style.display = 'none';
+    container.innerHTML = ''; // 清除所有粒子
+}
+
+// 获取每日一句
+function fetchLoveQuote() {
+    fetch('https://api.suyanw.cn/api/love.php')
+        .then(response => response.text())
+        .then(data => {
+            document.getElementById('love-quote').innerHTML = data;
+        })
+        .catch(error => {
+            console.error('获取每日一句失败:', error);
+            document.getElementById('love-quote').innerHTML = '今天也要加油哦！';
+        });
+}
+
+// 页面加载时获取一次
+fetchLoveQuote();
+
+// 每隔一分钟更新一次
+setInterval(fetchLoveQuote, 60000);
+
 
