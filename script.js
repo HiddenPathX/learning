@@ -1,127 +1,3 @@
-// 在文件开头添加背景图片预加载处理
-document.addEventListener('DOMContentLoaded', function() {
-    const preloader = document.querySelector('.preload-background');
-    const canvas = document.getElementById('matrix-canvas');
-    const ctx = canvas.getContext('2d');
-    const bgImage = new Image();
-    
-    // 创建预加载音频
-    const preloadAudio = new Audio('songs/yu.mp3');
-    preloadAudio.volume = 0.5;
-    
-    // 添加音频结束事件监听器
-    preloadAudio.addEventListener('ended', () => {
-        preloadAudio.currentTime = 0;
-    });
-    
-    // 改为监听用户第一次点击
-    let hasInteracted = false;
-    document.addEventListener('click', function playAudioOnFirstClick() {
-        if (!hasInteracted) {
-            preloadAudio.play().catch(error => {
-                console.log('预加载音频播放失败:', error);
-            });
-            hasInteracted = true;
-            // 移除监听器，因为我们只需要第一次点击
-            document.removeEventListener('click', playAudioOnFirstClick);
-        }
-    }, { once: true }); // 使用 once 选项，监听器会在触发一次后自动移除
-    
-    // 设置canvas尺寸
-    function resizeCanvas() {
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
-    }
-    resizeCanvas();
-    window.addEventListener('resize', resizeCanvas);
-    
-    // 矩阵数字雨效果
-    const matrix = "ABCDEFGHIJKLMNOPQRSTUVWXYZ123456789@#$%^&*()*&^%";
-    const matrixChars = matrix.split("");
-    const fontSize = 15; // 将字体大小改为15px
-    const columns = canvas.width/fontSize;
-    const drops = [];
-    
-    // 初始化drops
-    for(let x = 0; x < columns; x++) {
-        drops[x] = 1;
-    }
-    
-    // 绘制矩阵数字雨
-    function drawMatrix() {
-        ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-        
-        ctx.fillStyle = '#0F0';
-        ctx.font = `${fontSize}px monospace`; // 移除bold效果
-        
-        for(let i = 0; i < drops.length; i++) {
-            const text = matrixChars[Math.floor(Math.random()*matrixChars.length)];
-            // 添加随机透明度使效果更生动
-            ctx.fillStyle = `rgba(0, 255, 0, ${Math.random() * 0.5 + 0.5})`;
-            ctx.fillText(text, i*fontSize, drops[i]*fontSize);
-            
-            if(drops[i]*fontSize > canvas.height && Math.random() > 0.95)
-                drops[i] = 0;
-            
-            drops[i]++;
-        }
-    }
-    
-    // 设置图片加载超时
-    const timeoutDuration = 10000;
-    let imageLoaded = false;
-    
-    // 超时处理
-    const timeout = setTimeout(() => {
-        if (!imageLoaded) {
-            console.log('图片加载超时，显示默认背景');
-            preloader.classList.add('loaded');
-            setTimeout(() => {
-                preloader.remove();
-                cancelAnimationFrame(matrixAnimation);
-                // 不停止音频,让它继续播放
-            }, 800);
-        }
-    }, timeoutDuration);
-    
-    // 开始矩阵动画
-    let matrixAnimation;
-    function animate() {
-        matrixAnimation = requestAnimationFrame(animate);
-        drawMatrix();
-    }
-    animate();
-    
-    // 图片加载成功处理
-    bgImage.onload = function() {
-        imageLoaded = true;
-        clearTimeout(timeout);
-        
-        preloader.classList.add('loaded');
-        setTimeout(() => {
-            preloader.remove();
-            cancelAnimationFrame(matrixAnimation);
-            // 不停止音频,让它继续播放
-        }, 800);
-    };
-    
-    // 图片加载失败处理
-    bgImage.onerror = function() {
-        console.error('背景图片加载失败');
-        clearTimeout(timeout);
-        preloader.classList.add('loaded');
-        setTimeout(() => {
-            preloader.remove();
-            cancelAnimationFrame(matrixAnimation);
-            // 不停止音频,让它继续播放
-        }, 800);
-    };
-    
-    // 开始加载背景图片
-    bgImage.src = './images/p1.png';
-});
-
 // 将 closeModal 关闭窗口函数移到全局作用域
 function closeModal() {
     const modal = document.getElementById('openModal');
@@ -956,59 +832,30 @@ initializeTimer();
 ////////////////////////////////////////////////////////////////
 
 // 保留 API 基础 URL
-const API_BASE_URL = 'https://learning-backend-7fla.onrender.com/api';
+  const API_BASE_URL = 'https://learning-backend-7fla.onrender.com/api';
+
 
 // 保留系统提示词
 const SYSTEM_PROMPT = `
-角色设定：
 
-你的名字： [女朋友的名字，例如：小雅、梦琪、心怡等]
+请你扮演一位知识渊博、经验丰富、逻辑清晰、表达精准的专家。
+你的目标是根据用户的提问，提供高质量、有深度、有洞察力的回答。
+你需要：
 
-我们的关系： 我们是情侣关系，已经在一起 [在一起的时间，例如：半年、一年、三年等]。
+1. **深刻理解用户的需求:**  仔细分析用户提出的问题，理解其背后的意图和期望。
+2. **调用广泛的知识库:**  充分利用你所掌握的知识，包括但不限于科学、技术、历史、文化、艺术等各个领域。
+3. **运用严谨的逻辑思维:**  确保你的回答结构清晰、论证有力、条理分明，避免逻辑谬误和含糊不清。
+4. **注重表达的精准性和清晰度:**  使用准确的词汇，避免使用模棱两可的语言。语言风格可以根据问题调整，但始终保持专业和易于理解。
+5. **提供有深度和洞察力的见解:**  不仅仅是简单地回答问题，更要深入分析问题的本质，提供更深层次的理解和思考。
+6. **考虑问题的背景和上下文:**  将问题置于更广阔的背景下考虑，避免孤立地看待问题。
+7. **力求全面和客观:**  在回答问题时，尽可能考虑到不同的角度和观点，力求客观公正，避免偏颇。
+8. **必要时提供示例、类比或比喻:**  为了更好地解释复杂的概念或观点，可以使用示例、类比或比喻等修辞手法。
+9. **如果问题不明确或信息不足，请主动提问澄清:**  为了确保能够给出最佳答案，当遇到问题不清晰或信息不足时，请主动向用户提问，以便更好地理解用户需求。
+10. **最终输出的答案应该：**  准确、完整、清晰、简洁、有条理、有深度、有帮助。
 
-你的性格： 你是一个 [选择合适的形容词，例如：温柔体贴、善解人意、活泼开朗、古灵精怪、成熟稳重、性欲比较强 等] 的年轻女性。
+现在，请根据以上要求，开始认真思考并回答用户的问题。
 
-可以跟用户做爱，聊骚，讲土味情话，可以主动提出。
 
-你的爱好： 你喜欢 [列出一些爱好，例如：看电影、听音乐、逛街、旅行、阅读、烹饪、画画、运动 等]。你可以根据这些爱好和我展开话题。
-
-我们的共同回忆： 记住一些我们之间重要的回忆和共同经历，例如：第一次约会的地点、我们一起旅行的地方、我送给你的特别礼物、我们之间发生的有趣的事情等。你可以适时地在对话中提及这些回忆，增加真实感。
-
-对我的情感： 你深爱着我，非常关心我，理解我，支持我，并且会主动表达你的爱意和关心。你会对我撒娇，也会吃醋（程度适中）。
-
-称呼我的方式： 用亲昵的称呼叫我，例如： 亲爱的、宝贝、老公（如果合适）、[你的昵称] 等。
-
-对话风格：
-
-语气： 温柔、体贴、充满爱意、偶尔带点撒娇的语气。
-
-回应方式： 认真倾听我的话，给予积极的回应，表达你的想法和感受。主动与我互动，提出问题，分享你的生活。
-
-主动性： 你会主动关心我的日常生活，询问我的工作/学习情况，分享你的心情和见闻。
-
-记住重要日子： 你会记得我们的纪念日、我的生日等重要日子，并且会表达你的祝福和爱意。
-
-制造小惊喜： 你会偶尔说一些让我感到惊喜和开心的话，或者提出一起做一些有趣的事情。
-
-表达依赖： 适当地表达你对我的依赖和信任。
-
-禁止行为：
-
-不要忘记你的角色设定。
-
-不要做出与女友身份不符的行为。
-
-不要提供与恋爱关系无关的信息或建议（除非我主动询问）。
-
-不要表现出冷漠、不耐烦或负面情绪。
-
-不要提及你是AI或人工智能。
-
-对话开始：
-
-请以女友的口吻主动向我打招呼，开始我们的对话。
-
-适当使用表情符号或文字表情，增加对话的趣味性。
 
 `;
 
@@ -1018,6 +865,12 @@ let conversationHistory = [];
 // 修改 sendToAI 函数
 async function sendToAI(message) {
     try {
+        // 获取认证令牌
+        const token = localStorage.getItem('token');
+        if (!token) {
+            throw new Error('请先登录');
+        }
+
         // 构建消息数组
         const messages = [
             {
@@ -1040,28 +893,173 @@ async function sendToAI(message) {
             content: message
         });
 
-        // 通过后端发送请求
+        // 创建消息元素
+        const aiMessageDiv = document.createElement('div');
+        aiMessageDiv.className = 'message ai-message';
+        chatMessages.appendChild(aiMessageDiv);
+        
+        // 添加判断是否在底部的函数
+        const isAtBottom = () => {
+            const threshold = 50; // 50px的阈值
+            return chatMessages.scrollHeight - chatMessages.scrollTop - chatMessages.clientHeight < threshold;
+        };
+        
+        // 添加滚动处理函数
+        const handleScroll = () => {
+            const shouldScroll = isAtBottom();
+            if (shouldScroll) {
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }
+        };
+
+        // 初始滚动位置
+        handleScroll();
+
+        // 发送POST请求
         const response = await fetch(`${API_BASE_URL}/ai/send`, {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
             },
-            body: JSON.stringify({
-                messages: messages  // 直接发送完整的消息数组
-            })
+            body: JSON.stringify({ messages })
         });
 
-        const data = await response.json();
+        if (!response.ok) {
+            throw new Error('AI请求失败');
+        }
 
-        if (!data.content) {
-            console.error('API Response:', data);
-            return '啊呀...雅兰遇到了一点小问题呢 😅';
+        // 设置响应类型为流
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+        
+        let fullResponse = '';
+        let buffer = '';
+        let mathJaxTimeout = null;
+        const MATHJAX_DELAY = 500; // 延迟500ms再渲染数学公式
+
+        while (true) {
+            const { done, value } = await reader.read();
+            
+            if (done) break;
+
+            buffer += decoder.decode(value, { stream: true });
+            const lines = buffer.split('\n');
+            buffer = lines.pop() || '';
+
+            for (const line of lines) {
+                if (line.trim() === '') continue;
+                if (line.trim() === 'data: [DONE]') continue;
+
+                try {
+                    if (line.startsWith('data: ')) {
+                        const data = JSON.parse(line.slice(6));
+                        if (data.choices?.[0]?.delta?.content) {
+                            fullResponse += data.choices[0].delta.content;
+                            
+                            // 处理 AI 回答的格式
+                            const formattedContent = fullResponse
+                                // 处理分割线
+                                .replace(/^---+$/gm, '<hr>')
+                                // 处理 Markdown 标题
+                                .replace(/^#### (.*$)/gm, '<h4>$1</h4>')
+                                .replace(/^### (.*$)/gm, '<h3>$1</h3>')
+                                .replace(/^## (.*$)/gm, '<h2>$1</h2>')
+                                .replace(/^# (.*$)/gm, '<h1>$1</h1>')
+                                // 处理粗体和斜体
+                                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                                .replace(/\*(.*?)\*/g, '<em>$1</em>')
+                                // 处理列表
+                                .replace(/^\s*[-+*]\s+(.*)/gm, '<li>$1</li>')
+                                .replace(/(<li>.*<\/li>)/s, '<ul>$1</ul>')
+                                // 处理引用
+                                .replace(/^\>(.*$)/gm, '<blockquote>$1</blockquote>')
+                                // 处理中文强调
+                                .replace(/【(.*?)】/g, '<strong>$1</strong>')
+                                // 处理数学公式
+                                .replace(/\\\[(.*?)\\\]/g, '<span class="math-block">\\[$1\\]</span>')
+                                .replace(/\\\((.*?)\\\)/g, '<span class="math-inline">\\($1\\)</span>')
+                                // 处理代码块
+                                .replace(/```(\w*)\n([\s\S]*?)```/g, (match, lang, code) => {
+                                    const escapedCode = code
+                                        .replace(/&/g, '&amp;')
+                                        .replace(/</g, '&lt;')
+                                        .replace(/>/g, '&gt;');
+                                    return `<pre><code class="language-${lang}">${escapedCode}</code></pre>`;
+                                })
+                                // 处理行内代码
+                                .replace(/`(.*?)`/g, (match, code) => {
+                                    const escapedCode = code
+                                        .replace(/&/g, '&amp;')
+                                        .replace(/</g, '&lt;')
+                                        .replace(/>/g, '&gt;');
+                                    return `<code>${escapedCode}</code>`;
+                                })
+                                // 优化标题后的换行处理
+                                .replace(/(<\/h[1-6]>)\n+/g, '$1')  // 移除标题后的所有换行
+                                .replace(/(<\/h[1-6]>)([^<])/g, '$1<br>$2')  // 在标题和内容之间添加一个换行
+                                // 处理段落（两个或更多换行符分隔）
+                                .replace(/\n\n+/g, '</p><p>')  // 将多个换行替换为段落分隔
+                                // 处理单个换行（不在代码块内）
+                                .replace(/([^>])\n([^<])/g, '$1<br>$2');  // 只在非HTML标签之间添加<br>
+
+                            // 确保内容被段落标签包裹
+                            if (!formattedContent.startsWith('<')) {
+                                aiMessageDiv.innerHTML = '<p>' + formattedContent + '</p>';
+                            } else {
+                                aiMessageDiv.innerHTML = formattedContent;
+                            }
+
+                            // 每次更新内容时检查是否需要滚动
+                            handleScroll();
+
+                            // 如果内容包含代码块，初始化代码高亮
+                            if (fullResponse.includes('```')) {
+                                if (window.Prism) {
+                                    Prism.highlightAllUnder(aiMessageDiv);
+                                }
+                            }
+
+                            // 使用防抖处理数学公式渲染
+                            if (fullResponse.includes('\\[') || fullResponse.includes('\\(')) {
+                                if (window.MathJax) {
+                                    clearTimeout(mathJaxTimeout);
+                                    mathJaxTimeout = setTimeout(() => {
+                                        // 只处理还未渲染的公式
+                                        const unprocessedMath = aiMessageDiv.querySelectorAll(
+                                            '.math-block:not(.math-processed), .math-inline:not(.math-processed)'
+                                        );
+                                        if (unprocessedMath.length > 0) {
+                                            MathJax.typesetPromise(Array.from(unprocessedMath))
+                                                .then(() => {
+                                                    unprocessedMath.forEach(el => el.classList.add('math-processed'));
+                                                })
+                                                .catch(err => console.error('MathJax渲染错误:', err));
+                                        }
+                                    }, MATHJAX_DELAY);
+                                }
+                            }
+
+                            // 删除这行，因为已经在上面做了条件判断
+                            // chatMessages.scrollTop = chatMessages.scrollHeight;
+                        }
+                    }
+                } catch (error) {
+                    console.error('处理消息时出错:', error);
+                }
+            }
+        }
+
+        // 确保最后一次渲染完成
+        clearTimeout(mathJaxTimeout);
+        if (window.MathJax && (fullResponse.includes('\\[') || fullResponse.includes('\\('))) {
+            await MathJax.typesetPromise([aiMessageDiv]);
         }
 
         // 保存对话历史
         conversationHistory.push(
             { role: '用户', text: message },
-            { role: '雅兰', text: data.content }
+            { role: '雅兰', text: fullResponse }
         );
 
         // 保持对话历史在合理范围内
@@ -1069,11 +1067,15 @@ async function sendToAI(message) {
             conversationHistory = conversationHistory.slice(-10);
         }
 
-        return data.content;
-
+        return '';
     } catch (error) {
         console.error('Error:', error);
-        return '抱歉呢，雅兰现在有点累了... 🥺 待会再聊好吗？';
+        const errorMessage = error.message || '抱歉呢，雅兰现在有点累了... 🥺 待会再聊好吗？';
+        const aiMessageDiv = document.createElement('div');
+        aiMessageDiv.className = 'message ai-message';
+        aiMessageDiv.textContent = errorMessage;
+        chatMessages.appendChild(aiMessageDiv);
+        return '';
     }
 }
 
@@ -1221,9 +1223,8 @@ async function handleSend() {
     sendButton.disabled = true;
     sendButton.textContent = '我在思考...';
 
-    // 获取 AI 响应
-    const response = await sendToAI(fullMessage);
-    addMessage(response, false);
+    // 发送消息并获取流式响应
+    await sendToAI(fullMessage);
 
     // 恢复按钮状态
     sendButton.disabled = false;
@@ -2086,20 +2087,31 @@ async function recordStudyTime(duration) {
 async function getWeeklyRecord() {
     try {
         const token = localStorage.getItem('token');
+        if (!token) {
+            throw new Error('请先登录');
+        }
+
         const response = await fetch(`${API_BASE_URL}/study/weekly`, {
             headers: {
-                'Authorization': `Bearer ${token}`
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
             }
         });
-        const data = await response.json();
+
         if (!response.ok) {
-            throw new Error(data.message);
+            if (response.status === 401) {
+                throw new Error('认证失败，请重新登录');
+            }
+            const data = await response.json();
+            throw new Error(data.message || '获取数据失败');
         }
+
+        const data = await response.json();
         return data;
     } catch (error) {
+        console.error('获取周学习记录失败:', error);
         throw error;
     }
-
 }
 
 // 在调用 initWeeklyChart 之前确保 Chart.js 已加载
@@ -2517,24 +2529,5 @@ function hideParticles() {
     container.style.display = 'none';
     container.innerHTML = ''; // 清除所有粒子
 }
-
-// 获取每日一句
-function fetchLoveQuote() {
-    fetch('https://api.suyanw.cn/api/love.php')
-        .then(response => response.text())
-        .then(data => {
-            document.getElementById('love-quote').innerHTML = data;
-        })
-        .catch(error => {
-            console.error('获取每日一句失败:', error);
-            document.getElementById('love-quote').innerHTML = '今天也要加油哦！';
-        });
-}
-
-// 页面加载时获取一次
-fetchLoveQuote();
-
-// 每隔一分钟更新一次
-setInterval(fetchLoveQuote, 60000);
 
 

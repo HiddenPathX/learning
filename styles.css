@@ -860,18 +860,13 @@ p {
 
 /* 聊天消息基础样式 */
 .message {
-    margin-bottom: 1rem;
-    padding: 0.8rem;
+    margin-bottom: 0.5rem;  /* 减小消息之间的间距 */
+    padding: 0.5rem;  /* 减小内部的内边距 */
     border-radius: 10px;
     max-width: 80%;
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border: 1px solid rgba(255, 255, 255, 0.18);
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-    animation: messageFadeIn 0.3s ease;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-    font-size: 1.5rem;
-    transition: all 0.3s ease;
+    white-space: pre-wrap;
+    line-height: 1.3;  /* 减小行高 */
+    text-align: left;
 }
 
 /* 用户消息样式 */
@@ -893,16 +888,23 @@ p {
         rgba(67, 94, 85, 0.7),   /* 莫兰迪深绿色 */
         rgba(82, 109, 100, 0.7)
     );
+    font-size: 1.2rem;  /* 修改AI消息字体大小为1.1rem */
+}
+
+.ai-message p {
+    margin: 0.3em 0;  /* 减小段落间距 */
+    line-height: 1.3;  /* 减小行高 */
+    font-size: inherit;  /* 继承父元素的字体大小 */
 }
 
 /* AI消息中的代码块样式 */
 .ai-message pre {
+    margin: 0.5em 0;  /* 减小代码块的上下间距 */
+    padding: 0.5em;  /* 减小代码块的内边距 */
     background: rgba(16, 16, 28, 0.95);
-    padding: 1em;
     border-radius: 5px;
     border: 1px solid rgba(0, 255, 157, 0.2);
     overflow-x: auto;
-    margin: 1em 0;
     color: #00ff9d;
 }
 
@@ -917,9 +919,21 @@ p {
 
 /* AI消息中的强调文本样式 */
 .ai-message strong {
-    color: #00ff9d;
-    text-shadow: 0 0 10px rgba(0, 255, 157, 0.5);
-    font-weight: bold;
+    display: inline;  /* 改为inline，允许在同一行显示 */
+    color: #e74c3c;
+    font-size: 1.1em;
+}
+
+.ai-message .list-item {
+    margin: 0.2em 0;  /* 减小列表项的间距 */
+    padding-left: 20px;
+    text-align: left;
+}
+
+.ai-message br {
+    display: inline;  /* 改为inline */
+    margin: 0;  /* 移除边距 */
+    content: "";
 }
 
 /* 消息发光动画 */
@@ -1051,32 +1065,31 @@ p {
 
 /* AI 消息的格式化样式 */
 .ai-message strong {
-    display: block;
+    display: inline;  /* 改为inline，允许在同一行显示 */
     color: #e74c3c;
-    margin: 10px 0 5px 0;
     font-size: 1.1em;
 }
 
 .ai-message .list-item {
-    margin: 5px 0;
+    margin: 0.2em 0;  /* 减小列表项的间距 */
     padding-left: 20px;
     text-align: left;
 }
 
 .ai-message br {
-    display: block;
-    margin: 5px 0;
+    display: inline;  /* 改为inline */
+    margin: 0;  /* 移除边距 */
     content: "";
 }
 
 /* 调整消息容器的样式 */
 .message {
-    margin-bottom: 1rem;
-    padding: 1rem;
+    margin-bottom: 0.5rem;  /* 减小消息之间的间距 */
+    padding: 0.5rem;  /* 减小内部的内边距 */
     border-radius: 10px;
-    max-width: 85%;
+    max-width: 80%;
     white-space: pre-wrap;
-    line-height: 1.5;
+    line-height: 1.3;  /* 减小行高 */
     text-align: left;
 }
 
@@ -1326,7 +1339,6 @@ body.loaded .container2 {
     animation: modalFadeIn 0.3s ease;
     max-height: 85vh;
     overflow-y: auto;
-    transition: all 0.3s ease;
 }
 
 .modal-content:hover {
@@ -1377,13 +1389,12 @@ body.loaded .container2 {
     border-radius: 15px;
     padding: 20px;
     margin-bottom: 20px;
-    transition: all 0.3s ease;
 }
 
 .help-content section:hover {
-    transform: translateY(-2px);
-    background: linear-gradient(135deg, rgba(176, 196, 222, 0.15), rgba(176, 224, 230, 0.15));
-    box-shadow: 0 8px 25px rgba(144, 224, 239, 0.15);
+    background: linear-gradient(135deg, rgba(176, 196, 222, 0.1), rgba(176, 224, 230, 0.1));
+    transform: none;
+    box-shadow: none;
 }
 
 .help-content ul {
@@ -1455,9 +1466,9 @@ body.loaded .container2 {
     text-align: center;
     position: relative;
     overflow: hidden;
-    margin: 15px;
-    width: 100%;
-    max-width: 1000px;
+    margin: 15px auto;  /* 修改margin，添加auto实现水平居中 */
+    width: 60%;  /* 修改为80%宽度 */
+    max-width: 1500px;
     min-height: 80vh;
     height: auto;
     flex-shrink: 0;
