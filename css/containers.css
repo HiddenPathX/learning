@@ -102,9 +102,9 @@
     text-align: center;
     position: relative;
     overflow: hidden;
-    margin: 15px auto;
+    margin: 15px;
     width: 60%;
-    max-width: 1500px;
+    max-width: 1000px;
     min-height: 80vh;
     height: auto;
     flex-shrink: 0;
