@@ -1,0 +1,310 @@
+/* 待办事项输入框样式 */
+.todo-input {
+    display: flex;
+    flex-direction: column;
+    gap: 0px;
+    margin-bottom: -20px;
+    width: 100%;
+}
+
+/* 输入框容器 */
+.todo-inputs {
+    display: flex;
+    gap: 8px;
+    width: 100%;
+}
+
+.todo-input input[type="text"] {
+    flex: 2.5;
+    min-width: 0;
+    width: 0;
+}
+
+.todo-input input[type="number"] {
+    flex: 1.5;
+    min-width: 0;
+    width: 0;
+}
+
+.todo-input input[type="time"] {
+    flex: 1;
+    min-width: 0;
+    width: 0;
+}
+
+.todo-input button {
+    width: 100%;
+    margin: 10px auto;
+    padding: 12px 25px;
+    background-color: #e74c3c;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    display: block;
+}
+
+.todo-input button:hover {
+    background-color: #c0392b;
+}
+
+/* todo列表样式 */
+.todo-list {
+    margin-top: 20px;
+}
+
+/* todo项目样式 */
+.todo-item {
+    background: linear-gradient(135deg, rgba(176, 196, 222, 0.2), rgba(176, 224, 230, 0.2));
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    border-radius: 12px;
+    padding: 15px;
+    margin-bottom: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+/* todo项目悬停效果 */
+.todo-item:hover {
+    transform: translateY(-2px);
+    background: linear-gradient(135deg, rgba(176, 196, 222, 0.3), rgba(176, 224, 230, 0.3));
+    box-shadow: 0 8px 25px rgba(144, 224, 239, 0.2);
+}
+
+/* 活动todo项目样式 */
+.todo-item.active {
+    background: linear-gradient(135deg, rgba(144, 238, 144, 0.2), rgba(152, 251, 152, 0.2));
+    border-left: 4px solid rgba(144, 238, 144, 0.5);
+}
+
+/* todo项目完成状态 */
+.todo-item.completed {
+    opacity: 0.8;
+    background: rgba(46, 204, 113, 0.1);
+    border-left: 3px solid #2ecc71;
+}
+
+.todo-item.completed .todo-start-btn {
+    background: #2ecc71;
+    cursor: not-allowed;
+}
+
+/* todo信息样式 */
+.todo-info {
+    flex: 1;
+    color: rgba(255, 255, 255, 0.95);
+}
+
+/* todo时间显示 */
+.todo-time {
+    font-size: 0.9em;
+    color: rgba(255, 255, 255, 0.7);
+    margin-top: 5px;
+}
+
+/* todo持续时间显示 */
+.todo-duration {
+    color: rgba(255, 255, 255, 0.8);
+    font-weight: bold;
+}
+
+/* todo输入框容器样式优化 */
+.todo-inputs {
+    display: flex;
+    gap: 12px;
+    width: 100%;
+    margin-bottom: 10px;
+}
+
+/* 调整输入框比例 */
+.todo-input input[type="text"] {
+    flex: 2.5;
+}
+
+.todo-input input[type="number"] {
+    flex: 1;
+}
+
+.todo-input input[type="time"] {
+    flex: 1;
+}
+
+/* 日历任务面板中的任务输入样式 */
+.day-tasks-panel .todo-input {
+    margin: 20px auto;
+    padding: 20px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 15px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    width: 90%;
+    max-width: 450px;
+}
+
+.day-tasks-panel .todo-inputs {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 15px;
+    margin-bottom: 20px;
+    width: 100%;
+}
+
+/* 任务名称输入框 */
+.day-tasks-panel .todo-input input[type="text"] {
+    width: 100%;
+    font-size: 1em;
+    padding: 14px 15px;
+    margin-bottom: 10px;
+}
+
+/* 时间相关输入框的容器 */
+.day-tasks-panel .time-inputs {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+    width: 100%;
+}
+
+/* 统一输入框样式 */
+.day-tasks-panel .todo-input input,
+.day-tasks-panel .time-inputs input {
+    width: 100%;
+    padding: 12px 15px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 0.95em;
+    transition: all 0.3s ease;
+    box-sizing: border-box;
+}
+
+/* 添加按钮样式 */
+.day-tasks-panel .todo-input button {
+    width: 100%;
+    padding: 14px;
+    margin-top: 15px;
+    background: linear-gradient(135deg, rgba(144, 238, 144, 0.2), rgba(152, 251, 152, 0.2));
+    border: 1px solid rgba(144, 238, 144, 0.3);
+    border-radius: 8px;
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 1em;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: block;
+}
+
+/* todo容器 */
+.todo-container {
+    margin: 10px 0;
+    width: 100%;
+}
+
+/* todo输入框容器 */
+.todo-input {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+/* todo输入框 */
+.todo-input input {
+    padding: 8px;
+    border-radius: 5px;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+}
+
+/* todo按钮 */
+.todo-input button {
+    padding: 12px 25px;
+    background-color: #e74c3c;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.todo-input button:hover {
+    background-color: #c0392b;
+}
+
+/* todo列表 */
+.todo-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+/* todo项目 */
+.todo-item {
+    background: rgba(255, 255, 255, 0.1);
+    margin-bottom: 10px;
+    padding: 15px;
+    border-radius: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: all 0.5s ease;
+    transform: translateX(0);
+    opacity: 1;
+}
+
+/* todo信息 */
+.todo-info {
+    flex: 1;
+}
+
+/* todo时间 */
+.todo-time {
+    font-size: 0.9em;
+    color: rgba(255, 255, 255, 0.7);
+    margin-top: 5px;
+}
+
+/* todo持续时间 */
+.todo-duration {
+    color: #f39c12;
+    font-weight: bold;
+}
+
+/* todo开始按钮 */
+.todo-start-btn {
+    padding: 8px 15px;
+    background: #2ecc71;
+    border: none;
+    border-radius: 5px;
+    color: white;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.todo-start-btn:hover {
+    background: #27ae60;
+}
+
+/* todo项目悬停效果 */
+.todo-item:hover {
+    transform: translateX(5px);
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+/* todo项目完成状态 */
+.todo-item.completed {
+    opacity: 0;
+    transform: translateX(100%);
+}
+
+/* todo项目活动状态 */
+.todo-item.active {
+    background-color: rgba(46, 204, 113, 0.1);
+    border-left: 4px solid #2ecc71;
+} 

@@ -1,0 +1,283 @@
+/* 基础样式 */
+
+.bloghtml_body {
+    background-color: #f5f5f5;
+    padding: 100px 0 0 0;     
+    box-sizing: border-box;   
+    width: 100%;             
+    background-image: linear-gradient(
+        rgba(0, 0, 0, 0.5),  
+        rgba(0, 0, 0, 0.5)
+    ), url('https://t.mwm.moe/pc');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    
+    display: flex;
+    flex-direction: column;  
+    align-items: center;     
+    min-height: 100vh;       
+    margin: 0;              
+}
+
+.html_body {
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+    font-family: 'Orbitron', sans-serif;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center; 
+    overflow-y: auto;
+    padding-top: 100px;
+    flex-wrap: wrap;
+    gap: 20px;
+    position: relative;
+    background-image: linear-gradient(
+        rgba(0, 0, 0, 0.5),
+        rgba(0, 0, 0, 0.5)
+    ), url('https://www.dmoe.cc/random.php');
+    
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    color: rgba(255, 255, 255,0.8);
+}
+
+/* 容器样式 */
+.container, .container2, .container3 {
+    background: linear-gradient(
+        135deg,
+        rgba(0, 0, 0, 0.15),
+        rgba(0, 0, 0, 0.08)
+    );
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    box-shadow: 
+        0 10px 30px rgba(0, 0, 0, 0.1),
+        0 1px 8px rgba(0, 0, 0, 0.2);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.container:hover,
+.container2:hover,
+.container3:hover {
+    transform: translateY(-8px);
+    background: rgba(0, 0, 0, 0.25);
+    box-shadow: 
+        0 20px 40px rgba(0, 0, 0, 0.2),
+        0 1px 12px rgba(0, 0, 0, 0.25);
+}
+
+.container {
+    background: rgba(0, 0, 0, 0.15);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    padding: 40px;
+    border-radius: 55px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1),
+        0 1px 8px rgba(0, 0, 0, 0.2);
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    margin: 15px;
+    width: 100%;
+    max-width: 400px;
+    flex-shrink: 0;
+    transition: all 0.3s ease;
+}
+
+.container2 {
+    background: rgba(0, 0, 0, 0.15);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    padding: 15px;
+    margin: 15px auto;
+    width: 70%;
+    max-width: 600px;
+    border-radius: 20px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.container3 {
+    background: rgba(0, 0, 0, 0.15);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    padding: 40px;
+    border-radius: 55px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    margin: 15px auto;
+    width: 60%;
+    max-width: 1500px;
+    min-height: 80vh;
+    height: auto;
+    flex-shrink: 0;
+    transition: all 0.3s ease;
+}
+
+/* 标题样式 */
+.container h1,
+.container h2,
+.container3 h2,
+.container3 h1,
+.container2 h2 {
+    color: rgba(255, 255, 255, 0.95);
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    margin: 0;
+    padding: 10px 20px;
+    line-height: 1;
+}
+
+/* 页脚样式 */
+.footer {
+    text-align: center;
+    padding: 20px;
+    color: rgba(255, 255, 255, 0.8);
+    margin-top: -20px;
+    width: 100%;
+    font-size: 0.9em;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+/* 自定义滚动条样式 */
+::-webkit-scrollbar {
+    width: 0px;
+}
+
+::-webkit-scrollbar-track {
+    background: #1a1a1a;
+    border-radius: 5px;
+    border: 1px solid #333;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #333;
+    border-radius: 5px;
+    border: 2px solid #1a1a1a;
+    box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
+    transition: background 0.3s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #444;
+    border: 2px solid #222;
+}
+
+::-webkit-scrollbar-corner {
+    background: #1a1a1a;
+}
+
+/* 响应式设计 */
+@media screen and (max-width: 768px) {
+    .indexhtml_body {
+        flex-direction: column;
+        padding-top: 60px;
+        height: auto;
+        min-height: 100vh;
+        gap: 10px;
+    }
+
+    .container {
+        max-width: 90%;
+        width: 85%;
+        padding: 20px;
+        margin: 10px;
+        border-radius: 25px;
+    }
+
+    .container2 {
+        padding: 20px;
+        width: 90%;
+        margin: 10px auto;
+    }
+
+    h1 {
+        font-size: 1.8em;
+        margin: 15px 0;
+    }
+}
+
+@media screen and (max-width: 375px) {
+    .container {
+        padding: 15px;
+        margin: 8px;
+        width: 90%;
+    }
+
+    .timer {
+        font-size: 2em;
+    }
+
+    h1 {
+        font-size: 1.5em;
+    }
+}
+
+/* 标题基础样式 */
+h1 {
+    color: #333;
+    margin: 20px;
+    font-size: 2.5em;
+    line-height: 1;
+}
+
+/* 粒子效果容器 */
+#particles-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 9999;
+    display: none;
+}
+
+/* 粒子样式 */
+.particle {
+    position: absolute;
+    pointer-events: none;
+    width: 8px;
+    height: 8px;
+    background: rgba(74, 163, 219, 0.6);
+    border-radius: 50%;
+    box-shadow: 0 0 10px rgba(74, 163, 219, 0.3);
+    backdrop-filter: blur(2px);
+    -webkit-backdrop-filter: blur(2px);
+}
+
+/* 粒子浮动动画 */
+@keyframes float {
+    0% {
+        transform: translateX(0);
+    }
+    50% {
+        transform: translateX(20px);
+    }
+    100% {
+        transform: translateX(0);
+    }
+}
+
+/* 粒子漂移动画 */
+@keyframes drift {
+    0% {
+        transform: translateX(0);
+    }
+    50% {
+        transform: translateX(-15px);
+    }
+    100% {
+        transform: translateX(0);
+    }
+} 

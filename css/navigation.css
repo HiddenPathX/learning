@@ -1,0 +1,135 @@
+/* 导航栏样式 */
+.navigation {
+    position: fixed;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 1200px;
+    background: linear-gradient(135deg, rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2));
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    padding: 0.2rem 0;
+    z-index: 1000;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 15px rgba(144, 224, 239, 0.1);
+    text-align: center;
+    border-radius: 0 0 15px 15px;
+    border: 1px solid rgba(255, 255, 255, 0.25);
+}
+
+/* 添加导航栏收缩效果 */
+.navigation.nav-hidden {
+    transform: translate(-50%, -100%);
+    opacity: 0;
+}
+
+/* 当鼠标悬停在隐藏的导航栏区域时显示导航栏 */
+.navigation.nav-hidden:hover {
+    transform: translate(-50%, 0);
+    opacity: 1;
+}
+
+/* 添加导航栏呼吸发光效果 */
+@keyframes navPulse {
+    0% { box-shadow: 0 0 20px rgba(0, 255, 157, 0.1); }
+    50% { box-shadow: 0 0 30px rgba(0, 255, 157, 0.2); }
+    100% { box-shadow: 0 0 20px rgba(0, 255, 157, 0.1); }
+}
+
+/* 导航链接样式 */
+.navigation a {
+    color: rgba(255, 255, 255, 0.95);
+    text-decoration: none;
+    padding: 0.4rem 0.8rem;
+    margin: 0 0.15rem;
+    position: relative;
+    overflow: hidden;
+    border-radius: 8px;
+    display: inline-block;
+    transition: all 0.3s ease;
+    text-shadow: 0 2px 15px rgba(255, 255, 255, 0.2);
+    font-size: 1.1rem;
+    font-weight: 500;
+    font-family: 'Orbitron', sans-serif;
+    background: transparent;
+}
+
+/* 导航链接悬浮效果 */
+.navigation a:hover {
+    transform: translateY(-2px);
+    background: rgba(255, 255, 255, 0.05);
+    box-shadow: 0 8px 25px rgba(144, 224, 239, 0.1);
+}
+
+/* 导航内容容器 */
+.nav-content {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    position: relative;
+    z-index: 2;
+    min-width: 70px;
+}
+
+/* 图标样式 */
+.nav-icon {
+    font-size: 1.6em;
+    transform: translateY(0);
+    transition: transform 0.3s ease;
+    color: rgba(255, 255, 255, 0.95);
+}
+
+/* 文字样式 */
+.nav-text {
+    transform: translateY(0);
+    transition: transform 0.3s ease;
+    letter-spacing: 0.5px;
+    color: rgba(255, 255, 255, 0.95);
+}
+
+/* 悬浮指示器 */
+.nav-indicator {
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    width: 0;
+    height: 2px;
+    background: linear-gradient(135deg, rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.8));
+    transform: translateX(-50%);
+    transition: width 0.3s ease;
+    box-shadow: 0 0 10px rgba(144, 224, 239, 0.3);
+}
+
+/* 鼠标悬浮效果 */
+.navigation a:hover .nav-icon {
+    transform: translateY(-2px) scale(1.1);
+}
+
+.navigation a:hover .nav-text {
+    transform: translateY(-2px);
+}
+
+.navigation a:hover .nav-indicator {
+    width: 80%;
+}
+
+/* 发光效果 */
+.navigation a::before {
+    content: '';
+    position: absolute;
+    width: 100px;
+    height: 100px;
+    background: radial-gradient(circle, rgba(0, 0, 0, 0.3) 0%, transparent 70%);
+    border-radius: 50%;
+    top: var(--mouse-y, 50%);
+    left: var(--mouse-x, 50%);
+    transform: translate(-50%, -50%);
+    opacity: 0;
+    transition: opacity 0.3s;
+    pointer-events: none;
+}
+
+.navigation a:hover::before {
+    opacity: 0.5;
+} 

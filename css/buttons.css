@@ -1,0 +1,262 @@
+/* 统一按钮基础样式 */
+.controls button,
+.todo-input button,
+.todo-start-btn,
+#rewardBtn,
+.auth-btn,
+.submit-btn,
+#openBtn,
+#muteBgmBtn,
+#nextSongBtn,
+#applyCustom,
+#startBtn,
+#helpBtn {
+    background: linear-gradient(135deg, rgba(144, 224, 239, 0.3), rgba(165, 216, 255, 0.3));
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: rgba(255, 255, 255, 0.95);
+    padding: 12px 25px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-family: 'Orbitron', sans-serif;
+    box-shadow: 0 4px 15px rgba(144, 224, 239, 0.1);
+    font-size: 0.9em;
+    letter-spacing: 1px;
+}
+
+/* 按钮悬停效果 */
+.controls button:hover,
+.todo-input button:hover,
+.todo-start-btn:hover,
+#rewardBtn:hover,
+.auth-btn:hover,
+.submit-btn:hover,
+#openBtn:hover,
+#muteBgmBtn:hover,
+#nextSongBtn:hover,
+#applyCustom:hover,
+#startBtn:hover,
+#helpBtn:hover {
+    transform: translateY(-2px);
+    background: linear-gradient(135deg, rgba(144, 224, 239, 0.4), rgba(165, 216, 255, 0.4));
+    box-shadow: 0 8px 25px rgba(144, 224, 239, 0.2);
+}
+
+/* 特殊按钮样式 - 开始按钮 */
+#openBtn, #startBtn {
+    background: linear-gradient(135deg, rgba(173, 216, 230, 0.4), rgba(135, 206, 235, 0.4));
+    border: 1px solid rgba(255, 255, 255, 0.35);
+}
+
+/* 特殊按钮样式 - 暂停和停止按钮 */
+#pauseBtn, #stopBtn {
+    background: linear-gradient(135deg, rgba(129, 212, 250, 0.3), rgba(178, 235, 242, 0.3));
+}
+
+/* 特殊按钮样式 - 音频控制按钮 */
+#muteBgmBtn, #nextSongBtn {
+    background: linear-gradient(135deg, rgba(129, 212, 250, 0.3), rgba(178, 235, 242, 0.3));
+    padding: 10px 20px;
+}
+
+/* 特殊按钮样式 - 任务添加按钮 */
+.todo-input button {
+    background: linear-gradient(135deg, rgba(144, 238, 144, 0.3), rgba(152, 251, 152, 0.3));
+    width: auto;
+    margin: 10px 0;
+    align-self: flex-end;
+}
+
+/* 特殊按钮样式 - 任务开始按钮 */
+.todo-start-btn {
+    background: linear-gradient(135deg, rgba(175, 238, 238, 0.3), rgba(173, 216, 230, 0.3));
+    padding: 8px 15px;
+    font-size: 0.85em;
+}
+
+/* 按钮禁用状态 */
+.controls button:disabled,
+.todo-input button:disabled,
+.todo-start-btn:disabled,
+#rewardBtn:disabled {
+    background: linear-gradient(135deg, rgba(211, 211, 211, 0.2), rgba(169, 169, 169, 0.2));
+    color: rgba(255, 255, 255, 0.4);
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+/* 奖励按钮特殊样式 */
+#rewardBtn {
+    background: linear-gradient(135deg, rgba(255, 182, 193, 0.3), rgba(255, 192, 203, 0.3));
+}
+
+/* 帮助按钮特殊样式 */
+#helpBtn {
+    background: linear-gradient(135deg, rgba(176, 224, 230, 0.3), rgba(175, 238, 238, 0.3));
+}
+
+/* 音量控制样式优化 */
+.volume-control {
+    background: linear-gradient(135deg, rgba(129, 212, 250, 0.2), rgba(178, 235, 242, 0.2));
+    padding: 5px 10px;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.25);
+}
+
+#volumeSlider {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+#volumeSlider::-webkit-slider-thumb {
+    background: linear-gradient(135deg, rgba(129, 212, 250, 0.9), rgba(178, 235, 242, 0.9));
+    border: 1px solid rgba(255, 255, 255, 0.5);
+}
+
+/* 按钮组布局优化 */
+.controls {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    align-items: center;
+}
+
+.main-controls, .audio-controls {
+    display: flex;
+    gap: 10px;
+}
+
+/* 控制按钮基础样式 */
+.controls button {
+    padding: 12px 25px;
+    font-size: 1em;
+    border: none;
+    border-radius: 8px;
+    background-color: #3498db;
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+/* 控制按钮悬停效果 */
+.controls button:hover {
+    background-color: #2980b9;
+}
+
+/* 控制按钮禁用效果 */
+.controls button:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}
+
+/* 静音按钮样式 */
+.controls button#muteBgmBtn {
+    background-color: #f39c12;
+}
+
+/* 静音按钮悬停效果 */
+.controls button#muteBgmBtn:hover {
+    background-color: #e67e22;
+}
+
+/* 下一首按钮样式 */
+.controls button#nextSongBtn {
+    background-color: #9b59b6;
+}
+
+/* 下一首按钮悬停效果 */
+.controls button#nextSongBtn:hover {
+    background-color: #8e44ad;
+}
+
+/* 奖励相关样式 */
+.rewards {
+    margin-top: 30px;
+    font-size: 1.2em;
+    color: #f39c12;
+}
+
+#coins {
+    margin-right: 15px;
+}
+
+#rewardBtn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    background-color: #e67e22;
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+#rewardBtn:hover {
+    background-color: #d35400;
+}
+
+#rewardBtn:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}
+
+/* 修改音量控制样式 */
+.volume-control {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    height: 100%;
+}
+
+/* 自定义滑块样式 */
+#volumeSlider {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    width: 100px;
+    height: 5px;
+    border-radius: 5px;
+    background: #d3d3d3;
+    outline: none;
+    margin: 0;
+    vertical-align: middle;
+}
+
+#volumeSlider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+    background: #f39c12;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+#volumeSlider::-webkit-slider-thumb:hover {
+    background: #e67e22;
+}
+
+#volumeValue {
+    min-width: 45px;
+    color: #333;
+    font-size: 0.9em;
+    display: inline-block;
+    text-align: center;
+}
+
+/* 添加音频控制按钮组样式 */
+.audio-controls {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    height: 42px;
+}
+
+/* 确保所有按钮高度一致 */
+.audio-controls button {
+    height: 100%;
+    white-space: nowrap;
+} 

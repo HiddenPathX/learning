@@ -1,0 +1,329 @@
+// 认证相关功能
+export const auth = {
+    API_BASE_URL: 'https://learning-backend-7fla.onrender.com/api',
+
+    checkLoginStatus() {
+        const token = localStorage.getItem('token');
+        const username = localStorage.getItem('username');
+        return !!(token && username);
+    },
+
+    async showUserProfile() {
+        try {
+            // 获取周学习记录
+            const weeklyData = await this.getWeeklyRecord();
+            console.log('获取到的周学习记录:', weeklyData);
+            
+            // 获取北京时间的今天日期
+            const today = new Date();
+            const chinaTime = new Date(today.getTime() + (8 * 60 * 60 * 1000));
+            const todayDate = chinaTime.toISOString().split('T')[0];
+            console.log('Today in China:', todayDate);
+            
+            // 查找今天的记录
+            const todayRecord = weeklyData.find(record => record.date === todayDate);
+            console.log('Today\'s record:', todayRecord);
+
+            // 计算统计数据
+            const totalMinutes = weeklyData.reduce((sum, record) => sum + parseInt(record.duration), 0);
+            const totalSessions = weeklyData.reduce((sum, record) => sum + parseInt(record.focus_count), 0);
+            
+            // 计算平均每次专注时长
+            const averageTime = totalSessions > 0 ? Math.round(totalMinutes / totalSessions) : 0;
+
+            // 更新显示
+            document.getElementById('todayStudyTime').textContent = todayRecord ? todayRecord.duration : 0;
+            document.getElementById('weekTotalTime').textContent = totalMinutes;
+            document.getElementById('totalSessions').textContent = totalSessions;
+            document.getElementById('averageTime').textContent = averageTime;
+
+            // 更新图表
+            this.updateWeeklyChart(weeklyData);
+
+            // 更新界面显示
+            document.querySelector('.auth-buttons').style.display = 'none';
+            document.querySelector('.login-form').style.display = 'none';
+            document.querySelector('.register-form').style.display = 'none';
+            document.querySelector('.user-profile').style.display = 'block';
+
+            // 显示用户名
+            const username = localStorage.getItem('username');
+            if (username) {
+                document.querySelector('.username').textContent = `${username} 的学习数据`;
+            }
+        } catch (error) {
+            console.error('显示用户资料失败:', error);
+            alert('获取学习数据失败，请重试');
+        }
+    },
+
+    async login(username, password) {
+        try {
+            console.log('开始登录请求...');
+            const response = await fetch(`${this.API_BASE_URL}/auth/login`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ username, password })
+            });
+            
+            const data = await response.json();
+            
+            if (response.ok) {
+                console.log('登录成功');
+                localStorage.setItem('token', data.token);
+                localStorage.setItem('username', username);
+                localStorage.setItem('userId', data.userId);
+                await this.showUserProfile();
+                return data;
+            } else {
+                console.error('登录失败:', data);
+                throw new Error(data.message || '登录失败，请稍后重试');
+            }
+        } catch (error) {
+            console.error('登录过程出错:', error);
+            throw error;
+        }
+    },
+
+    async register(username, password) {
+        try {
+            console.log('开始注册请求...');
+            const response = await fetch(`${this.API_BASE_URL}/auth/register`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ username, password })
+            });
+            
+            const data = await response.json();
+            
+            if (response.ok) {
+                console.log('注册成功');
+                localStorage.setItem('token', data.token);
+                localStorage.setItem('username', username);
+                localStorage.setItem('userId', data.userId);
+                await this.showUserProfile();
+                return data;
+            } else {
+                console.error('注册失败:', data);
+                throw new Error(data.message || '注册失败，请稍后重试');
+            }
+        } catch (error) {
+            console.error('注册过程出错:', error);
+            throw error;
+        }
+    },
+
+    async getWeeklyRecord() {
+        try {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                throw new Error('请先登录');
+            }
+
+            const response = await fetch(`${this.API_BASE_URL}/study/weekly`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (!response.ok) {
+                if (response.status === 401) {
+                    throw new Error('认证失败，请重新登录');
+                }
+                const data = await response.json();
+                throw new Error(data.message || '获取数据失败');
+            }
+
+            const data = await response.json();
+            return data;
+        } catch (error) {
+            console.error('获取周学习记录失败:', error);
+            throw error;
+        }
+    },
+
+    updateWeeklyChart(weeklyData) {
+        try {
+            const chartCanvas = document.getElementById('weeklyChart');
+            if (!chartCanvas) {
+                console.error('找不到图表画布');
+                return;
+            }
+
+            // 设置画布大小
+            chartCanvas.style.width = '100%';
+            chartCanvas.style.height = '300px';
+
+            // 获取上下文
+            const ctx = chartCanvas.getContext('2d');
+            if (!ctx) {
+                console.error('无法获取画布上下文');
+                return;
+            }
+
+            // 销毁旧图表
+            const existingChart = Chart.getChart(chartCanvas);
+            if (existingChart) {
+                existingChart.destroy();
+            }
+
+            // 准备数据
+            const today = new Date();
+            const chinaTime = new Date(today.getTime() + (8 * 60 * 60 * 1000));
+            const weekData = new Array(7).fill(0);
+            const labels = [];
+            const dates = [];  // 存储实际日期，用于调试
+
+            // 生成过去7天的日期
+            for (let i = 6; i >= 0; i--) {
+                const date = new Date(chinaTime);
+                date.setDate(date.getDate() - i);
+                const dateStr = date.toISOString().split('T')[0];
+                dates.push(dateStr);  // 存储日期用于调试
+                labels.push(['周日','周一','周二','周三','周四','周五','周六'][date.getDay()]);
+                
+                // 查找对应日期的记录
+                const record = weeklyData.find(r => r.date === dateStr);
+                if (record) {
+                    weekData[6-i] = parseInt(record.duration) || 0;
+                }
+            }
+
+            console.log('处理后的数据:', {
+                dates,      // 输出日期数组用于调试
+                labels,     // 输出标签数组
+                weekData,   // 输出数据数组
+                weeklyData  // 输出原始数据
+            });
+
+            // 创建渐变
+            const gradient = ctx.createLinearGradient(0, 0, 0, 300);
+            gradient.addColorStop(0, 'rgba(106, 17, 203, 0.5)');
+            gradient.addColorStop(1, 'rgba(37, 117, 252, 0.1)');
+
+            // 创建新图表
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: '学习时长(分钟)',
+                        data: weekData,
+                        fill: true,
+                        backgroundColor: gradient,
+                        borderColor: 'rgba(106, 17, 203, 1)',
+                        borderWidth: 2,
+                        tension: 0.4,
+                        pointBackgroundColor: 'white',
+                        pointBorderColor: 'rgba(106, 17, 203, 1)',
+                        pointRadius: 4,
+                        pointHoverRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    animation: {
+                        duration: 1000
+                    },
+                    interaction: {
+                        intersect: true,
+                        mode: 'index'
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            },
+                            ticks: {
+                                color: 'rgba(255, 255, 255, 0.7)',
+                                font: {
+                                    size: 12
+                                }
+                            }
+                        },
+                        x: {
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            },
+                            ticks: {
+                                color: 'rgba(255, 255, 255, 0.7)',
+                                font: {
+                                    size: 12
+                                }
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: true,
+                            labels: {
+                                color: 'rgba(255, 255, 255, 0.7)',
+                                font: {
+                                    size: 12
+                                }
+                            }
+                        },
+                        tooltip: {
+                            enabled: true,
+                            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                            titleColor: 'rgba(255, 255, 255, 0.9)',
+                            bodyColor: 'rgba(255, 255, 255, 0.9)',
+                            titleFont: {
+                                size: 14,
+                                weight: 'bold'
+                            },
+                            bodyFont: {
+                                size: 13
+                            },
+                            padding: 10,
+                            displayColors: false,
+                            mode: 'index',
+                            intersect: false,
+                            callbacks: {
+                                title: function(context) {
+                                    const index = context[0].dataIndex;
+                                    return `${labels[index]} (${dates[index]})`;
+                                },
+                                label: function(context) {
+                                    const value = context.raw || 0;
+                                    return `学习时长: ${value} 分钟`;
+                                }
+                            }
+                        }
+                    },
+                    onClick: (event, elements) => {
+                        if (elements && elements.length > 0) {
+                            const index = elements[0].index;
+                            const value = weekData[index];
+                            const date = new Date(chinaTime);
+                            date.setDate(date.getDate() - (6 - index));
+                            alert(`${labels[index]}\n学习时长: ${value} 分钟`);
+                        }
+                    }
+                }
+            });
+
+        } catch (error) {
+            console.error('创建图表时出错:', error);
+        }
+    },
+
+    logout() {
+        localStorage.removeItem('token');
+        localStorage.removeItem('username');
+        localStorage.removeItem('userId');
+        
+        // 更新界面显示
+        document.querySelector('.auth-buttons').style.display = 'flex';
+        document.querySelector('.login-form').style.display = 'none';
+        document.querySelector('.register-form').style.display = 'none';
+        document.querySelector('.user-profile').style.display = 'none';
+    }
+}; 

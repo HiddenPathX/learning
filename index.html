@@ -14,420 +14,20 @@
     
     <title>Learning</title>
 
-    <link rel="stylesheet" href="styles.css">
+    <!-- 引入主CSS文件 -->
+    <link rel="stylesheet" href="css/main.css">
 
     <!-- 添加 MathJax 支持，渲染LaTeX公式 -->
     <script id="MathJax-script" defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <!-- 添加樱花效果的脚本 -->
-    <script src="https://api.suyanw.cn/api/mouse/yinghua.js"></script>
+    <!-- <script src="https://api.suyanw.cn/api/mouse/yinghua.js"></script> -->
 
 <!-- ------------一些仅在index.html中使用的css样式------------    -->
-<style>
-
-/* 标题 */
-h1 {
-    color: #333;
-    margin: 20px;
-    font-size: 2.5em;
-    line-height: 1;
-}
-
-    /* 应用设置 */
-.customization {
-    margin-top: 20px;
-}
-
-/* 应用设置标签 */    
-.customization label {
-    display: block;
-    margin-bottom: 5px;
-    color: #555;
-}
-
-/* 应用设置输入框 */
-.customization input[type="number"] {
-    padding: 10px;
-    border-radius: 5px;
-    border: 1px solid #ddd;
-    width: 80px;
-    margin-right: 10px;
-}
-
-/* 应用设置按钮 */
-.customization button {
-    padding: 10px 20px;
-    border: none;
-    border-radius: 5px;
-    background-color: #2ecc71;
-    color: white;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-}
-
-/* 应用设置按钮悬停效果 */    
-.customization button:hover {
-    background-color: #27ae60;
-}
-
-/* 控制按钮 */
-.controls {
-    display: flex;
-    flex-direction: column;
-    gap: 15px; /* 控制两行按钮之间的间距 */
-    align-items: center;
-}
-
-/* 主控制按钮和音频控制按钮 */
-.main-controls, .audio-controls {
-    display: flex;
-    gap: 10px; /* 控制同一行按钮之间的间距 */
-}
-
-/* 按钮样式 */
-.controls button {
-    padding: 12px 25px;
-    font-size: 1em;
-    border: none;
-    border-radius: 8px;
-    background-color: #3498db;
-    color: white;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-}
-
-/* 按钮悬停效果 */
-.controls button:hover {
-    background-color: #2980b9;
-}
-
-/* 按钮禁用效果 */
-.controls button:disabled {
-    background-color: #ccc;
-    cursor: not-allowed;
-}
-
-/* 静音按钮样式 */
-.controls button#muteBgmBtn {
-    background-color: #f39c12; /* 可以选择一个不同的颜色 */
-}
-
-/* 静音按钮悬停效果 */
-.controls button#muteBgmBtn:hover {
-    background-color: #e67e22;
-}
-
-/* 下一首按钮样式 */
-.controls button#nextSongBtn {
-    background-color: #9b59b6; /* 紫色调 */
-}
-
-/* 下一首按钮悬停效果 */
-.controls button#nextSongBtn:hover {
-    background-color: #8e44ad;
-}
-
-
-/* 奖励 */  
-.rewards {
-    margin-top: 30px;
-    font-size: 1.2em;
-    color: #f39c12;
-}
-
-/* 奖励图标 */
-#coins {
-    margin-right: 15px;
-}
-
-/* 奖励按钮 */
-#rewardBtn {
-    padding: 10px 20px;
-    border: none;
-    border-radius: 5px;
-    background-color: #e67e22;
-    color: white;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-}
-
-/* 奖励按钮悬停效果 */
-#rewardBtn:hover {
-    background-color: #d35400;
-}
-
-/* 奖励按钮禁用效果 */
-#rewardBtn:disabled {
-    background-color: #ccc;
-    cursor: not-allowed;
-}
-
-/* 引用 */
-#quote {
-    margin-top: 30px;
-    font-style: italic;
-    color: #777;
-    opacity: 0;
-    transition: opacity 0.5s ease;
-    font-size: 1.5em;
-}
-
-/* 引用显示设置为不透明 */
-#quote.show {
-    opacity: 1;
-}
-
-/* 音乐名称显示样式 */
-.current-song {
-    margin: 10px 0 5px 0;
-    font-size: 1.1em;
-    color: #3498db;
-    font-style: italic;
-    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
-    opacity: 0;
-    transition: opacity 0.3s ease;
-}
-/* 音乐名称显示设置为不透明 */
-.current-song.show {
-    opacity: 1;
-}
-
-/* 可拖动图片的样式 */
-.draggable-image {
-    user-select: none;
-    -webkit-user-drag: none;
-}
-
-/* 调整时间显示的间距 */
-.timer {
-    margin: 15px;
-    margin-top: -20px;
-    line-height: 1;
-}
-
-/* ---------------------todo按钮--------------------- */    
-.todo-container {
-    margin: 10px 0;
-    width: 100%;
-}
-
-.todo-input {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 20px;
-    flex-wrap: wrap;
-}
-
-.todo-input input {
-    padding: 8px;
-    border-radius: 5px;
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    background: rgba(255, 255, 255, 0.1);
-    color: white;
-}
-
-.todo-input button {
-    padding: 12px 25px;
-    background-color: #e74c3c;
-    color: white;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: background-color 0.3s;
-}
-
-.todo-input button:hover {
-    background-color: #c0392b;
-}
-
-.todo-list {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-}
-
-.todo-item {
-    background: rgba(255, 255, 255, 0.1);
-    margin-bottom: 10px;
-    padding: 15px;
-    border-radius: 8px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    transition: all 0.5s ease;
-    transform: translateX(0);
-    opacity: 1;
-}
-
-.todo-info {
-    flex: 1;
-}
-
-.todo-time {
-    font-size: 0.9em;
-    color: rgba(255, 255, 255, 0.7);
-    margin-top: 5px;
-}
-
-.todo-duration {
-    color: #f39c12;
-    font-weight: bold;
-}
-
-.todo-start-btn {
-    padding: 8px 15px;
-    background: #2ecc71;
-    border: none;
-    border-radius: 5px;
-    color: white;
-    cursor: pointer;
-    transition: background 0.3s;
-}
-
-.todo-start-btn:hover {
-    background: #27ae60;
-}
-
-.todo-item:hover {
-    transform: translateX(5px);
-    background-color: rgba(255, 255, 255, 0.2);
-}
-
-.todo-item.completed {
-    opacity: 0;
-    transform: translateX(100%);
-}
-
-.todo-item.active {
-    background-color: rgba(46, 204, 113, 0.1);
-    border-left: 4px solid #2ecc71;
-}
-
-/* 修改预加载动画样式 */
-.preload-background {
-    background: #0a0a0f;
-}
-
-.matrix-text {
-    color: #00ff9d;
-    text-shadow: 0 0 15px rgba(0, 255, 157, 0.8);
-    font-family: 'Orbitron', sans-serif;
-}
-
-.progress-bar {
-    background: linear-gradient(90deg, #00ff9d, #0f3460);
-    box-shadow: 0 0 20px rgba(0, 255, 157, 0.3);
-}
-
-/* 修改弹窗背景 */
-.modal {
-    display: none;
-    position: fixed;
-    z-index: 1000;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.7);
-    overflow-y: auto;
-}
-
-/* 修改弹窗内容样式 */
-.modal-content.custom-container {
-    background: rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(10px);
-    border-radius: 55px;
-    padding: 20px;
-    margin: 50px auto;
-    color: white;
-    position: relative;
-}
-
-/* 开始按钮弹窗样式 */
-.modal-content.start-modal {
-    max-width: 400px;
-}
-
-/* 说明按钮弹窗样式 */
-.modal-content.help-modal {
-    max-width: 800px;
-}
-
-/* 修改关闭按钮样式 */
-.close-button {
-    position: absolute;
-    right: 20px;
-    top: 15px;
-    color: white;
-    font-size: 28px;
-    cursor: pointer;
-    transition: color 0.3s;
-}
-
-.close-button:hover {
-    color: #ff4444;
-}
-
-/* 修改输入框样式 */
-.customization input[type="number"] {
-    background: rgba(255, 255, 255, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    color: white;
-    padding: 8px;
-    border-radius: 5px;
-}
-
-/* 修改标签样式 */
-.customization label {
-    color: rgba(255, 255, 255, 0.9);
-    margin: 10px 0;
-}
-
-/* 修改按钮样式 */
-.customization button {
-    background: rgba(46, 204, 113, 0.8);
-    border: none;
-    padding: 10px 20px;
-    color: white;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background 0.3s;
-    margin: 10px 5px;
-}
-
-.customization button:hover {
-    background: rgba(46, 204, 113, 1);
-}
-
-/* 帮助内容样式 */
-.help-content {
-    color: rgba(255, 255, 255, 0.9);
-    line-height: 1.6;
-}
-
-/* 滚动条样式 */
-.modal-content::-webkit-scrollbar {
-    width: 8px;
-}
-
-.modal-content::-webkit-scrollbar-track {
-    background: rgba(255, 255, 255, 0.1);
-}
-
-.modal-content::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.3);
-    border-radius: 4px;
-}
-
-.modal-content::-webkit-scrollbar-thumb:hover {
-    background: rgba(255, 255, 255, 0.4);
-}
-
-</style>
 
 <!-- 添加字体链接 -->
-<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700&display=swap" rel="stylesheet">
 
 </head>
 
@@ -539,35 +139,37 @@ h1 {
             </div>
         </div>
         
+        <div id="dayTasksList" class="day-tasks-list"></div>
+        
         <div class="todo-input">
-            <input type="text" id="todoInput" placeholder="输入任务名称..." required>
+            <input type="text" placeholder="输入任务名称..." required>
             <div class="time-inputs">
                 <input type="number" 
-                    id="todoDuration" 
+                    id="calendarDuration"
                     placeholder="工作时长(分钟)" 
                     min="1" 
                     max="60" 
                     title="请输入1-60分钟之间的时长"
                     required>
                 <input type="time" 
-                    id="todoStartTime"
-                    placeholder="开始时间">
+                    id="calendarStartTime"
+                    placeholder="开始时间"
+                    title="选择开始时间">
                 <input type="time" 
-                    id="todoEndTime" 
-                    placeholder="结束时间">
+                    id="calendarEndTime"
+                    placeholder="结束时间"
+                    title="选择结束时间">
             </div>
-            <button id="addTodoBtn">添加任务</button>
+            <button id="calendarAddTodoBtn">添加任务</button>
         </div>
-
-        <div class="day-tasks-list" id="dayTasksList"></div>
     </div>
     <div class="modal-overlay" id="taskModalOverlay"></div>
 
     <!-- 第三个容器 -->
     <div class="container">
         <div class="auth-buttons">
-            <button class="auth-btn active" onclick="showForm('login')">登录页</button>
-            <button class="auth-btn" onclick="showForm('register')">注册页</button>
+            <button class="auth-btn active" onclick="app.handlers.showForm('login')">登录页</button>
+            <button class="auth-btn" onclick="app.handlers.showForm('register')">注册页</button>
         </div>
 
         <!-- 登录表单 -->
@@ -625,11 +227,11 @@ h1 {
 
                 <div class="study-chart">
                     <h3>本周学习记录</h3>
-                    <div class="chart-container" id="weeklyChart"></div>
+                    <canvas id="weeklyChart"></canvas>
                 </div>
             </div>
 
-            <button class="logout-btn" onclick="logout()">退出登录</button>
+            <button class="logout-btn" onclick="app.handlers.logout()">退出登录</button>
         </div>
     </div>
 
@@ -697,7 +299,7 @@ h1 {
                         <input type="number" id="breakTime" value="5" min="1">
                         
                         <button id="applyCustom">应用</button>
-                        <button id="startBtn">启动</button>
+                        <button id="startBtn" onclick="app.handlers.startTimerFromModal()">启动</button>
                     </div>
                 </div>  
             </div>
@@ -790,21 +392,12 @@ h1 {
     
 <!-- 链接外部javascript脚本，一般不放在head里 -->
 <script src="js/preloader.js"></script>
-<script src="script.js"></script>   
+<!-- <script src="script.js"></script>    -->
 <script src="js/love-quote.js"></script>
+<script src="js/navigation.js"></script>
+<script type="module" src="js/main.js"></script>
 
-    <!-- 添加一个控制按钮 -->
-    <button onclick="stopp()" style="
-        position: fixed;
-        bottom: 20px;
-        right: 20px;
-        z-index: 100000;
-        padding: 10px 20px;
-        background: rgba(255, 255, 255, 0.208);
-        border: none;
-        border-radius: 55px;
-        cursor: pointer;
-    ">樱花效果</button>
+   
 
 </body>
 </html>

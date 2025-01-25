@@ -1,0 +1,136 @@
+/* 容器基础样式 */
+.container, .container2, .container3 {
+    background: linear-gradient(
+        135deg,
+        rgba(0, 0, 0, 0.15),
+        rgba(0, 0, 0, 0.08)
+    );
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    box-shadow: 
+        0 10px 30px rgba(0, 0, 0, 0.1),
+        0 1px 8px rgba(0, 0, 0, 0.2);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* 容器悬停效果 */
+.container:hover,
+.container2:hover,
+.container3:hover {
+    transform: translateY(-8px);
+    background: rgba(0, 0, 0, 0.25);
+    box-shadow: 
+        0 20px 40px rgba(0, 0, 0, 0.2),
+        0 1px 12px rgba(0, 0, 0, 0.25);
+}
+
+/* 容器呼吸动画 */
+@keyframes containerFloat {
+    0% {
+        box-shadow: 
+            0 10px 30px rgba(0, 0, 0, 0.1),
+            0 1px 8px rgba(0, 0, 0, 0.2);
+    }
+    50% {
+        box-shadow: 
+            0 15px 35px rgba(0, 0, 0, 0.15),
+            0 1px 10px rgba(0, 0, 0, 0.22);
+    }
+    100% {
+        box-shadow: 
+            0 10px 30px rgba(0, 0, 0, 0.1),
+            0 1px 8px rgba(0, 0, 0, 0.2);
+    }
+}
+
+.container, .container2, .container3 {
+    animation: containerFloat 6s ease-in-out infinite;
+}
+
+/* 容器1样式 */
+.container {
+    background: rgba(0, 0, 0, 0.15);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    padding: 40px;
+    border-radius: 55px;
+    box-shadow: 
+        0 10px 30px rgba(0, 0, 0, 0.1),
+        0 1px 8px rgba(0, 0, 0, 0.2);
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    margin: 15px;
+    width: 100%;
+    max-width: 400px;
+    flex-shrink: 0;
+    transition: all 0.3s ease;
+}
+
+/* 容器2样式 */
+.container2 {
+    background: rgba(0, 0, 0, 0.15);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    padding: 40px;
+    border-radius: 55px;
+    box-shadow: 
+        0 10px 30px rgba(0, 0, 0, 0.1),
+        0 1px 8px rgba(0, 0, 0, 0.2);
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    margin: 15px;
+    width: 100%;
+    max-width: 400px;
+    flex-shrink: 0;
+    transition: all 0.3s ease;
+}
+
+/* 容器3样式 */
+.container3 {
+    background: rgba(0, 0, 0, 0.15);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    padding: 40px;
+    border-radius: 55px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    margin: 15px auto;
+    width: 60%;
+    max-width: 1500px;
+    min-height: 80vh;
+    height: auto;
+    flex-shrink: 0;
+    transition: all 0.3s ease;
+}
+
+/* 容器标题样式 */
+.container h1,
+.container h2,
+.container3 h2,
+.container3 h1,
+.container2 h2 {
+    color: rgba(255, 255, 255, 0.95);
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    margin: 0;
+    padding: 10px 20px;
+    line-height: 1;
+}
+
+/* 移动端响应式样式 */
+@media screen and (max-width: 768px) {
+    .container {
+        max-width: 90%;
+        width: 85%;
+        padding: 20px;
+        margin: 10px;
+        border-radius: 25px;
+    }
+} 

@@ -1,0 +1,111 @@
+/* 计时器容器 */
+.timer {
+    background: linear-gradient(135deg, rgba(176, 196, 222, 0.2), rgba(176, 224, 230, 0.2));
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    border-radius: 20px;
+    padding: 20px 40px;
+    margin: 15px;
+    margin-top: -20px;
+    line-height: 1;
+    display: inline-block;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 4em;
+    color: #4aa3db;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+/* 计时器悬停效果 */
+.timer:hover {
+    transform: translateY(-2px);
+    background: linear-gradient(135deg, rgba(176, 196, 222, 0.3), rgba(176, 224, 230, 0.3));
+    box-shadow: 0 8px 25px rgba(144, 224, 239, 0.2);
+}
+
+/* 计时器数字 */
+.timer span {
+    display: inline-block;
+    min-width: 100px;
+    text-align: center;
+}
+
+/* 计时器冒号 */
+.timer span:first-child::after {
+    content: ":";
+    margin: 0 5px;
+    animation: colonBlink 1s ease-in-out infinite;
+    opacity: 0.8;
+}
+
+/* 冒号闪烁动画 */
+@keyframes colonBlink {
+    0%, 100% { opacity: 0.8; }
+    50% { opacity: 0.3; }
+}
+
+/* 移动端响应式样式 */
+@media screen and (max-width: 768px) {
+    .timer {
+        font-size: 3em;
+    }
+}
+
+@media screen and (max-width: 375px) {
+    .timer {
+        font-size: 2em;
+    }
+}
+
+/* 引用样式 */
+#quote {
+    margin-top: 30px;
+    font-style: italic;
+    color: #777;
+    opacity: 0;
+    transition: opacity 0.5s ease;
+    font-size: 1.5em;
+}
+
+/* 引用显示设置为不透明 */
+#quote.show {
+    opacity: 1;
+}
+
+/* 音乐名称显示样式 */
+.current-song {
+    margin: 15px 0;
+    padding: 8px 20px;
+    font-size: 1.2em;
+    color: #4aa3db;
+    font-style: italic;
+    background: linear-gradient(135deg, rgba(74, 163, 219, 0.1), rgba(74, 163, 219, 0.05));
+    border: 1px solid rgba(74, 163, 219, 0.2);
+    border-radius: 20px;
+    display: inline-block;
+    opacity: 0;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    box-shadow: 0 2px 10px rgba(74, 163, 219, 0.1);
+    letter-spacing: 1px;
+}
+
+/* 音乐名称显示设置为不透明和悬停效果 */
+.current-song.show {
+    opacity: 1;
+}
+
+.current-song:hover {
+    transform: translateY(-2px);
+    background: linear-gradient(135deg, rgba(74, 163, 219, 0.15), rgba(74, 163, 219, 0.1));
+    box-shadow: 0 4px 15px rgba(74, 163, 219, 0.2);
+    border-color: rgba(74, 163, 219, 0.3);
+}
+
+/* 可拖动图片的样式 */
+.draggable-image {
+    user-select: none;
+    -webkit-user-drag: none;
+} 
