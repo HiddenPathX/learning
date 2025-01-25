@@ -1,0 +1,166 @@
+.habits-container {
+    padding: 20px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    margin-top: 20px;
+}
+
+.habit-form {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.habit-form input {
+    padding: 8px;
+    border: none;
+    border-radius: 5px;
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+}
+
+.habit-form input::placeholder {
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.habit-form button {
+    padding: 12px 25px;
+    border: none;
+    border-radius: 8px;
+    background: linear-gradient(135deg, 
+        rgba(144, 238, 144, 0.3),
+        rgba(152, 251, 152, 0.3)
+    );
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: rgba(255, 255, 255, 0.95);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(144, 224, 239, 0.1);
+}
+
+.habit-form button:hover {
+    transform: translateY(-2px);
+    background: linear-gradient(135deg, 
+        rgba(144, 238, 144, 0.4),
+        rgba(152, 251, 152, 0.4)
+    );
+    box-shadow: 0 8px 25px rgba(144, 224, 239, 0.2);
+}
+
+.habits-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    min-height: 300px;
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: 5px;
+    padding: 10px;
+}
+
+.habit-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 5px;
+    transition: background 0.3s;
+}
+
+.habit-item:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.habit-name {
+    flex: 1;
+    color: #fff;
+}
+
+.habit-time {
+    margin: 0 15px;
+    color: rgba(144, 238, 144, 0.9);
+}
+
+.delete-habit {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    background: linear-gradient(135deg, 
+        rgba(231, 76, 60, 0.3),
+        rgba(192, 57, 43, 0.3)
+    );
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: rgba(255, 255, 255, 0.95);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(231, 76, 60, 0.1);
+}
+
+.delete-habit:hover {
+    transform: translateY(-2px);
+    background: linear-gradient(135deg, 
+        rgba(231, 76, 60, 0.4),
+        rgba(192, 57, 43, 0.4)
+    );
+    box-shadow: 0 8px 25px rgba(231, 76, 60, 0.2);
+}
+
+.habit-reminder-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.habit-reminder-content {
+    background: rgba(0, 0, 0, 0.15);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+    color: white;
+}
+
+.habit-reminder-content h3 {
+    margin-top: 0;
+    color: rgba(144, 238, 144, 0.9);
+}
+
+.habit-reminder-content button {
+    margin-top: 15px;
+    padding: 12px 25px;
+    border: none;
+    border-radius: 8px;
+    background: linear-gradient(135deg, 
+        rgba(144, 238, 144, 0.3),
+        rgba(152, 251, 152, 0.3)
+    );
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: rgba(255, 255, 255, 0.95);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(144, 224, 239, 0.1);
+}
+
+.habit-reminder-content button:hover {
+    transform: translateY(-2px);
+    background: linear-gradient(135deg, 
+        rgba(144, 238, 144, 0.4),
+        rgba(152, 251, 152, 0.4)
+    );
+    box-shadow: 0 8px 25px rgba(144, 224, 239, 0.2);
+} 

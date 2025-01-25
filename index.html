@@ -16,6 +16,7 @@
 
     <!-- 引入主CSS文件 -->
     <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/habits.css">
 
     <!-- 添加 MathJax 支持，渲染LaTeX公式 -->
     <script id="MathJax-script" defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
@@ -165,6 +166,20 @@
     </div>
     <div class="modal-overlay" id="taskModalOverlay"></div>
 
+
+    <!-- 第二个容器 -->
+<div class="container">  
+    <h2>-习惯-</h2>   
+    <div class="habits-container">
+        <form id="habit-form" class="habit-form">
+            <input type="text" id="habit-name" placeholder="输入习惯名称" required>
+            <input type="time" id="habit-time" required>
+            <button type="submit">添加习惯</button>
+        </form>
+        <div id="habits-list" class="habits-list"></div>
+    </div>
+</div>
+
     <!-- 第三个容器 -->
     <div class="container">
         <div class="auth-buttons">
@@ -236,7 +251,7 @@
     </div>
 
 
-<!-- 第三个容器 -->
+<!-- 第四个容器 -->
 <div class="container3">  
     <h2>-😳-</h2>   
     <div class="chat-container"></div>
@@ -396,6 +411,7 @@
 <script src="js/love-quote.js"></script>
 <script src="js/navigation.js"></script>
 <script type="module" src="js/main.js"></script>
+<script type="module" src="js/habits.js"></script>
 
    
 

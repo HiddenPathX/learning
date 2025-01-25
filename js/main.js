@@ -6,6 +6,7 @@ import { auth } from './auth.js';
 import { effects } from './effects.js';
 import { handlers, initializeEventListeners } from './handlers.js';
 import { chat } from './chat.js';
+import habits from './habits.js';
 
 // 等待 DOM 加载完成
 document.addEventListener('DOMContentLoaded', () => {
@@ -63,6 +64,12 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     } catch (error) {
         console.error('登录状态检查失败:', error);
+    }
+    
+    try {
+        habits.init();
+    } catch (error) {
+        console.error('习惯模块初始化失败:', error);
     }
     
     console.log('应用初始化完成');
