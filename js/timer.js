@@ -204,9 +204,16 @@ export const timer = {
                     
                     // 从存储中获取所有任务
                     const todos = JSON.parse(localStorage.getItem('todoItems') || '[]');
+                    const currentTask = todos.find(todo => todo.id === todoId);
+                    
+                    // 更新任务状态
                     const updatedTodos = todos.map(todo => {
                         if (todo.id === todoId) {
-                            return { ...todo, completed: true };
+                            return { 
+                                ...todo, 
+                                completed: true,
+                                completedAt: new Date().toISOString()
+                            };
                         }
                         return todo;
                     });
@@ -220,6 +227,11 @@ export const timer = {
                     // 更新日历显示
                     if (window.app && window.app.calendar) {
                         window.app.calendar.renderCalendar();
+                    }
+
+                    // 使用任务中设置的休息时间
+                    if (currentTask && currentTask.breakTime) {
+                        this.breakTime = parseInt(currentTask.breakTime);
                     }
                 }
                 
@@ -237,7 +249,6 @@ export const timer = {
                 alert("工作时间结束！开始休息吧！");
                 
                 this.isWorking = false;
-                // 使用保存的休息时间设置
                 this.timeLeft = this.breakTime * 60;
                 console.log('开始休息时间:', this.breakTime, '分钟');
                 

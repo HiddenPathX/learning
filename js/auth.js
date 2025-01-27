@@ -18,15 +18,32 @@ export const auth = {
             const today = new Date();
             const chinaTime = new Date(today.getTime() + (8 * 60 * 60 * 1000));
             const todayDate = chinaTime.toISOString().split('T')[0];
-            console.log('Today in China:', todayDate);
+            
+            // 计算本周一的日期
+            let currentDay = chinaTime.getDay();
+            if (currentDay === 0) currentDay = 7;  // 如果是周日，将0转换为7
+            const monday = new Date(chinaTime);
+            monday.setDate(chinaTime.getDate() - (currentDay - 1));
+            
+            // 生成本周的日期数组并计算总时长
+            let totalMinutes = 0;
+            let totalSessions = 0;
+            
+            for (let i = 0; i < 7; i++) {
+                const date = new Date(monday);
+                date.setDate(monday.getDate() + i);
+                const dateStr = date.toISOString().split('T')[0];
+                
+                // 查找对应日期的记录
+                const record = weeklyData.find(r => r.date === dateStr);
+                if (record) {
+                    totalMinutes += parseInt(record.duration) || 0;
+                    totalSessions += parseInt(record.focus_count) || 0;
+                }
+            }
             
             // 查找今天的记录
             const todayRecord = weeklyData.find(record => record.date === todayDate);
-            console.log('Today\'s record:', todayRecord);
-
-            // 计算统计数据
-            const totalMinutes = weeklyData.reduce((sum, record) => sum + parseInt(record.duration), 0);
-            const totalSessions = weeklyData.reduce((sum, record) => sum + parseInt(record.focus_count), 0);
             
             // 计算平均每次专注时长
             const averageTime = totalSessions > 0 ? Math.round(totalMinutes / totalSessions) : 0;
@@ -176,21 +193,26 @@ export const auth = {
             const today = new Date();
             const chinaTime = new Date(today.getTime() + (8 * 60 * 60 * 1000));
             const weekData = new Array(7).fill(0);
-            const labels = [];
-            const dates = [];  // 存储实际日期，用于调试
+            const labels = ['周一', '周二', '周三', '周四', '周五', '周六', '周日'];
+            const dates = [];
 
-            // 生成过去7天的日期
-            for (let i = 6; i >= 0; i--) {
-                const date = new Date(chinaTime);
-                date.setDate(date.getDate() - i);
+            // 获取本周一的日期
+            let currentDay = chinaTime.getDay();
+            if (currentDay === 0) currentDay = 7;  // 如果是周日，将0转换为7
+            const monday = new Date(chinaTime);
+            monday.setDate(chinaTime.getDate() - (currentDay - 1));
+
+            // 生成本周的日期数组
+            for (let i = 0; i < 7; i++) {
+                const date = new Date(monday);
+                date.setDate(monday.getDate() + i);
                 const dateStr = date.toISOString().split('T')[0];
-                dates.push(dateStr);  // 存储日期用于调试
-                labels.push(['周日','周一','周二','周三','周四','周五','周六'][date.getDay()]);
+                dates.push(dateStr);
                 
                 // 查找对应日期的记录
                 const record = weeklyData.find(r => r.date === dateStr);
                 if (record) {
-                    weekData[6-i] = parseInt(record.duration) || 0;
+                    weekData[i] = parseInt(record.duration) || 0;
                 }
             }
 
@@ -222,7 +244,12 @@ export const auth = {
                         pointBackgroundColor: 'white',
                         pointBorderColor: 'rgba(106, 17, 203, 1)',
                         pointRadius: 4,
-                        pointHoverRadius: 6
+                        pointHoverRadius: 6,
+                        pointHoverBackgroundColor: 'white',
+                        pointHoverBorderColor: 'rgba(106, 17, 203, 1)',
+                        pointHoverBorderWidth: 2,
+                        hoverBorderWidth: 2,
+                        hoverRadius: 6
                     }]
                 },
                 options: {
@@ -232,8 +259,13 @@ export const auth = {
                         duration: 1000
                     },
                     interaction: {
-                        intersect: true,
-                        mode: 'index'
+                        mode: 'nearest',
+                        axis: 'x',
+                        intersect: false
+                    },
+                    hover: {
+                        mode: 'nearest',
+                        intersect: false
                     },
                     scales: {
                         y: {
@@ -298,13 +330,15 @@ export const auth = {
                             }
                         }
                     },
+                    onHover: (event, elements) => {
+                        const canvas = event.native.target;
+                        canvas.style.cursor = elements.length ? 'pointer' : 'default';
+                    },
                     onClick: (event, elements) => {
                         if (elements && elements.length > 0) {
                             const index = elements[0].index;
                             const value = weekData[index];
-                            const date = new Date(chinaTime);
-                            date.setDate(date.getDate() - (6 - index));
-                            alert(`${labels[index]}\n学习时长: ${value} 分钟`);
+                            alert(`${labels[index]} (${dates[index]})\n学习时长: ${value} 分钟`);
                         }
                     }
                 }
@@ -316,14 +350,24 @@ export const auth = {
     },
 
     logout() {
+        // 清除本地存储的认证信息
         localStorage.removeItem('token');
         localStorage.removeItem('username');
         localStorage.removeItem('userId');
-        
-        // 更新界面显示
-        document.querySelector('.auth-buttons').style.display = 'flex';
-        document.querySelector('.login-form').style.display = 'none';
+
+        // 重置界面显示
+        document.querySelector('.auth-buttons').style.display = 'block';
+        document.querySelector('.login-form').style.display = 'block';
         document.querySelector('.register-form').style.display = 'none';
         document.querySelector('.user-profile').style.display = 'none';
+
+        // 重置表单
+        document.getElementById('loginForm').reset();
+        document.getElementById('registerForm').reset();
+
+        // 激活登录按钮
+        const authButtons = document.querySelectorAll('.auth-btn');
+        authButtons.forEach(btn => btn.classList.remove('active'));
+        authButtons[0].classList.add('active');
     }
 }; 

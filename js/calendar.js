@@ -168,6 +168,17 @@ export const calendar = {
                     const taskElement = document.createElement('div');
                     taskElement.className = `day-task-item ${task.completed ? 'completed' : 'pending'}`;
                     taskElement.style.setProperty('--index', index);
+                    
+                    // 格式化完成时间
+                    let completedTimeStr = '';
+                    if (task.completed && task.completedAt) {
+                        const completedDate = new Date(task.completedAt);
+                        completedTimeStr = completedDate.toLocaleTimeString('zh-CN', {
+                            hour: '2-digit',
+                            minute: '2-digit'
+                        });
+                    }
+                    
                     taskElement.innerHTML = `
                         <div class="task-info">
                             <span class="task-text">${task.text}</span>
@@ -177,7 +188,7 @@ export const calendar = {
                                     ${task.endTime ? ' - ' + task.endTime.split('T')[1] : ''}
                                 </span>
                                 <span class="task-duration">${task.duration}分钟</span>
-                                ${task.completed ? `<span class="completion-time">完成于 ${new Date(task.completedAt).toLocaleTimeString()}</span>` : ''}
+                                ${task.completed ? `<span class="completion-time">完成于 ${completedTimeStr}</span>` : ''}
                             </div>
                         </div>
                     `;

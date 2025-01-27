@@ -68,6 +68,7 @@ export const todo = {
             <div class="todo-time">
                 ${timeDisplay}
                 <span class="todo-duration">${todo.duration}分钟</span>
+                ${todo.breakTime ? `<span class="todo-break-time">休息${todo.breakTime}分钟</span>` : ''}
             </div>
         `;
 
@@ -93,13 +94,14 @@ export const todo = {
                     timer.stopTimer();
                 }
                 
-                // 设置工作时长并开始计时
-                timer.setCustomTime(todo.duration, 5); // 使用任务的时长，休息时间保持默认5分钟
+                // 设置工作时长和休息时长
+                timer.setCustomTime(todo.duration, todo.breakTime || 5); // 使用任务设置的休息时间，如果没有则默认5分钟
                 timer.startTimer();
                 
                 console.log('开始任务:', {
                     taskId: todo.id,
                     duration: todo.duration,
+                    breakTime: todo.breakTime || 5,
                     text: todo.text
                 });
             } catch (error) {
@@ -120,7 +122,7 @@ export const todo = {
     },
 
     addTodo(fromCalendar = false) {
-        let todoInput, todoStartTime, todoEndTime, todoDuration;
+        let todoInput, todoStartTime, todoEndTime, todoDuration, todoBreakTime;
         
         if (fromCalendar) {
             // 从日历面板添加任务
@@ -128,12 +130,14 @@ export const todo = {
             todoStartTime = document.getElementById('calendarStartTime');
             todoEndTime = document.getElementById('calendarEndTime');
             todoDuration = document.getElementById('calendarDuration');
+            todoBreakTime = document.getElementById('calendarBreakTime');
             
             console.log('从日历添加任务:', {
                 todoInput: todoInput?.value,
                 todoStartTime: todoStartTime?.value,
                 todoEndTime: todoEndTime?.value,
-                todoDuration: todoDuration?.value
+                todoDuration: todoDuration?.value,
+                todoBreakTime: todoBreakTime?.value
             });
         } else {
             // 从主容器添加任务
@@ -141,6 +145,7 @@ export const todo = {
             todoStartTime = document.getElementById('todoStartTime');
             todoEndTime = document.getElementById('todoEndTime');
             todoDuration = document.getElementById('todoDuration');
+            todoBreakTime = document.getElementById('todoBreakTime');
         }
 
         if (!todoInput) {
@@ -152,6 +157,7 @@ export const todo = {
         const startTime = todoStartTime?.value;
         const endTime = todoEndTime?.value;
         const duration = parseInt(todoDuration?.value);
+        const breakTime = parseInt(todoBreakTime?.value);
 
         if (!todoText || !duration) {
             alert('请填写任务名称和工作时长！');
@@ -163,14 +169,17 @@ export const todo = {
             return;
         }
 
+        if (breakTime && (breakTime < 1 || breakTime > 30)) {
+            alert('休息时长必须在1-30分钟之间！');
+            return;
+        }
+
         // 获取选中的日期或今天的日期
         let selectedDate;
         if (window.selectedDate) {
-            // 确保 selectedDate 是 Date 对象
             selectedDate = new Date(window.selectedDate);
-            // 检查是否是有效的日期
             if (isNaN(selectedDate.getTime())) {
-                selectedDate = new Date(); // 如果无效，使用今天的日期
+                selectedDate = new Date();
             }
         } else {
             selectedDate = new Date();
@@ -190,6 +199,7 @@ export const todo = {
             startTime: startTime ? `${selectedDateStr}T${startTime}` : null,
             endTime: endTime ? `${selectedDateStr}T${endTime}` : null,
             duration: duration,
+            breakTime: breakTime || 5, // 如果没有设置休息时间，默认5分钟
             completed: false,
             date: selectedDateStr
         };
@@ -209,6 +219,7 @@ export const todo = {
         if (todoStartTime) todoStartTime.value = '';
         if (todoEndTime) todoEndTime.value = '';
         if (todoDuration) todoDuration.value = '';
+        if (todoBreakTime) todoBreakTime.value = '';
 
         // 更新日历显示
         if (window.app && window.app.calendar) {
