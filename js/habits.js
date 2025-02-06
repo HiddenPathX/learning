@@ -26,7 +26,7 @@ const habits = {
         const habit = {
             id: Date.now(),
             name,
-            startTime,
+            startTime: startTime || null,
             isCompleted: false
         };
         this.habitsList.push(habit);
@@ -50,9 +50,12 @@ const habits = {
         this.habitsList.forEach(habit => {
             const habitElement = document.createElement('div');
             habitElement.className = 'habit-item';
+            habitElement.draggable = true;
+            habitElement.dataset.id = habit.id;
             habitElement.innerHTML = `
+                <div class="drag-handle">⋮⋮</div>
                 <span class="habit-name">${habit.name}</span>
-                <span class="habit-time">${habit.startTime}</span>
+                ${habit.startTime ? `<span class="habit-time">${habit.startTime}</span>` : ''}
                 <button class="delete-habit" data-id="${habit.id}">删除</button>
             `;
             habitListElement.appendChild(habitElement);
@@ -68,8 +71,8 @@ const habits = {
                 const nameInput = document.getElementById('habit-name');
                 const timeInput = document.getElementById('habit-time');
                 
-                if (nameInput.value && timeInput.value) {
-                    this.addHabit(nameInput.value, timeInput.value);
+                if (nameInput.value) {
+                    this.addHabit(nameInput.value, timeInput.value || null);
                     nameInput.value = '';
                     timeInput.value = '';
                 }
@@ -82,6 +85,56 @@ const habits = {
                 this.deleteHabit(id);
             }
         });
+
+        // 添加拖拽相关的事件监听
+        const habitsList = document.getElementById('habits-list');
+        if (habitsList) {
+            habitsList.addEventListener('dragstart', (e) => {
+                if (e.target.classList.contains('habit-item')) {
+                    e.target.classList.add('dragging');
+                    e.dataTransfer.setData('text/plain', e.target.dataset.id);
+                }
+            });
+
+            habitsList.addEventListener('dragend', (e) => {
+                if (e.target.classList.contains('habit-item')) {
+                    e.target.classList.remove('dragging');
+                }
+            });
+
+            habitsList.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                const draggingItem = habitsList.querySelector('.dragging');
+                if (!draggingItem) return;
+
+                const siblings = [...habitsList.querySelectorAll('.habit-item:not(.dragging)')];
+                const nextSibling = siblings.find(sibling => {
+                    const rect = sibling.getBoundingClientRect();
+                    const centerY = rect.top + rect.height / 2;
+                    return e.clientY < centerY;
+                });
+
+                if (nextSibling) {
+                    habitsList.insertBefore(draggingItem, nextSibling);
+                } else {
+                    habitsList.appendChild(draggingItem);
+                }
+            });
+
+            habitsList.addEventListener('drop', (e) => {
+                e.preventDefault();
+                const draggedId = parseInt(e.dataTransfer.getData('text/plain'));
+                const items = [...habitsList.querySelectorAll('.habit-item')];
+                const newOrder = items.map(item => parseInt(item.dataset.id));
+                
+                // 重新排序 habitsList 数组
+                this.habitsList.sort((a, b) => {
+                    return newOrder.indexOf(a.id) - newOrder.indexOf(b.id);
+                });
+                
+                this.saveHabits();
+            });
+        }
     },
 
     // 检查习惯时间并提醒
@@ -95,7 +148,7 @@ const habits = {
             });
 
             this.habitsList.forEach(habit => {
-                if (habit.startTime === currentTime && !habit.isCompleted) {
+                if (habit.startTime && habit.startTime === currentTime && !habit.isCompleted) {
                     this.showHabitReminder(habit);
                     habit.isCompleted = true;  // 标记为已完成
                     this.saveHabits();  // 保存状态
