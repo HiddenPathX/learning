@@ -62,42 +62,51 @@
 .habit-item {
     display: flex;
     justify-content: space-between;
-    align-items: center;
+    align-items: flex-start;
     padding: 10px;
     background: rgba(255, 255, 255, 0.05);
     border-radius: 5px;
     transition: all 0.3s ease;
     cursor: move;
     user-select: none;
+    min-width: 0;
+    gap: 10px;
 }
-
 
 .habit-item.dragging {
     opacity: 0.5;
     background: rgba(248, 0, 186, 0.2);
 }
 
-
 .drag-handle {
     color: rgba(225, 7, 7, 0.5);
-    margin-right: 10px;
     cursor: move;
     font-size: 16px;
     padding: 0 5px;
+    flex-shrink: 0;
+    line-height: 1.5;
 }
 
 .habit-name {
     flex: 1;
     color: #fff;
+    white-space: normal;
+    word-wrap: break-word;
+    word-break: break-all;
+    min-width: 0;
+    line-height: 1.5;
+    padding: 2px 0;
 }
 
 .habit-time {
-    margin: 0 15px;
     color: rgba(144, 238, 144, 0.9);
+    flex-shrink: 0;
+    line-height: 1.5;
+    padding: 2px 0;
 }
 
 .delete-habit {
-    padding: 10px 20px;
+    padding: 8px 16px;
     border: none;
     border-radius: 8px;
     background: linear-gradient(135deg, 
@@ -111,6 +120,8 @@
     cursor: pointer;
     transition: all 0.3s ease;
     box-shadow: 0 4px 15px rgba(231, 76, 60, 0.1);
+    flex-shrink: 0;
+    align-self: flex-start;
 }
 
 .delete-habit:hover {
