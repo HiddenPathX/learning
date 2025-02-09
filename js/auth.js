@@ -1,6 +1,6 @@
 // 认证相关功能
 export const auth = {
-    API_BASE_URL: 'http://localhost:5000/api',
+    API_BASE_URL: 'https://learning-backend-7fla.onrender.com/api',
 
     checkLoginStatus() {
         const token = localStorage.getItem('token');
