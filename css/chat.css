@@ -488,21 +488,13 @@
     position: relative;
     transition: all 0.3s ease-out;
     margin-bottom: 0.5rem;
-    overflow: hidden;
-    font-size: 0.85rem;
-    /* 思维链大小 */
+    overflow: visible;
+    font-size: 1rem;
 }
 
-/* 正文消息样式 */
-.response-message {
-    background: linear-gradient(135deg, 
-        rgba(67, 94, 85, 0.7),
-        rgba(82, 109, 100, 0.7)
-    ) !important;
-    border-left: 3px solid rgba(0, 255, 157, 0.5);
-    padding: 1rem;
-    margin-top: 0.5rem;
-    font-size: 1.1rem;
+.reasoning-message:not(.collapsed) {
+    height: auto;
+    max-height: none !important;
 }
 
 .content-wrapper {
@@ -510,21 +502,14 @@
     width: 100%;
     padding-right: 40px; /* 为折叠按钮留出空间 */
     transition: opacity 0.3s ease-out;
+    overflow: visible;
 }
 
 .reasoning-message.collapsed {
-    max-height: 45px;
+    max-height: 45px !important;
     cursor: pointer;
     opacity: 0.8;
-}
-
-.reasoning-message.collapsed .content-wrapper {
-    opacity: 0;
-    pointer-events: none;
-}
-
-.reasoning-message.collapsed:hover {
-    opacity: 1;
+    overflow: hidden;
 }
 
 .reasoning-message::before {
@@ -590,4 +575,16 @@
     height: 20px;
     background: linear-gradient(transparent, rgba(85, 67, 94, 0.7));
     pointer-events: none;
+}
+
+/* 正文消息样式 */
+.response-message {
+    background: linear-gradient(135deg, 
+        rgba(67, 94, 85, 0.7),
+        rgba(82, 109, 100, 0.7)
+    ) !important;
+    border-left: 3px solid rgba(0, 255, 157, 0.5);
+    padding: 1rem;
+    margin-top: 0.5rem;
+    font-size: 1.1rem;
 } 

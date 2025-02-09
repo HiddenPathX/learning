@@ -8,7 +8,7 @@
     background-image: linear-gradient(
         rgba(0, 0, 0, 0.5),  
         rgba(0, 0, 0, 0.5)
-    ), url('https://t.mwm.moe/pc');
+    ), url('https://t.mwm.moe/mp');
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
@@ -38,7 +38,7 @@
     background-image: linear-gradient(
         rgba(0, 0, 0, 0.5),
         rgba(0, 0, 0, 0.5)
-    ), url('https://t.mwm.moe/pc');
+    ), url('https://t.mwm.moe/mp');
     
     background-size: cover;
     background-position: center;
@@ -86,11 +86,31 @@
     background: #1a1a1a;
 }
 
-/* 响应式设计 */
+/* 增强的响应式设计 */
+@media screen and (max-width: 1024px) {
+    .html_body, .bloghtml_body {
+        padding-top: 80px;
+        gap: 15px;
+    }
+    
+    .container {
+        width: 90% !important;
+        margin: 10px auto;
+    }
+}
+
 @media screen and (max-width: 768px) {
+    .html_body, .bloghtml_body {
+        padding-top: 60px;
+        background-image: linear-gradient(
+            rgba(0, 0, 0, 0.5),
+            rgba(0, 0, 0, 0.5)
+        ), url('https://t.mwm.moe/mp');
+        background-attachment: scroll;
+    }
+
     .indexhtml_body {
         flex-direction: column;
-        padding-top: 60px;
         height: auto;
         min-height: 100vh;
         gap: 10px;
@@ -100,15 +120,59 @@
         font-size: 1.8em;
         margin: 15px 0;
     }
+
+    .container {
+        width: 95% !important;
+        margin: 8px auto;
+        padding: 15px !important;
+    }
+
+    .footer {
+        padding: 15px;
+        font-size: 0.8em;
+    }
+}
+
+@media screen and (max-width: 480px) {
+    .html_body, .bloghtml_body {
+        padding-top: 50px;
+    }
+
+    h1 {
+        font-size: 1.6em;
+        margin: 12px 0;
+    }
+
+    .container {
+        width: 98% !important;
+        margin: 5px auto;
+        padding: 12px !important;
+    }
 }
 
 @media screen and (max-width: 375px) {
     .timer {
-        font-size: 2em;
+        font-size: 1.8em;
     }
 
     h1 {
-        font-size: 1.5em;
+        font-size: 1.4em;
+    }
+
+    .container {
+        padding: 10px !important;
+    }
+}
+
+/* 优化移动端触摸体验 */
+@media (hover: none) and (pointer: coarse) {
+    .html_body, .bloghtml_body {
+        background-attachment: scroll;
+    }
+
+    button, a, input, select {
+        min-height: 44px;
+        padding: 12px;
     }
 }
 
