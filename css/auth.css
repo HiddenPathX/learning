@@ -246,4 +246,32 @@
 
 .username:hover::before {
     left: 100%;
+}
+
+/* 移动设备适配 */
+@media screen and (max-width: 768px) {
+    .login-form, .register-form {
+        padding: 20px;
+        max-width: 100%;
+    }
+
+    .auth-buttons {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .auth-btn {
+        max-width: 100%;
+        width: 100%;
+    }
+
+    .form-group input {
+        font-size: 16px;  /* 防止iOS自动缩放 */
+        padding: 15px;    /* 增大点击区域 */
+    }
+
+    .submit-btn {
+        height: 50px;     /* 增大按钮高度便于触摸 */
+        font-size: 18px;
+    }
 } 
