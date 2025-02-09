@@ -16,6 +16,7 @@ let userInput;
 let sendButton;
 let fileInput;
 let uploadButton;
+let clearButton;
 let uploadedFileContent = null;
 
 // 初始化聊天功能
@@ -28,6 +29,7 @@ function initChat() {
     sendButton = document.getElementById('send-button');
     fileInput = document.getElementById('file-input');
     uploadButton = document.getElementById('upload-button');
+    clearButton = document.getElementById('clear-button');
 
     // 检查必要的DOM元素是否存在
     if (!chatMessages || !userInput || !sendButton) {
@@ -43,6 +45,28 @@ function initChat() {
             handleSend();
         }
     });
+
+    // 设置清除按钮的事件监听器
+    if (clearButton) {
+        clearButton.addEventListener('click', () => {
+            console.log('清除按钮被点击');
+            if (confirm('确定要清空所有聊天记录吗？')) {
+                try {
+                    if (chatMessages) {
+                        chatMessages.innerHTML = '';
+                        conversationHistory = [];
+                        console.log('聊天记录已清空');
+                    } else {
+                        console.error('找不到聊天消息容器');
+                    }
+                } catch (error) {
+                    console.error('清空聊天记录时出错:', error);
+                }
+            }
+        });
+    } else {
+        console.error('找不到清除按钮元素');
+    }
 
     // 设置文件上传相关的事件监听器
     if (uploadButton && fileInput) {
@@ -461,3 +485,9 @@ export const chat = {
     addMessage,
     handleFileUpload
 }; 
+
+// 当 DOM 加载完成后初始化聊天功能
+document.addEventListener('DOMContentLoaded', () => {
+    console.log('DOM加载完成，开始初始化聊天功能...');
+    initChat();
+}); 

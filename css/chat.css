@@ -332,7 +332,8 @@
 
 /* 上传和发送按钮样式 */
 .upload-button,
-#send-button {
+#send-button,
+#clear-button {
     padding: 10px 20px;
     background: rgba(255, 255, 255, 0.15);
     backdrop-filter: blur(12px);
@@ -347,10 +348,19 @@
 }
 
 .upload-button:hover,
-#send-button:hover {
+#send-button:hover,
+#clear-button:hover {
     transform: translateY(-2px);
     background: rgba(255, 255, 255, 0.2);
     box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+#clear-button {
+    background: rgba(231, 76, 60, 0.15);
+}
+
+#clear-button:hover {
+    background: rgba(231, 76, 60, 0.3);
 }
 
 /* 消息动画 */
@@ -417,7 +427,7 @@
 
 /* 上传按钮样式 */
 .upload-button {
-    padding: 12px 25px;
+    padding: 10px 20px;
     background: linear-gradient(135deg, rgba(129, 212, 250, 0.3), rgba(178, 235, 242, 0.3));
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
@@ -426,7 +436,7 @@
     color: rgba(255, 255, 255, 0.95);
     cursor: pointer;
     transition: all 0.3s ease;
-    font-family: 'Orbitron', sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
     box-shadow: 0 4px 15px rgba(144, 224, 239, 0.1);
     font-size: 0.9em;
     letter-spacing: 1px;
