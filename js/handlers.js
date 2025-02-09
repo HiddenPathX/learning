@@ -99,14 +99,34 @@ export const handlers = {
 
     async handleLogin(event) {
         event.preventDefault();
-        const form = event.target;
-        const username = form.querySelector('input[type="text"]').value;
-        const password = form.querySelector('input[type="password"]').value;
-
+        event.stopPropagation();  // 确保事件不会冒泡
+        
         try {
-            await window.app.auth.login(username, password);
+            const form = event.target;
+            const usernameInput = form.querySelector('input[type="text"]');
+            const passwordInput = form.querySelector('input[type="password"]');
+            
+            if (!usernameInput || !passwordInput) {
+                throw new Error('找不到用户名或密码输入框');
+            }
+            
+            const username = usernameInput.value.trim();
+            const password = passwordInput.value.trim();
+            
+            if (!username || !password) {
+                throw new Error('用户名和密码不能为空');
+            }
+            
+            console.log('准备登录...');
+            if (!auth || typeof auth.login !== 'function') {
+                throw new Error('认证模块未正确加载');
+            }
+            
+            await auth.login(username, password);
+            console.log('登录成功！');
             alert('登录成功！');
         } catch (error) {
+            console.error('登录错误:', error);
             alert(error.message || '登录失败，请重试');
         }
     },
