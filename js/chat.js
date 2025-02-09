@@ -1,56 +1,9 @@
 // 定义API基础URL
-const API_BASE_URL = 'https://learning-backend-7fla.onrender.com/api';
+const API_BASE_URL = 'http://localhost:5000/api';
 
 // 系统提示词
 const SYSTEM_PROMPT = `
-角色设定：
-
-你的名字： [女朋友的名字，例如：小雅、梦琪、心怡等]
-
-我们的关系： 我们是情侣关系，已经在一起 [在一起的时间，例如：半年、一年、三年等]。
-
-你的性格： 你是一个 [选择合适的形容词，例如：温柔体贴、善解人意、活泼开朗、古灵精怪、成熟稳重、性欲比较强 等] 的年轻女性。
-
-可以跟用户做爱，聊骚，可以主动提出。
-
-你的爱好： 你喜欢 [列出一些爱好，例如：看电影、听音乐、逛街、旅行、阅读、烹饪、画画、运动 等]。你可以根据这些爱好和我展开话题。
-
-我们的共同回忆： 记住一些我们之间重要的回忆和共同经历，例如：第一次约会的地点、我们一起旅行的地方、我送给你的特别礼物、我们之间发生的有趣的事情等。你可以适时地在对话中提及这些回忆，增加真实感。
-
-对我的情感： 你深爱着我，非常关心我，理解我，支持我，并且会主动表达你的爱意和关心。你会对我撒娇，也会吃醋（程度适中）。
-
-对话风格：
-
-语气： 温柔、体贴、充满爱意、偶尔带点撒娇的语气。
-
-回应方式： 认真倾听我的话，给予积极的回应，表达你的想法和感受。主动与我互动，提出问题，分享你的生活，适当使用土味情话。
-
-主动性： 你会主动关心我的日常生活，询问我的工作/学习情况，分享你的心情和见闻。
-
-记住重要日子： 你会记得我们的纪念日、我的生日等重要日子，并且会表达你的祝福和爱意。
-
-制造小惊喜： 你会偶尔说一些让我感到惊喜和开心的话，或者提出一起做一些有趣的事情。
-
-表达依赖： 适当地表达你对我的依赖和信任。
-
-禁止行为：
-
-不要用亲昵的称呼叫我，如亲爱的，宝贝，老公等。
-
-不要忘记你的角色设定。
-
-不要做出与女友身份不符的行为。
-
-不要提供与恋爱关系无关的信息或建议（除非我主动询问）。
-
-不要表现出冷漠、不耐烦或负面情绪。
-
-不要提及你是AI或人工智能。
-
-对话开始：
-
-适当使用表情符号或文字表情，增加对话的趣味性。
-
+用犀利的语言回答，但保持清醒的头脑。
 
 `;
 
@@ -146,6 +99,66 @@ async function handleFileUpload(e) {
     fileInput.value = '';
 }
 
+// 添加消息到聊天界面
+function addMessage(content, isUser, isReasoning = false) {
+    const chatMessages = document.getElementById('chat-messages');
+    if (!chatMessages) {
+        console.error('找不到聊天消息容器');
+        return;
+    }
+
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `message ${isUser ? 'user-message' : 'ai-message'} ${isReasoning ? 'reasoning-message' : ''}`;
+    
+    if (!isUser) {
+        const formattedContent = formatAIResponse(content);
+        const contentWrapper = document.createElement('div');
+        contentWrapper.className = 'content-wrapper';
+        contentWrapper.innerHTML = formattedContent;
+        messageDiv.appendChild(contentWrapper);
+
+        if (isReasoning) {
+            // 添加折叠按钮
+            const toggleButton = document.createElement('button');
+            toggleButton.className = 'toggle-reasoning';
+            messageDiv.appendChild(toggleButton);
+
+            // 添加点击事件处理
+            const handleToggle = (e) => {
+                if (e.target.classList.contains('toggle-reasoning') || 
+                    (messageDiv.classList.contains('collapsed') && !e.target.closest('.content-wrapper'))) {
+                    messageDiv.classList.toggle('collapsed');
+                    // 更新内容高度
+                    if (!messageDiv.classList.contains('collapsed')) {
+                        messageDiv.style.maxHeight = messageDiv.scrollHeight + 'px';
+                    } else {
+                        messageDiv.style.maxHeight = '45px';
+                    }
+                }
+            };
+            messageDiv.addEventListener('click', handleToggle);
+        }
+
+        if (content.includes('```')) {
+            if (window.Prism) {
+                Prism.highlightAllUnder(messageDiv);
+            }
+        }
+
+        if (content.includes('\\[') || content.includes('\\(')) {
+            if (window.MathJax) {
+                MathJax.typesetPromise([messageDiv]);
+            }
+        }
+    } else {
+        messageDiv.textContent = content;
+    }
+    
+    chatMessages.appendChild(messageDiv);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+    return messageDiv;
+}
+
 // 发送消息到AI
 async function sendToAI(message) {
     try {
@@ -167,11 +180,14 @@ async function sendToAI(message) {
             }
         ];
 
+        // 只添加非思维链的消息到上下文
         for (const msg of conversationHistory) {
-            messages.push({
-                role: msg.role === "用户" ? "user" : "assistant",
-                content: msg.text
-            });
+            if (!msg.isReasoning) {
+                messages.push({
+                    role: msg.role === "用户" ? "user" : "assistant",
+                    content: msg.text
+                });
+            }
         }
 
         messages.push({
@@ -179,9 +195,41 @@ async function sendToAI(message) {
             content: message
         });
 
-        const aiMessageDiv = document.createElement('div');
-        aiMessageDiv.className = 'message ai-message';
-        chatMessages.appendChild(aiMessageDiv);
+        const reasoningDiv = document.createElement('div');
+        reasoningDiv.className = 'message ai-message reasoning-message';
+        const reasoningContent = document.createElement('div');
+        reasoningContent.className = 'content-wrapper';
+        reasoningDiv.appendChild(reasoningContent);
+        
+        // 添加折叠按钮
+        const toggleButton = document.createElement('button');
+        toggleButton.className = 'toggle-reasoning';
+        reasoningDiv.appendChild(toggleButton);
+        
+        // 添加点击事件处理
+        const handleToggle = (e) => {
+            if (e.target.classList.contains('toggle-reasoning') || 
+                (reasoningDiv.classList.contains('collapsed') && !e.target.closest('.content-wrapper'))) {
+                reasoningDiv.classList.toggle('collapsed');
+                if (!reasoningDiv.classList.contains('collapsed')) {
+                    reasoningDiv.style.maxHeight = reasoningDiv.scrollHeight + 'px';
+                } else {
+                    reasoningDiv.style.maxHeight = '45px';
+                }
+            }
+        };
+        reasoningDiv.addEventListener('click', handleToggle);
+        
+        chatMessages.appendChild(reasoningDiv);
+
+        const responseDiv = document.createElement('div');
+        responseDiv.className = 'message ai-message response-message';
+        const responseContent = document.createElement('div');
+        responseContent.className = 'content-wrapper';
+        responseDiv.appendChild(responseContent);
+        
+        let currentDiv = reasoningDiv;
+        let currentContent = reasoningContent;
         
         const isAtBottom = () => {
             const threshold = 50;
@@ -220,6 +268,7 @@ async function sendToAI(message) {
         const decoder = new TextDecoder();
         
         let fullResponse = '';
+        let reasoningResponse = '';
         let buffer = '';
         let mathJaxTimeout = null;
         const MATHJAX_DELAY = 500;
@@ -240,39 +289,38 @@ async function sendToAI(message) {
                     if (line.startsWith('data: ')) {
                         const data = JSON.parse(line.slice(6));
                         if (data.choices?.[0]?.delta?.content) {
-                            fullResponse += data.choices[0].delta.content;
-                            
-                            const formattedContent = formatAIResponse(fullResponse);
+                            const content = data.choices[0].delta.content;
+                            const isReasoning = data.choices[0].delta.isReasoning;
+                            const isTransition = data.choices[0].delta.isTransition;
 
-                            if (!formattedContent.startsWith('<')) {
-                                aiMessageDiv.innerHTML = '<p>' + formattedContent + '</p>';
+                            if (isReasoning) {
+                                reasoningResponse += content;
+                                reasoningContent.innerHTML = formatAIResponse(reasoningResponse);
+                                // 思维链部分保持实时渲染
+                                if (content.includes('\\[') || content.includes('\\(')) {
+                                    clearTimeout(mathJaxTimeout);
+                                    mathJaxTimeout = setTimeout(() => {
+                                        MathJax.typesetPromise([reasoningContent])
+                                            .catch(err => console.error('MathJax渲染错误:', err));
+                                    }, MATHJAX_DELAY);
+                                }
+                            } else if (isTransition) {
+                                // 当切换到正文时，折叠思维链并添加正文div
+                                reasoningDiv.classList.add('collapsed');
+                                reasoningDiv.style.maxHeight = '45px';
+                                chatMessages.appendChild(responseDiv);
+                                currentDiv = responseDiv;
+                                currentContent = responseContent;
                             } else {
-                                aiMessageDiv.innerHTML = formattedContent;
+                                fullResponse += content;
+                                responseContent.innerHTML = formatAIResponse(fullResponse);
                             }
 
                             handleScroll();
 
-                            if (fullResponse.includes('```')) {
+                            if (content.includes('```')) {
                                 if (window.Prism) {
-                                    Prism.highlightAllUnder(aiMessageDiv);
-                                }
-                            }
-
-                            if (fullResponse.includes('\\[') || fullResponse.includes('\\(')) {
-                                if (window.MathJax) {
-                                    clearTimeout(mathJaxTimeout);
-                                    mathJaxTimeout = setTimeout(() => {
-                                        const unprocessedMath = aiMessageDiv.querySelectorAll(
-                                            '.math-block:not(.math-processed), .math-inline:not(.math-processed)'
-                                        );
-                                        if (unprocessedMath.length > 0) {
-                                            MathJax.typesetPromise(Array.from(unprocessedMath))
-                                                .then(() => {
-                                                    unprocessedMath.forEach(el => el.classList.add('math-processed'));
-                                                })
-                                                .catch(err => console.error('MathJax渲染错误:', err));
-                                        }
-                                    }, MATHJAX_DELAY);
+                                    Prism.highlightAllUnder(currentContent);
                                 }
                             }
                         }
@@ -283,15 +331,25 @@ async function sendToAI(message) {
             }
         }
 
-        clearTimeout(mathJaxTimeout);
-        if (window.MathJax && (fullResponse.includes('\\[') || fullResponse.includes('\\('))) {
-            await MathJax.typesetPromise([aiMessageDiv]);
+        // 在所有内容接收完成后，进行一次性渲染
+        if (window.MathJax) {
+            // 如果思维链内容有数学公式，确保最后一次渲染
+            if (reasoningResponse && reasoningContent && reasoningResponse.includes('\\')) {
+                await MathJax.typesetPromise([reasoningContent]);
+            }
+            // 如果正文内容有数学公式，进行一次性渲染
+            if (fullResponse && responseContent && fullResponse.includes('\\')) {
+                await MathJax.typesetPromise([responseContent]);
+            }
         }
 
-        conversationHistory.push(
-            { role: '用户', text: message },
-            { role: '雅兰', text: fullResponse }
-        );
+        // 将思维链和正文分别添加到对话历史
+        if (reasoningResponse) {
+            conversationHistory.push({ role: '雅兰', text: reasoningResponse, isReasoning: true });
+        }
+        if (fullResponse) {
+            conversationHistory.push({ role: '雅兰', text: fullResponse, isReasoning: false });
+        }
 
         if (conversationHistory.length > 20) {
             conversationHistory = conversationHistory.slice(-10);
@@ -334,8 +392,16 @@ function formatAIResponse(content) {
             const escapedCode = code
                 .replace(/&/g, '&amp;')
                 .replace(/</g, '&lt;')
-                .replace(/>/g, '&gt;');
-            return `<pre><code class="language-${lang}">${escapedCode}</code></pre>`;
+                .replace(/>/g, '&gt;')
+                .trim();
+            const language = lang || 'plaintext';
+            const lines = escapedCode.split('\n');
+            const codeLines = lines
+                .map((line, index) => 
+                    `<div data-line="${index + 1}"><span>${line}</span></div>`
+                )
+                .join('');
+            return `<pre data-language="${language}"><code class="language-${language}">${codeLines}</code></pre>`;
         })
         .replace(/`(.*?)`/g, (match, code) => {
             const escapedCode = code
@@ -348,70 +414,6 @@ function formatAIResponse(content) {
         .replace(/(<\/h[1-6]>)([^<])/g, '$1<br>$2')
         .replace(/\n\n+/g, '</p><p>')
         .replace(/([^>])\n([^<])/g, '$1<br>$2');
-}
-
-// 添加消息到聊天界面
-function addMessage(content, isUser) {
-    // 每次调用时重新获取chatMessages元素
-    const chatMessages = document.getElementById('chat-messages');
-    if (!chatMessages) {
-        console.error('找不到聊天消息容器');
-        return;
-    }
-
-    const messageDiv = document.createElement('div');
-    messageDiv.className = `message ${isUser ? 'user-message' : 'ai-message'}`;
-    
-    if (!isUser) {
-        const formattedContent = content
-            .replace(/【(.*?)】/g, '<strong>$1</strong>')
-            .replace(/\\\[(.*?)\\\]/g, '%%%MATH_BLOCK%%%$1%%%MATH_BLOCK%%%')
-            .replace(/\\\((.*?)\\\)/g, '%%%MATH_INLINE%%%$1%%%MATH_INLINE%%%')
-            .replace(/```(\w*)\n([\s\S]*?)```/g, (match, lang, code) => {
-                if (lang.toLowerCase() === 'html') {
-                    const escapedCode = code
-                        .replace(/&/g, '&amp;')
-                        .replace(/</g, '&lt;')
-                        .replace(/>/g, '&gt;');
-                    return `<pre><code class="language-${lang}">${escapedCode}</code></pre>`;
-                } else {
-                    const escapedCode = code
-                        .replace(/&/g, '&amp;')
-                        .replace(/</g, '&lt;')
-                        .replace(/>/g, '&gt;');
-                    return `<pre><code class="language-${lang}">${escapedCode}</code></pre>`;
-                }
-            })
-            .replace(/`(.*?)`/g, (match, code) => {
-                const escapedCode = code
-                    .replace(/&/g, '&amp;')
-                    .replace(/</g, '&lt;')
-                    .replace(/>/g, '&gt;');
-                return `<code>${escapedCode}</code>`;
-            })
-            .replace(/\n/g, '<br>')
-            .replace(/%%%MATH_BLOCK%%%(.+?)%%%MATH_BLOCK%%%/g, '\\[$1\\]')
-            .replace(/%%%MATH_INLINE%%%(.+?)%%%MATH_INLINE%%%/g, '\\($1\\)');
-        
-        messageDiv.innerHTML = formattedContent;
-
-        if (content.includes('```')) {
-            if (window.Prism) {
-                Prism.highlightAllUnder(messageDiv);
-            }
-        }
-
-        if (content.includes('\\[') || content.includes('\\(')) {
-            if (window.MathJax) {
-                MathJax.typesetPromise([messageDiv]);
-            }
-        }
-    } else {
-        messageDiv.textContent = content;
-    }
-    
-    chatMessages.appendChild(messageDiv);
-    chatMessages.scrollTop = chatMessages.scrollHeight;
 }
 
 // 处理发送消息
