@@ -248,30 +248,30 @@
     left: 100%;
 }
 
-/* 移动设备适配 */
+/* 移动端响应式样式 */
 @media screen and (max-width: 768px) {
     .login-form, .register-form {
         padding: 20px;
-        max-width: 100%;
+        width: 90%;
+        margin: 0 auto;
     }
 
     .auth-buttons {
-        flex-direction: column;
-        align-items: center;
+        padding: 0 10px;
     }
 
     .auth-btn {
-        max-width: 100%;
-        width: 100%;
+        padding: 10px 15px;
+        font-size: 14px;
     }
 
     .form-group input {
-        font-size: 16px;  /* 防止iOS自动缩放 */
-        padding: 15px;    /* 增大点击区域 */
+        font-size: 14px;
+        padding: 10px;
     }
 
     .submit-btn {
-        height: 50px;     /* 增大按钮高度便于触摸 */
-        font-size: 18px;
+        font-size: 14px;
+        height: 40px;
     }
 } 
