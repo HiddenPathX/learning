@@ -296,7 +296,8 @@
 }
 
 /* 输入框样式 */
-#user-input {
+#user-input-left,
+#user-input-right {
     width: 100%;
     padding: 12px;
     background: rgba(255, 255, 255, 0.15);
@@ -312,13 +313,15 @@
     box-sizing: border-box;
 }
 
-#user-input:focus {
+#user-input-left:focus,
+#user-input-right:focus {
     outline: none;
     background: rgba(255, 255, 255, 0.2);
     box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
 }
 
-#user-input::placeholder {
+#user-input-left::placeholder,
+#user-input-right::placeholder {
     color: rgba(255, 255, 255, 0.6);
 }
 
@@ -331,9 +334,12 @@
 }
 
 /* 上传和发送按钮样式 */
-.upload-button,
-#send-button,
-#clear-button {
+#upload-button-left,
+#upload-button-right,
+#send-button-left,
+#send-button-right,
+#clear-button-left,
+#clear-button-right {
     padding: 10px 20px;
     background: rgba(255, 255, 255, 0.15);
     backdrop-filter: blur(12px);
@@ -347,19 +353,24 @@
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
 }
 
-.upload-button:hover,
-#send-button:hover,
-#clear-button:hover {
+#upload-button-left:hover,
+#upload-button-right:hover,
+#send-button-left:hover,
+#send-button-right:hover,
+#clear-button-left:hover,
+#clear-button-right:hover {
     transform: translateY(-2px);
     background: rgba(255, 255, 255, 0.2);
     box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
 }
 
-#clear-button {
+#clear-button-left,
+#clear-button-right {
     background: rgba(231, 76, 60, 0.15);
 }
 
-#clear-button:hover {
+#clear-button-left:hover,
+#clear-button-right:hover {
     background: rgba(231, 76, 60, 0.3);
 }
 

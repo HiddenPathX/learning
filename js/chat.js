@@ -23,69 +23,73 @@ let uploadedFileContent = null;
 function initChat() {
     console.log('开始初始化聊天功能...');
 
-    // 获取必要的DOM元素
-    chatMessages = document.getElementById('chat-messages');
-    userInput = document.getElementById('user-input');
-    sendButton = document.getElementById('send-button');
-    fileInput = document.getElementById('file-input');
-    uploadButton = document.getElementById('upload-button');
-    clearButton = document.getElementById('clear-button');
+    // 初始化左侧聊天
+    initSingleChat('left');
+    // 初始化右侧聊天
+    initSingleChat('right');
 
-    // 检查必要的DOM元素是否存在
+    console.log('聊天功能初始化完成');
+}
+
+// 新增单个聊天初始化函数
+function initSingleChat(side) {
+    // 初始化该侧对话历史
+    window[`conversationHistory${side}`] = [];
+    
+    const chatMessages = document.getElementById(`chat-messages-${side}`);
+    const userInput = document.getElementById(`user-input-${side}`);
+    const sendButton = document.getElementById(`send-button-${side}`);
+    const fileInput = document.getElementById(`file-input-${side}`);
+    const uploadButton = document.getElementById(`upload-button-${side}`);
+    const clearButton = document.getElementById(`clear-button-${side}`);
+
     if (!chatMessages || !userInput || !sendButton) {
-        console.error('找不到必要的聊天界面元素');
+        console.error(`找不到必要的聊天界面元素 (${side})`);
         return;
     }
 
     // 设置发送消息的事件监听器
-    sendButton.addEventListener('click', handleSend);
+    sendButton.addEventListener('click', () => handleSend(side));
     userInput.addEventListener('keypress', (e) => {
         if (e.key === 'Enter' && !e.shiftKey) {
             e.preventDefault();
-            handleSend();
+            handleSend(side);
         }
     });
 
     // 设置清除按钮的事件监听器
     if (clearButton) {
         clearButton.addEventListener('click', () => {
-            console.log('清除按钮被点击');
+            console.log(`清除按钮被点击 (${side})`);
             if (confirm('确定要清空所有聊天记录吗？')) {
                 try {
                     if (chatMessages) {
                         chatMessages.innerHTML = '';
-                        conversationHistory = [];
-                        console.log('聊天记录已清空');
+                        // 为每个聊天界面维护独立的历史记录
+                        window[`conversationHistory${side}`] = [];
+                        console.log(`聊天记录已清空 (${side})`);
                     } else {
-                        console.error('找不到聊天消息容器');
+                        console.error(`找不到聊天消息容器 (${side})`);
                     }
                 } catch (error) {
-                    console.error('清空聊天记录时出错:', error);
+                    console.error(`清空聊天记录时出错 (${side}):`, error);
                 }
             }
         });
-    } else {
-        console.error('找不到清除按钮元素');
     }
 
     // 设置文件上传相关的事件监听器
     if (uploadButton && fileInput) {
-        // 点击上传按钮时触发文件选择
         uploadButton.addEventListener('click', () => {
             fileInput.click();
         });
 
-        // 处理文件选择
-        fileInput.addEventListener('change', handleFileUpload);
-    } else {
-        console.error('找不到文件上传相关元素');
+        fileInput.addEventListener('change', (e) => handleFileUpload(e, side));
     }
-
-    console.log('聊天功能初始化完成');
 }
 
 // 处理文件上传
-async function handleFileUpload(e) {
+async function handleFileUpload(e, side) {
     const files = Array.from(e.target.files);
     if (files.length === 0) return;
 
@@ -98,21 +102,21 @@ async function handleFileUpload(e) {
             const img = document.createElement('img');
             img.src = URL.createObjectURL(file);
             preview.appendChild(img);
-            uploadedFileContent = '[图片文件]';
+            window[`uploadedFileContent${side}`] = '[图片文件]';
         } else {
             const text = await file.text();
             preview.textContent = text;
-            uploadedFileContent = text;
+            window[`uploadedFileContent${side}`] = text;
         }
 
         // 清除之前的预览
-        const oldPreview = document.querySelector('.file-preview');
+        const oldPreview = document.querySelector(`#chat-messages-${side} .file-preview`);
         if (oldPreview) {
             oldPreview.remove();
         }
 
         // 将预览添加到输入框上方
-        const chatInput = document.querySelector('.chat-input');
+        const chatInput = document.querySelector(`#chat-messages-${side} + .chat-input`);
         chatInput.insertBefore(preview, chatInput.querySelector('.input-container'));
 
     } catch (error) {
@@ -120,14 +124,14 @@ async function handleFileUpload(e) {
         alert('处理文件时出现错误');
     }
 
-    fileInput.value = '';
+    e.target.value = '';
 }
 
 // 添加消息到聊天界面
-function addMessage(content, isUser, isReasoning = false) {
-    const chatMessages = document.getElementById('chat-messages');
+function addMessage(content, isUser, isReasoning = false, side) {
+    const chatMessages = document.getElementById(`chat-messages-${side}`);
     if (!chatMessages) {
-        console.error('找不到聊天消息容器');
+        console.error(`找不到聊天消息容器 (${side})`);
         return;
     }
 
@@ -184,17 +188,22 @@ function addMessage(content, isUser, isReasoning = false) {
 }
 
 // 发送消息到AI
-async function sendToAI(message) {
+async function sendToAI(message, side) {
     try {
-        const chatMessages = document.getElementById('chat-messages');
+        const chatMessages = document.getElementById(`chat-messages-${side}`);
         if (!chatMessages) {
-            console.error('找不到聊天消息容器');
+            console.error(`找不到聊天消息容器 (${side})`);
             return;
         }
 
         const token = localStorage.getItem('token');
         if (!token) {
             throw new Error('请先登录');
+        }
+
+        // 确保对话历史存在
+        if (!window[`conversationHistory${side}`]) {
+            window[`conversationHistory${side}`] = [];
         }
 
         const messages = [
@@ -205,7 +214,7 @@ async function sendToAI(message) {
         ];
 
         // 只添加非思维链的消息到上下文
-        for (const msg of conversationHistory) {
+        for (const msg of window[`conversationHistory${side}`]) {
             if (!msg.isReasoning) {
                 messages.push({
                     role: msg.role === "用户" ? "user" : "assistant",
@@ -369,14 +378,14 @@ async function sendToAI(message) {
 
         // 将思维链和正文分别添加到对话历史
         if (reasoningResponse) {
-            conversationHistory.push({ role: '雅兰', text: reasoningResponse, isReasoning: true });
+            window[`conversationHistory${side}`].push({ role: '雅兰', text: reasoningResponse, isReasoning: true });
         }
         if (fullResponse) {
-            conversationHistory.push({ role: '雅兰', text: fullResponse, isReasoning: false });
+            window[`conversationHistory${side}`].push({ role: '雅兰', text: fullResponse, isReasoning: false });
         }
 
-        if (conversationHistory.length > 20) {
-            conversationHistory = conversationHistory.slice(-10);
+        if (window[`conversationHistory${side}`].length > 20) {
+            window[`conversationHistory${side}`] = window[`conversationHistory${side}`].slice(-10);
         }
 
         return '';
@@ -384,7 +393,7 @@ async function sendToAI(message) {
         console.error('Error:', error);
         const errorMessage = error.message || '抱歉呢，雅兰现在有点累了... 🥺 待会再聊好吗？';
         
-        const chatMessages = document.getElementById('chat-messages');
+        const chatMessages = document.getElementById(`chat-messages-${side}`);
         if (chatMessages) {
             const aiMessageDiv = document.createElement('div');
             aiMessageDiv.className = 'message ai-message';
@@ -441,40 +450,39 @@ function formatAIResponse(content) {
 }
 
 // 处理发送消息
-async function handleSend() {
-    // 每次调用时重新获取DOM元素
-    const userInput = document.getElementById('user-input');
-    const sendButton = document.getElementById('send-button');
+async function handleSend(side) {
+    const userInput = document.getElementById(`user-input-${side}`);
+    const sendButton = document.getElementById(`send-button-${side}`);
     
     if (!userInput || !sendButton) {
-        console.error('找不到必要的DOM元素');
+        console.error(`找不到必要的DOM元素 (${side})`);
         return;
     }
 
     const message = userInput.value.trim();
-    if (!message && !uploadedFileContent) return;
+    if (!message && !window[`uploadedFileContent${side}`]) return;
 
     let fullMessage = message;
-    if (uploadedFileContent) {
-        fullMessage = `${message}\n\n文件内容：\n${uploadedFileContent}`;
+    if (window[`uploadedFileContent${side}`]) {
+        fullMessage = `${message}\n\n文件内容：\n${window[`uploadedFileContent${side}`]}`;
     }
 
-    addMessage(fullMessage, true);
+    addMessage(fullMessage, true, false, side);
     userInput.value = '';
 
     sendButton.disabled = true;
     sendButton.textContent = '我在思考...';
 
-    await sendToAI(fullMessage);
+    await sendToAI(fullMessage, side);
 
     sendButton.disabled = false;
     sendButton.textContent = '发送';
 
-    const preview = document.querySelector('.file-preview');
+    const preview = document.querySelector(`#chat-messages-${side} .file-preview`);
     if (preview) {
         preview.remove();
     }
-    uploadedFileContent = null;
+    window[`uploadedFileContent${side}`] = null;
 }
 
 // 导出聊天模块

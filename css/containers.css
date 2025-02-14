@@ -103,12 +103,14 @@
     position: relative;
     overflow: hidden;
     margin: 15px;
-    width: 60%;
-    max-width: 1000px;
+    width: 45%;
+    max-width: 800px;
     min-height: 80vh;
     height: auto;
     flex-shrink: 0;
     transition: all 0.3s ease;
+    display: inline-block;
+    vertical-align: top;
 }
 
 /* 容器标题样式 */
@@ -137,8 +139,19 @@
     .container3 {
         width: 95%;
         max-width: 100%;
+        display: block;
+        margin: 15px auto;
         padding: 20px;
-        margin: 10px;
         border-radius: 25px;
     }
-} 
+}
+
+/* 删除或注释掉1200px的媒体查询 */
+/* @media screen and (max-width: 1200px) {
+    .container3 {
+        width: 95%;
+        max-width: 100%;
+        display: block;
+        margin: 15px auto;
+    }
+} */ 

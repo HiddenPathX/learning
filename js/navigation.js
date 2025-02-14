@@ -19,7 +19,7 @@ function createNavigation() {
     const links = [
         { href: 'index.html', text: 'TIMEBOXING', icon: '🕚', newTab: false },
         { href: 'https://www.notion.so/', text: 'NOTION', icon: '📝', newTab: true },
-        { href: 'https://news-ao8.pages.dev/', text: 'NEWS', icon: '📰', newTab: false }
+        { href: 'https://news-ao8.pages.dev/', text: 'NEWS', icon: '📰', newTab: true }
     ];
     
     links.forEach(link => {
