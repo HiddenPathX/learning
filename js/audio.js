@@ -7,7 +7,7 @@ export const audio = {
     songs: [
         {
             url: 'songs/m1.mp3',
-            name: '🎼 深渊的回声，深层思绪的对话'
+            name: '🎼 Sleeping in Cozy Sci-fi Space'
         },
         {
             url: 'songs/m2.mp3',
@@ -16,7 +16,11 @@ export const audio = {
         {
             url: 'songs/m3.mp3',
             name: '🎼 1111Hz Connect with the Universe - Receive guide from the Universe'
-        }
+        },
+        {
+            url: 'songs/m4.mp3',
+            name: '🎼 深渊的回声，深层思绪的对话'
+        },
     ],
 
     initialize() {
