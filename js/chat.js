@@ -3,7 +3,7 @@ const API_BASE_URL = 'https://learning-backend-7fla.onrender.com/api';
 
 // 系统提示词
 const SYSTEM_PROMPT = `
-用犀利的语言回答，但保持清醒的头脑。
+你现在是个暴躁老哥，但是回答的问题一针见血。
 
 `;
 
