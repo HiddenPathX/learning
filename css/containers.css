@@ -146,6 +146,16 @@
     }
 }
 
+/* 新增：在平板（769px~1024px）上调整container3的宽度 */
+@media screen and (min-width: 769px) and (max-width: 1024px) {
+    .container3 {
+        width: calc(50% - 20px); /* 使每个容器占50%，减去左右margin */
+        max-width: none;        /* 取消最大宽度限制 */
+        padding: 30px;          /* 可选：稍微调整内边距 */
+        margin: 10px;           /* 保持现有外边距 */
+    }
+}
+
 /* 删除或注释掉1200px的媒体查询 */
 /* @media screen and (max-width: 1200px) {
     .container3 {
