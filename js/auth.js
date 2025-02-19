@@ -370,4 +370,107 @@ export const auth = {
         authButtons.forEach(btn => btn.classList.remove('active'));
         authButtons[0].classList.add('active');
     }
-}; 
+};
+
+// 添加重试函数
+async function fetchWithRetry(url, options, maxRetries = 3, delay = 2000) {
+    for (let i = 0; i < maxRetries; i++) {
+        try {
+            const response = await fetch(url, options);
+            if (response.ok) {
+                return response;
+            }
+            // 如果是401错误（未授权），直接返回不重试
+            if (response.status === 401) {
+                return response;
+            }
+        } catch (error) {
+            console.log(`尝试 ${i + 1}/${maxRetries} 失败，${delay/1000}秒后重试...`);
+            if (i === maxRetries - 1) throw error;
+            await new Promise(resolve => setTimeout(resolve, delay));
+        }
+    }
+}
+
+// 修改获取用户数据的函数
+async function fetchUserData() {
+    const token = localStorage.getItem('token');
+    if (!token) return;
+
+    try {
+        const response = await fetchWithRetry(`${API_BASE_URL}/user/data`, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+
+        if (response.ok) {
+            const data = await response.json();
+            updateUIWithUserData(data);
+        } else if (response.status === 401) {
+            // 处理未授权情况
+            localStorage.removeItem('token');
+            localStorage.removeItem('username');
+            localStorage.removeItem('userId');
+            showLoginForm();
+        }
+    } catch (error) {
+        console.error('获取用户数据失败:', error);
+        showError('获取学习数据失败，正在重试...');
+    }
+}
+
+// 修改登录函数
+async function login(username, password) {
+    try {
+        const response = await fetchWithRetry(`${API_BASE_URL}/auth/login`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ username, password })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            localStorage.setItem('token', data.token);
+            localStorage.setItem('username', username);
+            localStorage.setItem('userId', data.userId);
+            
+            showSuccess('登录成功！');
+            hideLoginForm();
+            showUserProfile();
+            await fetchUserData();
+        } else {
+            showError(data.message || '登录失败，请重试');
+        }
+    } catch (error) {
+        console.error('登录错误:', error);
+        showError('登录失败，请检查网络连接');
+    }
+}
+
+// 添加错误提示函数
+function showError(message) {
+    // 如果已经存在错误提示，则更新文本
+    let errorDiv = document.querySelector('.error-message');
+    if (!errorDiv) {
+        errorDiv = document.createElement('div');
+        errorDiv.className = 'error-message';
+        document.querySelector('.container').insertBefore(
+            errorDiv,
+            document.querySelector('.auth-buttons')
+        );
+    }
+    errorDiv.textContent = message;
+    
+    // 如果消息不包含"重试"，3秒后自动消失
+    if (!message.includes('重试')) {
+        setTimeout(() => {
+            errorDiv.remove();
+        }, 3000);
+    }
+}
+
+// ... rest of the existing code ... 

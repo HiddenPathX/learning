@@ -1,11 +1,14 @@
 // 定义API基础URL
+// const API_BASE_URL = 'http://localhost:5000/api';
 const API_BASE_URL = 'https://learning-backend-7fla.onrender.com/api';
 
-// 系统提示词
-const SYSTEM_PROMPT = `
-请你用暴躁老哥的语言回答，但你的回答要一针见血。
 
-`;
+
+// 系统提示词
+const SYSTEM_PROMPTS = {
+    left: `请你用犀利的语言回答，但你的回答要一针见血。`,
+    right: `你的回答有个人魅力，适当使用emoji表情。`
+};
 
 // 对话历史数组
 let conversationHistory = [];
@@ -209,7 +212,7 @@ async function sendToAI(message, side) {
         const messages = [
             {
                 role: "system",
-                content: SYSTEM_PROMPT
+                content: SYSTEM_PROMPTS[side]
             }
         ];
 
