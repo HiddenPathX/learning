@@ -11,7 +11,7 @@ export const audio = {
         },
         {
             url: 'songs/m2.mp3',
-            name: '🎵 HOTEL - Blade Runner Ambience - Calm Snowy Cyberpunk Atmosphere'
+            name: '🎵 𝐘𝐨𝐮 𝐚𝐫𝐞 𝐥𝐢𝐦𝐢𝐭𝐥𝐞𝐬𝐬'
         },
         {
             url: 'songs/m3.mp3',
@@ -112,33 +112,64 @@ export const audio = {
             return;
         }
 
+        // 防止重复点击
+        if (this._isChangingSong) {
+            console.log('正在切换歌曲，请稍候...');
+            return;
+        }
+
+        this._isChangingSong = true;
         this.currentSongIndex = (this.currentSongIndex + 1) % this.songs.length;
         const nextSong = this.songs[this.currentSongIndex];
         
         if (this.bgm) {
-            this.bgm.src = nextSong.url;
-            this.bgm.play().catch(error => {
-                console.log('播放音乐失败:', error);
-            });
+            console.log(`尝试播放歌曲: ${nextSong.name} (${nextSong.url})`);
             
-            // 更新当前播放的歌曲显示
-            const currentSongDisplay = document.getElementById('current-song');
-            if (currentSongDisplay) {
-                currentSongDisplay.textContent = `VIBE: ${nextSong.name}`;
-                currentSongDisplay.classList.add('show');
-            }
+            // 先暂停当前播放
+            this.bgm.pause();
+            
+            // 等待一小段时间后再开始新的播放
+            setTimeout(() => {
+                this.bgm.src = nextSong.url;
+                this.bgm.play()
+                    .then(() => {
+                        console.log(`成功开始播放: ${nextSong.name}`);
+                        this._isChangingSong = false;
+                    })
+                    .catch(error => {
+                        console.error(`播放音乐失败: ${nextSong.name}`, error);
+                        this._isChangingSong = false;
+                    });
+                
+                // 更新当前播放的歌曲显示
+                const currentSongDisplay = document.getElementById('current-song');
+                if (currentSongDisplay) {
+                    currentSongDisplay.textContent = `VIBE: ${nextSong.name}`;
+                    currentSongDisplay.classList.add('show');
+                }
+            }, 100); // 100ms 的延迟
         }
     },
 
     loadSong(index) {
         const song = this.songs[index];
         if (this.bgm && this.bgm.src !== song.url) {
+            console.log(`加载歌曲: ${song.name} (${song.url})`);
+            
             this.bgm.src = song.url;
+            // 添加加载事件监听
+            this.bgm.onloadeddata = () => {
+                console.log(`歌曲加载成功: ${song.name}`);
+            };
+            this.bgm.onerror = (e) => {
+                console.error(`歌曲加载失败: ${song.name}`, e);
+            };
+            
             // 更新当前播放的歌曲显示
             const currentSongDisplay = document.getElementById('current-song');
             if (currentSongDisplay) {
                 currentSongDisplay.textContent = song.name;
-                currentSongDisplay.classList.add('show'); // 添加显示动画
+                currentSongDisplay.classList.add('show');
             }
         }
     }
