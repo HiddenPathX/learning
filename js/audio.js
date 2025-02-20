@@ -7,11 +7,11 @@ export const audio = {
     songs: [
         {
             url: 'songs/m1.mp3',
-            name: '🎼 Sleeping in Cozy Sci-fi Space'
+            name: '🎵 𝐘𝐨𝐮 𝐚𝐫𝐞 𝐥𝐢𝐦𝐢𝐭𝐥𝐞𝐬𝐬'
         },
         {
             url: 'songs/m2.mp3',
-            name: '🎵 𝐘𝐨𝐮 𝐚𝐫𝐞 𝐥𝐢𝐦𝐢𝐭𝐥𝐞𝐬𝐬'
+            name: '🎼 Sleeping in Cozy Sci-fi Space'
         },
         {
             url: 'songs/m3.mp3',
