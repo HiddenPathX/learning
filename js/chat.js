@@ -1,5 +1,5 @@
 // 定义API基础URL
-// const API_BASE_URL = 'http://localhost:5000/api';
+ //const API_BASE_URL = 'http://localhost:5000/api';
 const API_BASE_URL = 'https://learning-backend-7fla.onrender.com/api';
 
 
@@ -193,15 +193,12 @@ function addMessage(content, isUser, isReasoning = false, side) {
 // 发送消息到AI
 async function sendToAI(message, side) {
     try {
+        console.log(`开始发送消息到AI (${side}):`, message);
+        
         const chatMessages = document.getElementById(`chat-messages-${side}`);
         if (!chatMessages) {
             console.error(`找不到聊天消息容器 (${side})`);
             return;
-        }
-
-        const token = localStorage.getItem('token');
-        if (!token) {
-            throw new Error('请先登录');
         }
 
         // 确保对话历史存在
@@ -231,41 +228,16 @@ async function sendToAI(message, side) {
             content: message
         });
 
-        const reasoningDiv = document.createElement('div');
-        reasoningDiv.className = 'message ai-message reasoning-message';
-        const reasoningContent = document.createElement('div');
-        reasoningContent.className = 'content-wrapper';
-        reasoningDiv.appendChild(reasoningContent);
-        
-        // 添加折叠按钮
-        const toggleButton = document.createElement('button');
-        toggleButton.className = 'toggle-reasoning';
-        reasoningDiv.appendChild(toggleButton);
-        
-        // 添加点击事件处理
-        const handleToggle = (e) => {
-            if (e.target.classList.contains('toggle-reasoning') || 
-                (reasoningDiv.classList.contains('collapsed') && !e.target.closest('.content-wrapper'))) {
-                reasoningDiv.classList.toggle('collapsed');
-                if (!reasoningDiv.classList.contains('collapsed')) {
-                    reasoningDiv.style.maxHeight = reasoningDiv.scrollHeight + 'px';
-                } else {
-                    reasoningDiv.style.maxHeight = '45px';
-                }
-            }
-        };
-        reasoningDiv.addEventListener('click', handleToggle);
-        
-        chatMessages.appendChild(reasoningDiv);
+        console.log(`准备发送的消息 (${side}):`, messages);
 
+        // 创建AI回复消息div
         const responseDiv = document.createElement('div');
         responseDiv.className = 'message ai-message response-message';
         const responseContent = document.createElement('div');
         responseContent.className = 'content-wrapper';
         responseDiv.appendChild(responseContent);
         
-        let currentDiv = reasoningDiv;
-        let currentContent = reasoningContent;
+        chatMessages.appendChild(responseDiv);
         
         const isAtBottom = () => {
             const threshold = 50;
@@ -281,117 +253,96 @@ async function sendToAI(message, side) {
 
         handleScroll();
 
-        const response = await fetch(`${API_BASE_URL}/ai/send`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-            },
-            body: JSON.stringify({ messages })
-        });
+        console.log(`发送请求到 (${side}):`, `${API_BASE_URL}/ai/send`);
+        try {
+            const response = await fetch(`${API_BASE_URL}/ai/send`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ messages })
+            });
 
-        if (!response.ok) {
-            if (response.status === 401) {
-                localStorage.removeItem('token');
-                localStorage.removeItem('username');
-                localStorage.removeItem('userId');
-                throw new Error('登录已过期，请重新登录');
+            console.log(`收到响应 (${side}):`, response);
+
+            if (!response.ok) {
+                const errorText = await response.text();
+                console.error(`AI请求失败 (${side}):`, response.status, response.statusText, errorText);
+                throw new Error(`AI请求失败: ${response.status} ${response.statusText}`);
             }
-            throw new Error('AI请求失败');
-        }
 
-        const reader = response.body.getReader();
-        const decoder = new TextDecoder();
-        
-        let fullResponse = '';
-        let reasoningResponse = '';
-        let buffer = '';
-        let mathJaxTimeout = null;
-        const MATHJAX_DELAY = 500;
-
-        while (true) {
-            const { done, value } = await reader.read();
+            const reader = response.body.getReader();
+            const decoder = new TextDecoder();
             
-            if (done) break;
+            let fullResponse = '';
+            let buffer = '';
+            let mathJaxTimeout = null;
+            const MATHJAX_DELAY = 500;
 
-            buffer += decoder.decode(value, { stream: true });
-            const lines = buffer.split('\n');
-            buffer = lines.pop() || '';
+            while (true) {
+                const { done, value } = await reader.read();
+                
+                if (done) break;
 
-            for (const line of lines) {
-                if (line.trim() === '' || line.trim() === 'data: [DONE]') continue;
+                buffer += decoder.decode(value, { stream: true });
+                const lines = buffer.split('\n');
+                buffer = lines.pop() || '';
 
-                try {
-                    if (line.startsWith('data: ')) {
-                        const data = JSON.parse(line.slice(6));
-                        if (data.choices?.[0]?.delta?.content) {
-                            const content = data.choices[0].delta.content;
-                            const isReasoning = data.choices[0].delta.isReasoning;
-                            const isTransition = data.choices[0].delta.isTransition;
+                for (const line of lines) {
+                    if (line.trim() === '' || line.trim() === 'data: [DONE]') continue;
 
-                            if (isReasoning) {
-                                reasoningResponse += content;
-                                reasoningContent.innerHTML = formatAIResponse(reasoningResponse);
-                                // 思维链部分保持实时渲染
+                    try {
+                        if (line.startsWith('data: ')) {
+                            const data = JSON.parse(line.slice(6));
+                            if (data.choices?.[0]?.delta?.content) {
+                                const content = data.choices[0].delta.content;
+                                
+                                // 添加到完整响应
+                                fullResponse += content;
+                                responseContent.innerHTML = formatAIResponse(fullResponse);
+                                
+                                handleScroll();
+
+                                if (content.includes('```')) {
+                                    if (window.Prism) {
+                                        Prism.highlightAllUnder(responseContent);
+                                    }
+                                }
+                                
+                                // 如果有数学公式，渲染MathJax
                                 if (content.includes('\\[') || content.includes('\\(')) {
                                     clearTimeout(mathJaxTimeout);
                                     mathJaxTimeout = setTimeout(() => {
-                                        MathJax.typesetPromise([reasoningContent])
-                                            .catch(err => console.error('MathJax渲染错误:', err));
+                                        if (window.MathJax) {
+                                            MathJax.typesetPromise([responseContent])
+                                                .catch(err => console.error('MathJax渲染错误:', err));
+                                        }
                                     }, MATHJAX_DELAY);
-                                }
-                            } else if (isTransition) {
-                                // 当切换到正文时，折叠思维链并添加正文div
-                                reasoningDiv.classList.add('collapsed');
-                                reasoningDiv.style.maxHeight = '45px';
-                                chatMessages.appendChild(responseDiv);
-                                currentDiv = responseDiv;
-                                currentContent = responseContent;
-                            } else {
-                                fullResponse += content;
-                                responseContent.innerHTML = formatAIResponse(fullResponse);
-                            }
-
-                            handleScroll();
-
-                            if (content.includes('```')) {
-                                if (window.Prism) {
-                                    Prism.highlightAllUnder(currentContent);
                                 }
                             }
                         }
+                    } catch (error) {
+                        console.error('解析消息时出错:', error, line);
                     }
-                } catch (error) {
-                    console.error('处理消息时出错:', error);
                 }
             }
+            
+            // 添加到对话历史
+            window[`conversationHistory${side}`].push({
+                role: "用户",
+                text: message
+            });
+            
+            window[`conversationHistory${side}`].push({
+                role: "AI",
+                text: fullResponse
+            });
+            
+            return fullResponse;
+        } catch (error) {
+            console.error('发送请求时出错:', error);
+            throw error;
         }
-
-        // 在所有内容接收完成后，进行一次性渲染
-        if (window.MathJax) {
-            // 如果思维链内容有数学公式，确保最后一次渲染
-            if (reasoningResponse && reasoningContent && reasoningResponse.includes('\\')) {
-                await MathJax.typesetPromise([reasoningContent]);
-            }
-            // 如果正文内容有数学公式，进行一次性渲染
-            if (fullResponse && responseContent && fullResponse.includes('\\')) {
-                await MathJax.typesetPromise([responseContent]);
-            }
-        }
-
-        // 将思维链和正文分别添加到对话历史
-        if (reasoningResponse) {
-            window[`conversationHistory${side}`].push({ role: '雅兰', text: reasoningResponse, isReasoning: true });
-        }
-        if (fullResponse) {
-            window[`conversationHistory${side}`].push({ role: '雅兰', text: fullResponse, isReasoning: false });
-        }
-
-        if (window[`conversationHistory${side}`].length > 20) {
-            window[`conversationHistory${side}`] = window[`conversationHistory${side}`].slice(-10);
-        }
-
-        return '';
     } catch (error) {
         console.error('Error:', error);
         const errorMessage = error.message || '抱歉呢，雅兰现在有点累了... 🥺 待会再聊好吗？';

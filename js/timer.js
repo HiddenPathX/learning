@@ -274,36 +274,11 @@ export const timer = {
     // 添加记录学习时间的方法
     async recordStudyTime() {
         try {
-            const token = localStorage.getItem('token');
-            if (!token) {
-                console.error('未找到认证令牌');
-                return;
-            }
-
-            const response = await fetch(`${window.app.auth.API_BASE_URL}/study/record`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify({ 
-                    duration: this.workTime
-                })
-            });
-
-            if (!response.ok) {
-                throw new Error('记录学习时间失败');
-            }
-
-            // 等待一小段时间确保数据更新
-            await new Promise(resolve => setTimeout(resolve, 500));
-            
-            // 更新用户资料显示
-            await window.app.auth.showUserProfile();
-
+            // 使用本地存储记录学习时间
+            window.app.auth.updateStudyRecord(this.workTime);
+            console.log(`成功记录学习时间: ${this.workTime} 分钟`);
         } catch (error) {
             console.error('记录学习时间失败:', error);
-            throw error;
         }
     },
 

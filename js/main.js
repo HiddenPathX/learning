@@ -57,13 +57,11 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     try {
-        // 检查登录状态
-        if (auth.checkLoginStatus()) {
-            console.log('用户已登录，显示用户资料...');
-            auth.showUserProfile();
-        }
+        // 初始化用户资料面板
+        console.log('初始化用户资料面板...');
+        auth.initialize();
     } catch (error) {
-        console.error('登录状态检查失败:', error);
+        console.error('用户资料面板初始化失败:', error);
     }
     
     try {

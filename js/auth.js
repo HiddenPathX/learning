@@ -1,18 +1,42 @@
-// 认证相关功能
+// 学习记录功能 - 本地存储版本
 export const auth = {
-    API_BASE_URL: 'https://learning-backend-7fla.onrender.com/api',
-
-    checkLoginStatus() {
-        const token = localStorage.getItem('token');
-        const username = localStorage.getItem('username');
-        return !!(token && username);
+    // 初始化用户数据
+    initialize() {
+        // 如果本地没有学习记录，创建初始数据
+        if (!localStorage.getItem('studyRecords')) {
+            this.initializeStudyRecords();
+        }
+        
+        // 显示用户资料面板
+        this.showUserProfile();
     },
-
+    
+    // 初始化学习记录
+    initializeStudyRecords() {
+        // 创建过去7天的空记录
+        const records = [];
+        const today = new Date();
+        
+        for (let i = 6; i >= 0; i--) {
+            const date = new Date(today);
+            date.setDate(today.getDate() - i);
+            const dateStr = date.toISOString().split('T')[0];
+            
+            records.push({
+                date: dateStr,
+                duration: 0,
+                focus_count: 0
+            });
+        }
+        
+        localStorage.setItem('studyRecords', JSON.stringify(records));
+    },
+    
+    // 显示用户资料面板
     async showUserProfile() {
         try {
             // 获取周学习记录
-            const weeklyData = await this.getWeeklyRecord();
-            console.log('获取到的周学习记录:', weeklyData);
+            const weeklyData = this.getWeeklyRecord();
             
             // 获取北京时间的今天日期
             const today = new Date();
@@ -57,110 +81,63 @@ export const auth = {
             // 更新图表
             this.updateWeeklyChart(weeklyData);
 
-            // 更新界面显示
-            document.querySelector('.auth-buttons').style.display = 'none';
-            document.querySelector('.login-form').style.display = 'none';
-            document.querySelector('.register-form').style.display = 'none';
-            document.querySelector('.user-profile').style.display = 'block';
-
-            // 显示用户名
-            const username = localStorage.getItem('username');
-            if (username) {
-                document.querySelector('.username').textContent = `${username} 的学习数据`;
+            // 确保用户资料面板显示
+            const userProfile = document.querySelector('.user-profile');
+            if (userProfile) {
+                userProfile.style.display = 'block';
             }
         } catch (error) {
             console.error('显示用户资料失败:', error);
-            alert('获取学习数据失败，请重试');
         }
     },
 
-    async login(username, password) {
+    // 获取周学习记录
+    getWeeklyRecord() {
+        // 从本地存储获取学习记录
+        const records = JSON.parse(localStorage.getItem('studyRecords') || '[]');
+        return records;
+    },
+
+    // 更新学习记录
+    updateStudyRecord(duration) {
         try {
-            console.log('开始登录请求...');
-            const response = await fetch(`${this.API_BASE_URL}/auth/login`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ username, password })
-            });
+            // 获取今天的日期
+            const today = new Date();
+            const chinaTime = new Date(today.getTime() + (8 * 60 * 60 * 1000));
+            const todayDate = chinaTime.toISOString().split('T')[0];
             
-            const data = await response.json();
+            // 获取现有记录
+            const records = JSON.parse(localStorage.getItem('studyRecords') || '[]');
             
-            if (response.ok) {
-                console.log('登录成功');
-                localStorage.setItem('token', data.token);
-                localStorage.setItem('username', username);
-                localStorage.setItem('userId', data.userId);
-                await this.showUserProfile();
-                return data;
+            // 查找今天的记录
+            let todayRecord = records.find(record => record.date === todayDate);
+            
+            if (todayRecord) {
+                // 更新今天的记录
+                todayRecord.duration = parseInt(todayRecord.duration) + duration;
+                todayRecord.focus_count = parseInt(todayRecord.focus_count) + 1;
             } else {
-                console.error('登录失败:', data);
-                throw new Error(data.message || '登录失败，请稍后重试');
-            }
-        } catch (error) {
-            console.error('登录过程出错:', error);
-            throw error;
-        }
-    },
-
-    async register(username, password) {
-        try {
-            console.log('开始注册请求...');
-            const response = await fetch(`${this.API_BASE_URL}/auth/register`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ username, password })
-            });
-            
-            const data = await response.json();
-            
-            if (response.ok) {
-                console.log('注册成功');
-                localStorage.setItem('token', data.token);
-                localStorage.setItem('username', username);
-                localStorage.setItem('userId', data.userId);
-                await this.showUserProfile();
-                return data;
-            } else {
-                console.error('注册失败:', data);
-                throw new Error(data.message || '注册失败，请稍后重试');
-            }
-        } catch (error) {
-            console.error('注册过程出错:', error);
-            throw error;
-        }
-    },
-
-    async getWeeklyRecord() {
-        try {
-            const token = localStorage.getItem('token');
-            if (!token) {
-                throw new Error('请先登录');
-            }
-
-            const response = await fetch(`${this.API_BASE_URL}/study/weekly`, {
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json'
+                // 创建今天的记录
+                todayRecord = {
+                    date: todayDate,
+                    duration: duration,
+                    focus_count: 1
+                };
+                records.push(todayRecord);
+                
+                // 保持只有7天的记录
+                if (records.length > 7) {
+                    records.shift();
                 }
-            });
-
-            if (!response.ok) {
-                if (response.status === 401) {
-                    throw new Error('认证失败，请重新登录');
-                }
-                const data = await response.json();
-                throw new Error(data.message || '获取数据失败');
             }
-
-            const data = await response.json();
-            return data;
+            
+            // 保存更新后的记录
+            localStorage.setItem('studyRecords', JSON.stringify(records));
+            
+            // 更新显示
+            this.showUserProfile();
         } catch (error) {
-            console.error('获取周学习记录失败:', error);
-            throw error;
+            console.error('更新学习记录失败:', error);
         }
     },
 
@@ -215,13 +192,6 @@ export const auth = {
                     weekData[i] = parseInt(record.duration) || 0;
                 }
             }
-
-            console.log('处理后的数据:', {
-                dates,      // 输出日期数组用于调试
-                labels,     // 输出标签数组
-                weekData,   // 输出数据数组
-                weeklyData  // 输出原始数据
-            });
 
             // 创建渐变
             const gradient = ctx.createLinearGradient(0, 0, 0, 300);
@@ -347,130 +317,5 @@ export const auth = {
         } catch (error) {
             console.error('创建图表时出错:', error);
         }
-    },
-
-    logout() {
-        // 清除本地存储的认证信息
-        localStorage.removeItem('token');
-        localStorage.removeItem('username');
-        localStorage.removeItem('userId');
-
-        // 重置界面显示
-        document.querySelector('.auth-buttons').style.display = 'block';
-        document.querySelector('.login-form').style.display = 'block';
-        document.querySelector('.register-form').style.display = 'none';
-        document.querySelector('.user-profile').style.display = 'none';
-
-        // 重置表单
-        document.getElementById('loginForm').reset();
-        document.getElementById('registerForm').reset();
-
-        // 激活登录按钮
-        const authButtons = document.querySelectorAll('.auth-btn');
-        authButtons.forEach(btn => btn.classList.remove('active'));
-        authButtons[0].classList.add('active');
     }
-};
-
-// 添加重试函数
-async function fetchWithRetry(url, options, maxRetries = 3, delay = 2000) {
-    for (let i = 0; i < maxRetries; i++) {
-        try {
-            const response = await fetch(url, options);
-            if (response.ok) {
-                return response;
-            }
-            // 如果是401错误（未授权），直接返回不重试
-            if (response.status === 401) {
-                return response;
-            }
-        } catch (error) {
-            console.log(`尝试 ${i + 1}/${maxRetries} 失败，${delay/1000}秒后重试...`);
-            if (i === maxRetries - 1) throw error;
-            await new Promise(resolve => setTimeout(resolve, delay));
-        }
-    }
-}
-
-// 修改获取用户数据的函数
-async function fetchUserData() {
-    const token = localStorage.getItem('token');
-    if (!token) return;
-
-    try {
-        const response = await fetchWithRetry(`${API_BASE_URL}/user/data`, {
-            headers: {
-                'Authorization': `Bearer ${token}`
-            }
-        });
-
-        if (response.ok) {
-            const data = await response.json();
-            updateUIWithUserData(data);
-        } else if (response.status === 401) {
-            // 处理未授权情况
-            localStorage.removeItem('token');
-            localStorage.removeItem('username');
-            localStorage.removeItem('userId');
-            showLoginForm();
-        }
-    } catch (error) {
-        console.error('获取用户数据失败:', error);
-        showError('获取学习数据失败，正在重试...');
-    }
-}
-
-// 修改登录函数
-async function login(username, password) {
-    try {
-        const response = await fetchWithRetry(`${API_BASE_URL}/auth/login`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ username, password })
-        });
-
-        const data = await response.json();
-
-        if (response.ok) {
-            localStorage.setItem('token', data.token);
-            localStorage.setItem('username', username);
-            localStorage.setItem('userId', data.userId);
-            
-            showSuccess('登录成功！');
-            hideLoginForm();
-            showUserProfile();
-            await fetchUserData();
-        } else {
-            showError(data.message || '登录失败，请重试');
-        }
-    } catch (error) {
-        console.error('登录错误:', error);
-        showError('登录失败，请检查网络连接');
-    }
-}
-
-// 添加错误提示函数
-function showError(message) {
-    // 如果已经存在错误提示，则更新文本
-    let errorDiv = document.querySelector('.error-message');
-    if (!errorDiv) {
-        errorDiv = document.createElement('div');
-        errorDiv.className = 'error-message';
-        document.querySelector('.container').insertBefore(
-            errorDiv,
-            document.querySelector('.auth-buttons')
-        );
-    }
-    errorDiv.textContent = message;
-    
-    // 如果消息不包含"重试"，3秒后自动消失
-    if (!message.includes('重试')) {
-        setTimeout(() => {
-            errorDiv.remove();
-        }, 3000);
-    }
-}
-
-// ... rest of the existing code ... 
+}; 
