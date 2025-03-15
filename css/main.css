@@ -8,6 +8,8 @@
 @import 'todo.css';
 @import 'timer.css';
 @import 'chat.css';
-@import 'auth.css';
 @import 'buttons.css';
-@import 'forms.css'; 
+@import 'forms.css';
+@import 'zhihu.css';
+
+/* 其他全局样式可以放在这里 */ 
