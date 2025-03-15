@@ -277,11 +277,7 @@ async function sendToAI(message, side) {
             let fullResponse = '';
             let buffer = '';
             let mathJaxTimeout = null;
-<<<<<<< HEAD
             const MATHJAX_DELAY = 100;
-=======
-            const MATHJAX_DELAY = 500;
->>>>>>> 8b9926ba61a394e014e23adcd2a906b02a69caeb
 
             while (true) {
                 const { done, value } = await reader.read();
@@ -301,10 +297,6 @@ async function sendToAI(message, side) {
                             if (data.choices?.[0]?.delta?.content) {
                                 const content = data.choices[0].delta.content;
                                 
-<<<<<<< HEAD
-=======
-                                // 添加到完整响应
->>>>>>> 8b9926ba61a394e014e23adcd2a906b02a69caeb
                                 fullResponse += content;
                                 responseContent.innerHTML = formatAIResponse(fullResponse);
                                 
@@ -316,12 +308,7 @@ async function sendToAI(message, side) {
                                     }
                                 }
                                 
-<<<<<<< HEAD
                                 if (content.includes('$') || content.includes('\\[') || content.includes('\\(')) {
-=======
-                                // 如果有数学公式，渲染MathJax
-                                if (content.includes('\\[') || content.includes('\\(')) {
->>>>>>> 8b9926ba61a394e014e23adcd2a906b02a69caeb
                                     clearTimeout(mathJaxTimeout);
                                     mathJaxTimeout = setTimeout(() => {
                                         if (window.MathJax) {
@@ -338,14 +325,11 @@ async function sendToAI(message, side) {
                 }
             }
             
-<<<<<<< HEAD
-            // 最后再次确保数学公式被完整渲染
+            // 最后再次确保所有数学公式都被渲染
             if (window.MathJax && (fullResponse.includes('$') || fullResponse.includes('\\[') || fullResponse.includes('\\('))) {
                 await MathJax.typesetPromise([responseContent]);
             }
 
-=======
->>>>>>> 8b9926ba61a394e014e23adcd2a906b02a69caeb
             // 添加到对话历史
             window[`conversationHistory${side}`].push({
                 role: "用户",
