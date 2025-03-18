@@ -1,0 +1,952 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>六小时学习挑战</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #6366f1;
+            --secondary-color: #a5b4fc;
+            --bg-color: #f9fafb;
+            --text-color: #1f2937;
+            --accent-color: #c026d3;
+            --success-color: #10b981;
+            --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            background-image: linear-gradient(
+                rgba(0, 0, 0, 0.5),
+                rgba(0, 0, 0, 0.5)
+            ), url('http://www.98qy.com/sjbz/api.php');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            color: var(--text-color);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+            transition: background-color 0.5s ease;
+        }
+
+        .container {
+            max-width: 800px;
+            width: 100%;
+            text-align: center;
+        }
+
+        .timer-container {
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-radius: 1.5rem;
+            padding: 3rem;
+            box-shadow: var(--shadow);
+            margin-bottom: 2rem;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.18);
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(to right, var(--primary-color), var(--accent-color));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            animation: fadeIn 1.5s ease-out;
+            color: white;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
+        }
+
+        .subtitle {
+            font-size: 1.1rem;
+            color: rgba(255, 255, 255, 0.9);
+            margin-bottom: 2rem;
+            animation: slideUp 1.5s ease-out;
+        }
+
+        .timer-status {
+            margin-top: 2rem;
+            padding: 1rem;
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(192, 38, 211, 0.1));
+            border-radius: 1rem;
+            animation: fadeIn 2s ease-out;
+        }
+
+        .status-text {
+            font-size: 1rem;
+            color: rgba(255, 255, 255, 0.9);
+            font-style: italic;
+        }
+
+        .timer-display {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            margin: 2rem 0;
+            perspective: 1000px;
+        }
+
+        .time-unit {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            animation: fadeInUp 1.5s ease-out;
+        }
+
+        .time-value {
+            font-size: 4rem;
+            font-weight: bold;
+            color: var(--primary-color);
+            background: rgba(243, 244, 246, 0.3);
+            border-radius: 1rem;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+            padding: 1rem 1.5rem;
+            min-width: 120px;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+        }
+
+        .time-value::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0));
+            pointer-events: none;
+        }
+
+        .time-value.pulse {
+            animation: pulse 1s infinite;
+        }
+
+        .time-label {
+            font-size: 1rem;
+            color: rgba(255, 255, 255, 0.9);
+            margin-top: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .timer-actions {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 2rem;
+            animation: fadeIn 2s ease-out;
+        }
+
+        .btn {
+            padding: 0.8rem 1.5rem;
+            border: none;
+            border-radius: 0.75rem;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #4f46e5;
+        }
+
+        .btn-danger {
+            background-color: #ef4444;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background-color: #dc2626;
+        }
+
+        .btn-secondary {
+            background-color: #9ca3af;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background-color: #6b7280;
+        }
+
+        .progress-container {
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-radius: 1.5rem;
+            padding: 2rem;
+            box-shadow: var(--shadow);
+            width: 100%;
+            animation: fadeIn 2.5s ease-out;
+            border: 1px solid rgba(255, 255, 255, 0.18);
+        }
+
+        .progress-title {
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+            color: white;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
+        }
+
+        .calendar {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        .calendar-header {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            margin-bottom: 0.5rem;
+        }
+
+        .calendar-day-name {
+            font-size: 0.75rem;
+            color: rgba(255, 255, 255, 0.9);
+            text-align: center;
+            text-transform: uppercase;
+        }
+
+        .calendar-day {
+            aspect-ratio: 1/1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 0.875rem;
+            border-radius: 0.5rem;
+            position: relative;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background-color: rgba(243, 244, 246, 0.3);
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+        }
+
+        .calendar-day.completed {
+            background-color: var(--success-color);
+            color: white;
+        }
+
+        .calendar-day.current {
+            border: 2px solid var(--primary-color);
+        }
+
+        .calendar-day:hover:not(.empty) {
+            transform: scale(1.05);
+        }
+
+        .calendar-day.empty {
+            background-color: transparent;
+            cursor: default;
+        }
+
+        .streak-container {
+            margin-top: 1.5rem;
+            padding: 1rem;
+            background: linear-gradient(to right, var(--primary-color), var(--accent-color));
+            border-radius: 0.75rem;
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .streak-value {
+            font-size: 1.25rem;
+            font-weight: bold;
+        }
+
+        .progress-bar-container {
+            width: 100%;
+            height: 1rem;
+            background-color: #e5e7eb;
+            border-radius: 0.5rem;
+            margin-top: 1.5rem;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(to right, var(--primary-color), var(--accent-color));
+            border-radius: 0.5rem;
+            transition: width 1s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .progress-bar::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(
+                90deg,
+                rgba(255, 255, 255, 0) 0%,
+                rgba(255, 255, 255, 0.3) 50%,
+                rgba(255, 255, 255, 0) 100%
+            );
+            animation: shimmer 2s infinite;
+        }
+
+        .notification {
+            position: fixed;
+            top: 2rem;
+            right: 2rem;
+            background: white;
+            border-radius: 0.75rem;
+            padding: 1rem 1.5rem;
+            box-shadow: var(--shadow);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            transform: translateX(150%);
+            transition: transform 0.5s ease;
+            z-index: 100;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        .notification-icon {
+            color: var(--success-color);
+            font-size: 1.25rem;
+        }
+
+        .notification-message {
+            font-size: 1rem;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(40px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        /* 背景气泡动画 */
+        .bubble {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(99, 102, 241, 0.1);
+            animation: float 8s ease-in-out infinite;
+            z-index: -1;
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(180deg); }
+            100% { transform: translateY(0) rotate(360deg); }
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .timer-display {
+                flex-wrap: wrap;
+                gap: 1rem;
+            }
+
+            .time-value {
+                font-size: 2.5rem;
+                min-width: 80px;
+                padding: 0.75rem 1rem;
+            }
+
+            .timer-container, .progress-container {
+                padding: 1.5rem;
+            }
+
+            h1 {
+                font-size: 2rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .time-value {
+                font-size: 2rem;
+                min-width: 60px;
+            }
+
+            .timer-actions {
+                flex-direction: column;
+                gap: 0.75rem;
+            }
+
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="timer-container">
+            <!-- 背景气泡 -->
+            <div class="bubble" style="width: 100px; height: 100px; top: 10%; left: 10%;"></div>
+            <div class="bubble" style="width: 50px; height: 50px; top: 20%; right: 20%;"></div>
+            <div class="bubble" style="width: 70px; height: 70px; bottom: 15%; left: 15%;"></div>
+            <div class="bubble" style="width: 120px; height: 120px; bottom: 10%; right: 5%;"></div>
+
+            <h1>六小时学习挑战</h1>
+            <p class="subtitle">每天专注学习六小时，养成良好习惯</p>
+
+            <div class="timer-display">
+                <div class="time-unit">
+                    <div class="time-value" id="hours">06</div>
+                    <div class="time-label">小时</div>
+                </div>
+                <div class="time-unit">
+                    <div class="time-value" id="minutes">00</div>
+                    <div class="time-label">分钟</div>
+                </div>
+                <div class="time-unit">
+                    <div class="time-value" id="seconds">00</div>
+                    <div class="time-label">秒</div>
+                </div>
+            </div>
+
+            <div class="timer-status">
+                <p class="status-text">打开页面自动开始计时，关闭页面自动保存</p>
+            </div>
+        </div>
+
+        <div class="progress-container">
+            <h2 class="progress-title">本月挑战进度</h2>
+            
+            <div class="calendar-header" id="calendarHeader">
+                <!-- 日历头部由JavaScript生成 -->
+            </div>
+            <div class="calendar" id="calendar">
+                <!-- 日历由JavaScript生成 -->
+            </div>
+
+            <div class="streak-container">
+                <div>
+                    <span>当前连续完成天数:</span>
+                    <span class="streak-value" id="currentStreak">0</span>
+                </div>
+                <div>
+                    <span>本月完成天数:</span>
+                    <span class="streak-value" id="monthlyCompleted">0</span>
+                </div>
+            </div>
+
+            <div class="progress-bar-container">
+                <div class="progress-bar" id="progressBar" style="width: 0%"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="notification" id="notification">
+        <div class="notification-icon">
+            <i class="fas fa-check-circle"></i>
+        </div>
+        <div class="notification-message" id="notificationMessage"></div>
+    </div>
+
+    <!-- 添加音频元素 -->
+    <audio id="tickSound" preload="auto">
+        <source src="https://www.soundjay.com/clock/sounds/clock-ticking-2.mp3" type="audio/mpeg">
+        您的浏览器不支持音频元素
+    </audio>
+    <audio id="completeSound" preload="auto">
+        <source src="https://assets.mixkit.co/active_storage/sfx/1008/1008-preview.mp3" type="audio/mpeg">
+        您的浏览器不支持音频元素
+    </audio>
+
+    <script>
+        // 全局变量
+        let timer = null;
+        let remainingSeconds = 6 * 60 * 60; // 6小时 = 21600秒
+        let isRunning = false;
+        let lastActiveTime = null;
+        
+        // DOM 元素
+        const hoursDisplay = document.getElementById('hours');
+        const minutesDisplay = document.getElementById('minutes');
+        const secondsDisplay = document.getElementById('seconds');
+        const calendar = document.getElementById('calendar');
+        const calendarHeader = document.getElementById('calendarHeader');
+        const currentStreakDisplay = document.getElementById('currentStreak');
+        const monthlyCompletedDisplay = document.getElementById('monthlyCompleted');
+        const progressBar = document.getElementById('progressBar');
+        const notification = document.getElementById('notification');
+        const notificationMessage = document.getElementById('notificationMessage');
+        const tickSound = document.getElementById('tickSound');
+        const completeSound = document.getElementById('completeSound');
+        
+        // 音量控制变量
+        let isSoundEnabled = true;
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            initializeCalendar();
+            loadProgress();
+            loadTimerState();
+            
+            // 加载音量设置
+            const savedSoundEnabled = localStorage.getItem('isSoundEnabled');
+            if (savedSoundEnabled !== null) {
+                isSoundEnabled = savedSoundEnabled === 'true';
+            }
+            
+            // 监听页面卸载事件
+            window.addEventListener('beforeunload', () => {
+                if (isRunning) {
+                    pauseTimer(false);
+                    saveTimerState();
+                }
+            });
+            
+            // 自动开始计时
+            startTimer();
+            
+            // 创建不同大小和位置的背景气泡
+            createBubbles();
+        });
+
+        // 创建背景气泡
+        function createBubbles() {
+            const timerContainer = document.querySelector('.timer-container');
+            
+            for (let i = 0; i < 8; i++) {
+                const size = Math.random() * 80 + 20;
+                const bubble = document.createElement('div');
+                bubble.classList.add('bubble');
+                bubble.style.width = `${size}px`;
+                bubble.style.height = `${size}px`;
+                bubble.style.top = `${Math.random() * 100}%`;
+                bubble.style.left = `${Math.random() * 100}%`;
+                bubble.style.animationDelay = `${Math.random() * 5}s`;
+                timerContainer.appendChild(bubble);
+            }
+        }
+
+        // 保存计时器状态
+        function saveTimerState() {
+            localStorage.setItem('remainingSeconds', remainingSeconds.toString());
+            localStorage.setItem('wasRunning', isRunning.toString());
+            localStorage.setItem('lastActiveTime', new Date().toString());
+            localStorage.setItem('lastActiveDate', new Date().toDateString());
+            localStorage.setItem('isSoundEnabled', isSoundEnabled.toString());
+        }
+
+        // 加载计时器状态
+        function loadTimerState() {
+            const savedSeconds = localStorage.getItem('remainingSeconds');
+            const savedRunning = localStorage.getItem('wasRunning');
+            const savedTime = localStorage.getItem('lastActiveTime');
+            
+            if (savedSeconds) {
+                remainingSeconds = parseInt(savedSeconds);
+            }
+            
+            if (savedRunning && savedTime) {
+                const now = new Date();
+                const lastTime = new Date(savedTime);
+                
+                // 只有在同一天内才计算经过的时间
+                if (lastTime.toDateString() === now.toDateString() && savedRunning === 'true') {
+                    const elapsedSeconds = Math.floor((now - lastTime) / 1000);
+                    // 防止时间倒流
+                    remainingSeconds = Math.max(0, remainingSeconds - elapsedSeconds);
+                }
+            }
+            
+            updateTimerDisplay();
+        }
+
+        // 开始计时器
+        function startTimer() {
+            if (isRunning || remainingSeconds <= 0) return;
+            
+            isRunning = true;
+            lastActiveTime = new Date();
+            
+            // 添加音量控制按钮
+            if (!document.getElementById('soundToggle')) {
+                addSoundToggleButton();
+            }
+            
+            timer = setInterval(() => {
+                remainingSeconds--;
+                updateTimerDisplay();
+                
+                // 播放滴答声
+                if (isSoundEnabled) {
+                    playTickSound();
+                }
+                
+                if (remainingSeconds <= 0) {
+                    if (isSoundEnabled) {
+                        completeSound.play();
+                    }
+                    completeChallengeForToday();
+                    clearInterval(timer);
+                    timer = null;
+                    isRunning = false;
+                }
+                
+                saveTimerState();
+            }, 1000);
+        }
+
+        // 播放滴答声音
+        function playTickSound() {
+            // 重置音频到开始位置
+            tickSound.currentTime = 0;
+            // 降低音量以免太刺耳
+            tickSound.volume = 0.2;
+            // 播放音频
+            tickSound.play().catch(error => {
+                console.log("音频播放失败:", error);
+            });
+        }
+        
+        // 添加音量控制按钮
+        function addSoundToggleButton() {
+            const timerStatusDiv = document.querySelector('.timer-status');
+            
+            const soundToggle = document.createElement('div');
+            soundToggle.id = 'soundToggle';
+            soundToggle.classList.add('sound-toggle');
+            soundToggle.innerHTML = `
+                <button class="sound-btn">
+                    <i class="fas ${isSoundEnabled ? 'fa-volume-up' : 'fa-volume-mute'}"></i>
+                </button>
+            `;
+            
+            // 添加样式
+            const style = document.createElement('style');
+            style.textContent = `
+                .sound-toggle {
+                    margin-top: 1rem;
+                    display: flex;
+                    justify-content: center;
+                }
+                .sound-btn {
+                    background: none;
+                    border: none;
+                    font-size: 1.5rem;
+                    color: var(--primary-color);
+                    cursor: pointer;
+                    transition: transform 0.3s ease;
+                    padding: 0.5rem;
+                }
+                .sound-btn:hover {
+                    transform: scale(1.1);
+                }
+            `;
+            document.head.appendChild(style);
+            
+            // 点击切换音量状态
+            soundToggle.querySelector('.sound-btn').addEventListener('click', () => {
+                isSoundEnabled = !isSoundEnabled;
+                const icon = soundToggle.querySelector('.sound-btn i');
+                icon.className = `fas ${isSoundEnabled ? 'fa-volume-up' : 'fa-volume-mute'}`;
+                
+                if (isSoundEnabled) {
+                    showNotification('声音已开启');
+                } else {
+                    showNotification('声音已关闭');
+                }
+                
+                // 保存音量设置
+                localStorage.setItem('isSoundEnabled', isSoundEnabled.toString());
+            });
+            
+            timerStatusDiv.appendChild(soundToggle);
+        }
+
+        // 暂停计时器
+        function pauseTimer(showMessage = true) {
+            if (!isRunning) return;
+            
+            clearInterval(timer);
+            timer = null;
+            isRunning = false;
+            
+            saveTimerState();
+            
+            if (showMessage) {
+                showNotification('计时器已暂停！');
+            }
+        }
+
+        // 重置计时器
+        function resetTimer(showMessage = true) {
+            if (timer) {
+                clearInterval(timer);
+                timer = null;
+            }
+            
+            isRunning = false;
+            remainingSeconds = 6 * 60 * 60;
+            
+            saveTimerState();
+            updateTimerDisplay();
+            
+            if (showMessage) {
+                showNotification('计时器已重置！');
+            }
+        }
+
+        // 更新计时器显示
+        function updateTimerDisplay() {
+            const hours = Math.floor(remainingSeconds / 3600);
+            const minutes = Math.floor((remainingSeconds % 3600) / 60);
+            const seconds = remainingSeconds % 60;
+            
+            hoursDisplay.textContent = hours.toString().padStart(2, '0');
+            minutesDisplay.textContent = minutes.toString().padStart(2, '0');
+            secondsDisplay.textContent = seconds.toString().padStart(2, '0');
+            
+            // 时间少于1小时时添加脉动效果
+            if (remainingSeconds < 3600) {
+                hoursDisplay.classList.add('pulse');
+            } else {
+                hoursDisplay.classList.remove('pulse');
+            }
+        }
+
+        // 初始化日历
+        function initializeCalendar() {
+            const now = new Date();
+            const currentMonth = now.getMonth();
+            const currentYear = now.getFullYear();
+            const today = now.getDate();
+            
+            // 日历头部
+            const dayNames = ['日', '一', '二', '三', '四', '五', '六'];
+            calendarHeader.innerHTML = '';
+            
+            dayNames.forEach(day => {
+                const dayElement = document.createElement('div');
+                dayElement.className = 'calendar-day-name';
+                dayElement.textContent = day;
+                calendarHeader.appendChild(dayElement);
+            });
+            
+            // 清空日历
+            calendar.innerHTML = '';
+            
+            // 获取当月第一天
+            const firstDay = new Date(currentYear, currentMonth, 1);
+            // 获取当月最后一天
+            const lastDay = new Date(currentYear, currentMonth + 1, 0);
+            
+            // 填充月初空白
+            for (let i = 0; i < firstDay.getDay(); i++) {
+                const emptyDay = document.createElement('div');
+                emptyDay.className = 'calendar-day empty';
+                calendar.appendChild(emptyDay);
+            }
+            
+            // 加载已完成的日期
+            const completedDays = getCompletedDays();
+            
+            // 填充日期
+            for (let i = 1; i <= lastDay.getDate(); i++) {
+                const dayElement = document.createElement('div');
+                dayElement.className = 'calendar-day';
+                dayElement.textContent = i;
+                
+                // 标记今天
+                if (i === today) {
+                    dayElement.classList.add('current');
+                }
+                
+                // 标记已完成的日期
+                if (completedDays.includes(i)) {
+                    dayElement.classList.add('completed');
+                }
+                
+                calendar.appendChild(dayElement);
+            }
+        }
+
+        // 获取已完成的日期
+        function getCompletedDays() {
+            const completedDaysJSON = localStorage.getItem('completedDays');
+            if (completedDaysJSON) {
+                const allCompletedDays = JSON.parse(completedDaysJSON);
+                const now = new Date();
+                const currentMonthYear = `${now.getFullYear()}-${now.getMonth() + 1}`;
+                
+                if (allCompletedDays[currentMonthYear]) {
+                    return allCompletedDays[currentMonthYear];
+                }
+            }
+            
+            return [];
+        }
+
+        // 为今天标记完成
+        function completeChallengeForToday() {
+            const now = new Date();
+            const today = now.getDate();
+            const currentMonthYear = `${now.getFullYear()}-${now.getMonth() + 1}`;
+            
+            let allCompletedDays = {};
+            const completedDaysJSON = localStorage.getItem('completedDays');
+            
+            if (completedDaysJSON) {
+                allCompletedDays = JSON.parse(completedDaysJSON);
+            }
+            
+            if (!allCompletedDays[currentMonthYear]) {
+                allCompletedDays[currentMonthYear] = [];
+            }
+            
+            // 如果今天还没有完成，添加到完成列表
+            if (!allCompletedDays[currentMonthYear].includes(today)) {
+                allCompletedDays[currentMonthYear].push(today);
+                localStorage.setItem('completedDays', JSON.stringify(allCompletedDays));
+                
+                // 更新日历和进度
+                initializeCalendar();
+                updateProgress();
+                showNotification('恭喜你完成了今天的六小时学习挑战！🎉');
+            }
+        }
+
+        // 加载进度
+        function loadProgress() {
+            updateProgress();
+        }
+
+        // 更新进度
+        function updateProgress() {
+            const completedDays = getCompletedDays();
+            const now = new Date();
+            const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+            
+            // 计算本月完成百分比
+            const completionPercentage = (completedDays.length / lastDay) * 100;
+            progressBar.style.width = `${completionPercentage}%`;
+            
+            // 更新本月完成天数
+            monthlyCompletedDisplay.textContent = completedDays.length;
+            
+            // 计算当前连续天数
+            let currentStreak = 0;
+            let yesterday = new Date();
+            yesterday.setDate(yesterday.getDate() - 1);
+            
+            // 检查今天是否完成
+            const isToday = completedDays.includes(now.getDate());
+            
+            if (isToday) {
+                currentStreak = 1;
+                // 从昨天开始往前检查连续天数
+                for (let i = 1; i <= 100; i++) {
+                    const checkDate = new Date();
+                    checkDate.setDate(checkDate.getDate() - i);
+                    
+                    if (completedDays.includes(checkDate.getDate())) {
+                        currentStreak++;
+                    } else {
+                        break;
+                    }
+                }
+            } else {
+                // 从昨天开始检查连续天数
+                if (completedDays.includes(yesterday.getDate())) {
+                    currentStreak = 1;
+                    // 从前天开始往前检查连续天数
+                    for (let i = 2; i <= 100; i++) {
+                        const checkDate = new Date();
+                        checkDate.setDate(checkDate.getDate() - i);
+                        
+                        if (completedDays.includes(checkDate.getDate())) {
+                            currentStreak++;
+                        } else {
+                            break;
+                        }
+                    }
+                }
+            }
+            
+            currentStreakDisplay.textContent = currentStreak;
+        }
+
+        // 显示通知
+        function showNotification(message) {
+            notificationMessage.textContent = message;
+            notification.classList.add('show');
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
