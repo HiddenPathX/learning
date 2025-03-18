@@ -277,7 +277,7 @@ async function sendToAI(message, side) {
             let fullResponse = '';
             let buffer = '';
             let mathJaxTimeout = null;
-            const MATHJAX_DELAY = 500;
+            const MATHJAX_DELAY = 100;
 
             while (true) {
                 const { done, value } = await reader.read();
@@ -297,7 +297,6 @@ async function sendToAI(message, side) {
                             if (data.choices?.[0]?.delta?.content) {
                                 const content = data.choices[0].delta.content;
                                 
-                                // 添加到完整响应
                                 fullResponse += content;
                                 responseContent.innerHTML = formatAIResponse(fullResponse);
                                 
@@ -309,8 +308,7 @@ async function sendToAI(message, side) {
                                     }
                                 }
                                 
-                                // 如果有数学公式，渲染MathJax
-                                if (content.includes('\\[') || content.includes('\\(')) {
+                                if (content.includes('$') || content.includes('\\[') || content.includes('\\(')) {
                                     clearTimeout(mathJaxTimeout);
                                     mathJaxTimeout = setTimeout(() => {
                                         if (window.MathJax) {
@@ -327,6 +325,11 @@ async function sendToAI(message, side) {
                 }
             }
             
+            // 最后再次确保所有数学公式都被渲染
+            if (window.MathJax && (fullResponse.includes('$') || fullResponse.includes('\\[') || fullResponse.includes('\\('))) {
+                await MathJax.typesetPromise([responseContent]);
+            }
+
             // 添加到对话历史
             window[`conversationHistory${side}`].push({
                 role: "用户",
@@ -373,7 +376,9 @@ function formatAIResponse(content) {
         .replace(/(<li>.*<\/li>)/s, '<ul>$1</ul>')
         .replace(/^\>(.*$)/gm, '<blockquote>$1</blockquote>')
         .replace(/【(.*?)】/g, '<strong>$1</strong>')
-        .replace(/\\\[(.*?)\\\]/g, '<span class="math-block">\\[$1\\]</span>')
+        .replace(/\$\$(.*?)\$\$/g, '<div class="math-block">$$$$1$$</div>')
+        .replace(/\$(.*?)\$/g, '<span class="math-inline">\\($1\\)</span>')
+        .replace(/\\\[(.*?)\\\]/g, '<div class="math-block">\\[$1\\]</div>')
         .replace(/\\\((.*?)\\\)/g, '<span class="math-inline">\\($1\\)</span>')
         .replace(/```(\w*)\n([\s\S]*?)```/g, (match, lang, code) => {
             const escapedCode = code
