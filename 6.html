@@ -607,6 +607,17 @@
             const savedDate = localStorage.getItem('lastActiveDate');
             const today = new Date().toDateString();
             
+            // 检查今天是否已完成挑战
+            const completedDays = getCompletedDays();
+            const currentDay = new Date().getDate();
+            if (completedDays.includes(currentDay)) {
+                document.querySelector('.status-text').innerHTML = '<span style="color: var(--success-color);"><i class="fas fa-check-circle"></i> 恭喜！你已完成今天的学习挑战</span>';
+                remainingSeconds = 0;
+                isRunning = false;
+                updateTimerDisplay();
+                return;
+            }
+            
             // 如果是新的一天，重置计时器
             if (savedDate !== today) {
                 resetTimer(false);
@@ -630,6 +641,8 @@
             }
             
             updateTimerDisplay();
+            // 更新状态文本
+            document.querySelector('.status-text').textContent = '打开页面自动开始计时，关闭页面自动保存';
         }
 
         // 开始计时器
@@ -857,7 +870,7 @@
             return [];
         }
 
-        // 为今天标记完成
+        // 完成今天的挑战
         function completeChallengeForToday() {
             const now = new Date();
             const today = now.getDate();
@@ -883,6 +896,9 @@
                 initializeCalendar();
                 updateProgress();
                 showNotification('恭喜你完成了今天的六小时学习挑战！🎉');
+                
+                // 更新状态文本
+                document.querySelector('.status-text').innerHTML = '<span style="color: var(--success-color);"><i class="fas fa-check-circle"></i> 恭喜！你已完成今天的学习挑战</span>';
             }
         }
 
