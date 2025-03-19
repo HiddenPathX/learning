@@ -604,6 +604,14 @@
             const savedSeconds = localStorage.getItem('remainingSeconds');
             const savedRunning = localStorage.getItem('wasRunning');
             const savedTime = localStorage.getItem('lastActiveTime');
+            const savedDate = localStorage.getItem('lastActiveDate');
+            const today = new Date().toDateString();
+            
+            // 如果是新的一天，重置计时器
+            if (savedDate !== today) {
+                resetTimer(false);
+                return;
+            }
             
             if (savedSeconds) {
                 remainingSeconds = parseInt(savedSeconds);
