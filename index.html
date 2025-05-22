@@ -171,6 +171,42 @@
         </div>
     </div>
     <div class="modal-overlay" id="taskModalOverlay"></div>
+<!-- 第三个容器 -->
+<div class="container">
+    <!-- 用户资料面板 -->
+    <div class="user-profile" id="userProfile" style="display: block;">
+         <div class="profile-header">
+            <h2 class="username">学习数据统计</h2> 
+        </div> 
+
+        <div class="study-stats">
+            <!-- <h3>学习统计</h3> -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-value" id="todayStudyTime">0</div>
+                    <div class="stat-label">今日学习(分钟)</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="weekTotalTime">0</div>
+                    <div class="stat-label">本周总时长(分钟)</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="totalSessions">0</div>
+                    <div class="stat-label">专注次数</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="averageTime">0</div>
+                    <div class="stat-label">平均时长(分钟)</div>
+                </div>
+            </div>
+
+            <div class="study-chart">
+                <h3>本周学习记录</h3>
+                <canvas id="weeklyChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
 
 
     <!-- 第二个容器 -->
@@ -224,43 +260,7 @@
         </div>    
     </div>
 </div> -->
-    <!-- 第三个容器 -->
-    <div class="container">
-        <!-- 用户资料面板 -->
-        <div class="user-profile" id="userProfile" style="display: block;">
-             <div class="profile-header">
-                <h2 class="username">学习数据统计</h2> 
-            </div> 
-
-            <div class="study-stats">
-                <!-- <h3>学习统计</h3> -->
-                <div class="stats-grid">
-                    <div class="stat-card">
-                        <div class="stat-value" id="todayStudyTime">0</div>
-                        <div class="stat-label">今日学习(分钟)</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-value" id="weekTotalTime">0</div>
-                        <div class="stat-label">本周总时长(分钟)</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-value" id="totalSessions">0</div>
-                        <div class="stat-label">专注次数</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-value" id="averageTime">0</div>
-                        <div class="stat-label">平均时长(分钟)</div>
-                    </div>
-                </div>
-
-                <div class="study-chart">
-                    <h3>本周学习记录</h3>
-                    <canvas id="weeklyChart"></canvas>
-                </div>
-            </div>
-        </div>
-    </div>
-
+    
 
 
 
