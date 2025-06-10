@@ -1,12 +1,10 @@
 // 定义API基础URL
- //const API_BASE_URL = 'http://localhost:5000/api';
+//const API_BASE_URL = 'http://localhost:5000/api';
 const API_BASE_URL = 'https://learning-backend-7fla.onrender.com/api';
-
-
 
 // 系统提示词
 const SYSTEM_PROMPTS = {
-    left: `请你用犀利的语言回答，但你的回答要一针见血。`,
+    left: `用犀利的语言回答。`,
     right: `你的回答有个人魅力，适当使用emoji表情。`
 };
 
@@ -131,7 +129,7 @@ async function handleFileUpload(e, side) {
 }
 
 // 添加消息到聊天界面
-function addMessage(content, isUser, isReasoning = false, side) {
+function addMessage(content, isUser, side) {
     const chatMessages = document.getElementById(`chat-messages-${side}`);
     if (!chatMessages) {
         console.error(`找不到聊天消息容器 (${side})`);
@@ -139,7 +137,7 @@ function addMessage(content, isUser, isReasoning = false, side) {
     }
 
     const messageDiv = document.createElement('div');
-    messageDiv.className = `message ${isUser ? 'user-message' : 'ai-message'} ${isReasoning ? 'reasoning-message' : ''}`;
+    messageDiv.className = `message ${isUser ? 'user-message' : 'ai-message'}`;
     
     if (!isUser) {
         const formattedContent = formatAIResponse(content);
@@ -147,28 +145,6 @@ function addMessage(content, isUser, isReasoning = false, side) {
         contentWrapper.className = 'content-wrapper';
         contentWrapper.innerHTML = formattedContent;
         messageDiv.appendChild(contentWrapper);
-
-        if (isReasoning) {
-            // 添加折叠按钮
-            const toggleButton = document.createElement('button');
-            toggleButton.className = 'toggle-reasoning';
-            messageDiv.appendChild(toggleButton);
-
-            // 添加点击事件处理
-            const handleToggle = (e) => {
-                if (e.target.classList.contains('toggle-reasoning') || 
-                    (messageDiv.classList.contains('collapsed') && !e.target.closest('.content-wrapper'))) {
-                    messageDiv.classList.toggle('collapsed');
-                    // 更新内容高度
-                    if (!messageDiv.classList.contains('collapsed')) {
-                        messageDiv.style.maxHeight = messageDiv.scrollHeight + 'px';
-                    } else {
-                        messageDiv.style.maxHeight = '45px';
-                    }
-                }
-            };
-            messageDiv.addEventListener('click', handleToggle);
-        }
 
         if (content.includes('```')) {
             if (window.Prism) {
@@ -213,14 +189,12 @@ async function sendToAI(message, side) {
             }
         ];
 
-        // 只添加非思维链的消息到上下文
+        // 添加历史消息到上下文
         for (const msg of window[`conversationHistory${side}`]) {
-            if (!msg.isReasoning) {
-                messages.push({
-                    role: msg.role === "用户" ? "user" : "assistant",
-                    content: msg.text
-                });
-            }
+            messages.push({
+                role: msg.role === "用户" ? "user" : "assistant",
+                content: msg.text
+            });
         }
 
         messages.push({
@@ -230,15 +204,6 @@ async function sendToAI(message, side) {
 
         console.log(`准备发送的消息 (${side}):`, messages);
 
-        // 创建AI回复消息div
-        const responseDiv = document.createElement('div');
-        responseDiv.className = 'message ai-message response-message';
-        const responseContent = document.createElement('div');
-        responseContent.className = 'content-wrapper';
-        responseDiv.appendChild(responseContent);
-        
-        chatMessages.appendChild(responseDiv);
-        
         const isAtBottom = () => {
             const threshold = 50;
             return chatMessages.scrollHeight - chatMessages.scrollTop - chatMessages.clientHeight < threshold;
@@ -277,7 +242,9 @@ async function sendToAI(message, side) {
             let fullResponse = '';
             let buffer = '';
             let mathJaxTimeout = null;
-            const MATHJAX_DELAY = 100;
+            const MATHJAX_DELAY = 500;
+            let responseDiv = null;
+            let responseContent = null;
 
             while (true) {
                 const { done, value } = await reader.read();
@@ -297,6 +264,17 @@ async function sendToAI(message, side) {
                             if (data.choices?.[0]?.delta?.content) {
                                 const content = data.choices[0].delta.content;
                                 
+                                // 如果是第一个响应，创建消息框
+                                if (!responseDiv) {
+                                    responseDiv = document.createElement('div');
+                                    responseDiv.className = 'message ai-message';
+                                    responseContent = document.createElement('div');
+                                    responseContent.className = 'content-wrapper';
+                                    responseDiv.appendChild(responseContent);
+                                    chatMessages.appendChild(responseDiv);
+                                }
+                                
+                                // 添加到完整响应
                                 fullResponse += content;
                                 responseContent.innerHTML = formatAIResponse(fullResponse);
                                 
@@ -308,7 +286,8 @@ async function sendToAI(message, side) {
                                     }
                                 }
                                 
-                                if (content.includes('$') || content.includes('\\[') || content.includes('\\(')) {
+                                // 如果有数学公式，渲染MathJax
+                                if (content.includes('\\[') || content.includes('\\(')) {
                                     clearTimeout(mathJaxTimeout);
                                     mathJaxTimeout = setTimeout(() => {
                                         if (window.MathJax) {
@@ -325,11 +304,6 @@ async function sendToAI(message, side) {
                 }
             }
             
-            // 最后再次确保所有数学公式都被渲染
-            if (window.MathJax && (fullResponse.includes('$') || fullResponse.includes('\\[') || fullResponse.includes('\\('))) {
-                await MathJax.typesetPromise([responseContent]);
-            }
-
             // 添加到对话历史
             window[`conversationHistory${side}`].push({
                 role: "用户",
@@ -376,9 +350,7 @@ function formatAIResponse(content) {
         .replace(/(<li>.*<\/li>)/s, '<ul>$1</ul>')
         .replace(/^\>(.*$)/gm, '<blockquote>$1</blockquote>')
         .replace(/【(.*?)】/g, '<strong>$1</strong>')
-        .replace(/\$\$(.*?)\$\$/g, '<div class="math-block">$$$$1$$</div>')
-        .replace(/\$(.*?)\$/g, '<span class="math-inline">\\($1\\)</span>')
-        .replace(/\\\[(.*?)\\\]/g, '<div class="math-block">\\[$1\\]</div>')
+        .replace(/\\\[(.*?)\\\]/g, '<span class="math-block">\\[$1\\]</span>')
         .replace(/\\\((.*?)\\\)/g, '<span class="math-inline">\\($1\\)</span>')
         .replace(/```(\w*)\n([\s\S]*?)```/g, (match, lang, code) => {
             const escapedCode = code
@@ -426,7 +398,7 @@ async function handleSend(side) {
         fullMessage = `${message}\n\n文件内容：\n${window[`uploadedFileContent${side}`]}`;
     }
 
-    addMessage(fullMessage, true, false, side);
+    addMessage(fullMessage, true, side);
     userInput.value = '';
 
     sendButton.disabled = true;
