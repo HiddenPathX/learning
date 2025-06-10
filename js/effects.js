@@ -41,7 +41,7 @@ export const effects = {
         if (!particlesContainer) return;
 
         particlesContainer.innerHTML = '';
-        const numParticles = 150;
+        const numParticles = 50;
         
         for (let i = 0; i < numParticles; i++) {
             const particle = document.createElement('div');
