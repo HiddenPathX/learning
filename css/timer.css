@@ -49,12 +49,35 @@
 @media screen and (max-width: 768px) {
     .timer {
         font-size: 3em;
+        padding: 15px 30px;
+    }
+    
+    .timer span {
+        min-width: 80px;
+    }
+}
+
+@media screen and (max-width: 480px) {
+    .timer {
+        font-size: 2.5em;
+        padding: 12px 24px;
+        margin: 10px;
+    }
+    
+    .timer span {
+        min-width: 60px;
     }
 }
 
 @media screen and (max-width: 375px) {
     .timer {
         font-size: 2em;
+        padding: 10px 20px;
+        margin: 8px;
+    }
+    
+    .timer span {
+        min-width: 50px;
     }
 }
 
