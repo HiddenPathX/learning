@@ -50,6 +50,7 @@
     .timer {
         font-size: 3em;
         padding: 15px 30px;
+        margin: 10px;
     }
     
     .timer span {
@@ -61,7 +62,7 @@
     .timer {
         font-size: 2.5em;
         padding: 12px 24px;
-        margin: 10px;
+        margin: 8px;
     }
     
     .timer span {
@@ -73,7 +74,7 @@
     .timer {
         font-size: 2em;
         padding: 10px 20px;
-        margin: 8px;
+        margin: 5px;
     }
     
     .timer span {
