@@ -109,6 +109,13 @@ export const timer = {
         const seconds = this.timeLeft % 60;
         this.elements.minutesDisplay.textContent = String(minutes).padStart(2, '0');
         this.elements.secondsDisplay.textContent = String(seconds).padStart(2, '0');
+        
+        // 更新页面标题显示倒计时
+        if (this.timerInterval) {
+            document.title = `时间剩余： ${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+        } else {
+            document.title = '请开始倒计时';
+        }
     },
 
     startTimer() {
