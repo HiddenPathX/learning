@@ -29,6 +29,11 @@ export const audio = {
         this.setupMuteButton();
         this.setupNextSongButton();
         
+        // 设置初始音量
+        if (this.bgm) {
+            this.bgm.volume = 0.2; // 20% 音量
+        }
+        
         // 设置初始歌曲
         const initialSong = this.songs[this.currentSongIndex];
         if (this.bgm) {
@@ -87,10 +92,9 @@ export const audio = {
                     volumeValue.textContent = "0%";
                 } else {
                     muteBgmBtn.textContent = "静音";
-                    const previousVolume = Math.max(50, volumeSlider.value);
-                    volumeSlider.value = previousVolume;
-                    volumeValue.textContent = `${previousVolume}%`;
-                    this.bgm.volume = previousVolume / 100;
+                    volumeSlider.value = 20;
+                    volumeValue.textContent = "20%";
+                    this.bgm.volume = 0.2;
                 }
             });
         }
